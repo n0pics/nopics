@@ -11,8 +11,13 @@ const accueilDir = path.join(process.cwd(), 'public/images/accueil');
 const galleryImages = fs
   .readdirSync(accueilDir)
   .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
-  .sort()
   .map((f) => ({ src: `/images/accueil/${f}`, alt: '' }));
+
+// Ordre aléatoire (Fisher-Yates), calculé à chaque chargement (dev) et au build.
+for (let i = galleryImages.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [galleryImages[i], galleryImages[j]] = [galleryImages[j], galleryImages[i]];
+}
 ---
 
 <LandingLayout

@@ -166,17 +166,13 @@ function GalleryScene({
 }: Omit<InfiniteGalleryProps, 'className' | 'style'>) {
 	const [scrollVelocity, setScrollVelocity] = useState(0);
 
-	const normalizedImages = useMemo(() => {
-		const arr = images.map((img) =>
-			typeof img === 'string' ? { src: img, alt: '' } : img
-		);
-		// Mélange aléatoire (Fisher-Yates) : ordre différent à chaque chargement
-		for (let i = arr.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[arr[i], arr[j]] = [arr[j], arr[i]];
-		}
-		return arr;
-	}, [images]);
+	const normalizedImages = useMemo(
+		() =>
+			images.map((img) =>
+				typeof img === 'string' ? { src: img, alt: '' } : img
+			),
+		[images]
+	);
 
 	const textures = useTexture(normalizedImages.map((img) => img.src));
 
