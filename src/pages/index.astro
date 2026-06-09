@@ -1,19 +1,18 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
 import LandingLayout from '@/layouts/LandingLayout.astro';
 import InfiniteGallery from '@/components/ui/3d-gallery-photography';
 
-// Galerie d'images de démonstration (Unsplash) — remplace ces URL par tes propres
-// visuels (ex. des fichiers déposés dans /public/images/...).
-const galleryImages = [
-  { src: 'https://images.unsplash.com/photo-1741332966416-414d8a5b8887?w=1200&auto=format&fit=crop&q=70', alt: 'Visuel 1' },
-  { src: 'https://images.unsplash.com/photo-1754769440490-2eb64d715775?w=1200&auto=format&fit=crop&q=70', alt: 'Visuel 2' },
-  { src: 'https://images.unsplash.com/photo-1758640920659-0bb864175983?w=1200&auto=format&fit=crop&q=70', alt: 'Visuel 3' },
-  { src: 'https://plus.unsplash.com/premium_photo-1758367454070-731d3cc11774?w=1200&auto=format&fit=crop&q=70', alt: 'Visuel 4' },
-  { src: 'https://images.unsplash.com/photo-1746023841657-e5cd7cc90d2c?w=1200&auto=format&fit=crop&q=70', alt: 'Visuel 5' },
-  { src: 'https://images.unsplash.com/photo-1741715661559-6149723ea89a?w=1200&auto=format&fit=crop&q=70', alt: 'Visuel 6' },
-  { src: 'https://images.unsplash.com/photo-1725878746053-407492aa4034?w=1200&auto=format&fit=crop&q=70', alt: 'Visuel 7' },
-  { src: 'https://images.unsplash.com/photo-1752588975168-d2d7965a6d64?w=1200&auto=format&fit=crop&q=70', alt: 'Visuel 8' },
-];
+// Charge automatiquement toutes les images du dossier /public/images/accueil/.
+// Pour changer les photos de l'accueil : ajoute/retire simplement des fichiers
+// dans ce dossier (formats .jpg / .png / .webp).
+const accueilDir = path.join(process.cwd(), 'public/images/accueil');
+const galleryImages = fs
+  .readdirSync(accueilDir)
+  .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
+  .sort()
+  .map((f) => ({ src: `/images/accueil/${f}`, alt: '' }));
 ---
 
 <LandingLayout

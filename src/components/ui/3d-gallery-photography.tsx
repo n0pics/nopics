@@ -77,39 +77,8 @@ const createClothMaterial = () => {
         vUv = uv;
         vNormal = normal;
 
-        vec3 pos = position;
-
-        // Create smooth curving based on scroll force
-        float curveIntensity = scrollForce * 0.3;
-
-        // Base curve across the plane based on distance from center
-        float distanceFromCenter = length(pos.xy);
-        float curve = distanceFromCenter * distanceFromCenter * curveIntensity;
-
-        // Add gentle cloth-like ripples
-        float ripple1 = sin(pos.x * 2.0 + scrollForce * 3.0) * 0.02;
-        float ripple2 = sin(pos.y * 2.5 + scrollForce * 2.0) * 0.015;
-        float clothEffect = (ripple1 + ripple2) * abs(curveIntensity) * 2.0;
-
-        // Flag waving effect when hovered
-        float flagWave = 0.0;
-        if (isHovered > 0.5) {
-          // Create flag-like wave from left to right
-          float wavePhase = pos.x * 3.0 + time * 8.0;
-          float waveAmplitude = sin(wavePhase) * 0.1;
-          // Damping effect - stronger wave on the right side (free edge)
-          float dampening = smoothstep(-0.5, 0.5, pos.x);
-          flagWave = waveAmplitude * dampening;
-
-          // Add secondary smaller waves for more realistic flag motion
-          float secondaryWave = sin(pos.x * 5.0 + time * 12.0) * 0.03 * dampening;
-          flagWave += secondaryWave;
-        }
-
-        // Apply Z displacement for curving effect (inverted) with cloth ripples and flag wave
-        pos.z -= (curve + clothEffect + flagWave);
-
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        // Plans plats : aucune déformation (pas d'effet de vague / d'ondulation)
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
 		fragmentShader: `
@@ -162,7 +131,6 @@ function ImagePlane({
 	material: THREE.ShaderMaterial;
 }) {
 	const meshRef = useRef<THREE.Mesh>(null);
-	const [isHovered, setIsHovered] = useState(false);
 
 	useEffect(() => {
 		if (material && texture) {
@@ -170,20 +138,12 @@ function ImagePlane({
 		}
 	}, [material, texture]);
 
-	useEffect(() => {
-		if (material && material.uniforms) {
-			material.uniforms.isHovered.value = isHovered ? 1.0 : 0.0;
-		}
-	}, [material, isHovered]);
-
 	return (
 		<mesh
 			ref={meshRef}
 			position={position}
 			scale={scale}
 			material={material}
-			onPointerEnter={() => setIsHovered(true)}
-			onPointerLeave={() => setIsHovered(false)}
 		>
 			<planeGeometry args={[1, 1, 32, 32]} />
 		</mesh>
@@ -206,13 +166,17 @@ function GalleryScene({
 }: Omit<InfiniteGalleryProps, 'className' | 'style'>) {
 	const [scrollVelocity, setScrollVelocity] = useState(0);
 
-	const normalizedImages = useMemo(
-		() =>
-			images.map((img) =>
-				typeof img === 'string' ? { src: img, alt: '' } : img
-			),
-		[images]
-	);
+	const normalizedImages = useMemo(() => {
+		const arr = images.map((img) =>
+			typeof img === 'string' ? { src: img, alt: '' } : img
+		);
+		// Mélange aléatoire (Fisher-Yates) : ordre différent à chaque chargement
+		for (let i = arr.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[arr[i], arr[j]] = [arr[j], arr[i]];
+		}
+		return arr;
+	}, [images]);
 
 	const textures = useTexture(normalizedImages.map((img) => img.src));
 
