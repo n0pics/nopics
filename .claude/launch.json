@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "dev",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["astro", "dev", "--port", "4321"],
+      "runtimeExecutable": "corepack",
+      "runtimeArgs": ["pnpm", "dev"],
       "port": 4321
     }
   ]

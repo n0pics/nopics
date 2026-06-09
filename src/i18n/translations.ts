@@ -69,20 +69,20 @@ export const translations: Record<string, { fr: string; en: string }> = {
     en: 'A strong headline that sums up your approach.',
   },
   'about.vision.text': {
-    fr: 'Présentez votre vision en quelques lignes. Qu\'est-ce qui vous distingue&nbsp;? Quelle est votre manière de travailler&nbsp;?<br /><br />Remplacez ce paragraphe par votre propre texte pour donner du sens à votre démarche.<br /><br />Parlez de ce qui compte vraiment pour vous et pour vos clients.',
+    fr: 'Présentez votre vision en quelques lignes. Qu\'est-ce qui vous distingue ? Quelle est votre manière de travailler ?<br /><br />Remplacez ce paragraphe par votre propre texte pour donner du sens à votre démarche.<br /><br />Parlez de ce qui compte vraiment pour vous et pour vos clients.',
     en: 'Introduce your vision in a few lines. What sets you apart? How do you like to work?<br /><br />Replace this paragraph with your own text to give meaning to your approach.<br /><br />Talk about what truly matters to you and to your clients.',
   },
   'about.stats.label': { fr: 'LES CHIFFRES', en: 'THE NUMBERS' },
   'about.stats.title': { fr: 'Vos résultats en quelques chiffres.', en: 'Your results in a few numbers.' },
   'about.stats.text': {
-    fr: 'Mettez en avant quelques chiffres marquants&nbsp;: projets livrés, clients accompagnés, années d\'expérience…<br /><br />Remplacez ce texte par vos propres résultats.',
+    fr: 'Mettez en avant quelques chiffres marquants : projets livrés, clients accompagnés, années d\'expérience…<br /><br />Remplacez ce texte par vos propres résultats.',
     en: 'Highlight a few standout numbers: projects delivered, clients served, years of experience…<br /><br />Replace this text with your own results.',
   },
   'about.stats.content': { fr: 'de contenu produit', en: 'of content produced' },
   'about.stats.satisfaction': { fr: 'clients satisfaits', en: 'client satisfaction' },
   'about.founder.label': { fr: 'PRÉSENTATION', en: 'INTRODUCTION' },
   'about.founder.bio': {
-    fr: 'Présentez-vous en quelques lignes&nbsp;: votre parcours, ce qui vous anime, votre manière de travailler.<br /><br />Remplacez ce texte par votre propre biographie pour raconter qui vous êtes.<br /><br />Terminez par les valeurs qui portent chacun de vos projets.',
+    fr: 'Présentez-vous en quelques lignes : votre parcours, ce qui vous anime, votre manière de travailler.<br /><br />Remplacez ce texte par votre propre biographie pour raconter qui vous êtes.<br /><br />Terminez par les valeurs qui portent chacun de vos projets.',
     en: 'Introduce yourself in a few lines: your background, what drives you, the way you work.<br /><br />Replace this text with your own biography to tell who you are.<br /><br />Finish with the values behind every project you take on.',
   },
 
@@ -92,7 +92,7 @@ export const translations: Record<string, { fr: string; en: string }> = {
     en: 'Your project',
   },
   'contact.subtitle': {
-    fr: 'Une idée, un besoin, une envie&nbsp;?<br />Je suis là pour donner vie à votre vision.',
+    fr: 'Une idée, un besoin, une envie ?<br />Je suis là pour donner vie à votre vision.',
     en: 'An idea, a need, a desire?<br />I\'m here to bring your vision to life.',
   },
   'contact.email': { fr: 'Email', en: 'Email' },
@@ -103,7 +103,7 @@ export const translations: Record<string, { fr: string; en: string }> = {
     en: 'Available for projects throughout France and internationally.',
   },
   'contact.form.subtitle': {
-    fr: 'Une idée, un besoin, une envie&nbsp;? Écrivez-moi directement.',
+    fr: 'Une idée, un besoin, une envie ? Écrivez-moi directement.',
     en: 'An idea, a need, a desire? Write to me directly.',
   },
   'contact.form.firstname': { fr: 'Prénom', en: 'First name' },
@@ -137,7 +137,7 @@ export const translations: Record<string, { fr: string; en: string }> = {
   'project.back': { fr: 'PROJETS', en: 'PROJECTS' },
   'project.about': { fr: 'À propos du projet', en: 'About the project' },
   'project.hsh.desc': {
-    fr: 'Décrivez ce projet&nbsp;: le contexte, votre intervention et le résultat obtenu.',
+    fr: 'Décrivez ce projet: le contexte, votre intervention et le résultat obtenu.',
     en: 'Describe this project: the context, your contribution and the result achieved.',
   },
   'project.prev': { fr: 'Projet précédent', en: 'Previous project' },
