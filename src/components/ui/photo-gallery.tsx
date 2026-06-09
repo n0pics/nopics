@@ -87,7 +87,7 @@ export function PhotoGallery({
             <h1
               className="uppercase text-white"
               style={{
-                fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+                fontFamily: "var(--font-body)",
                 fontWeight: 800,
                 fontSize: 'clamp(1.75rem, 5vw, 3.25rem)',
                 lineHeight: 1.1,
@@ -102,7 +102,7 @@ export function PhotoGallery({
             <p
               className="uppercase text-white/55"
               style={{
-                fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+                fontFamily: "var(--font-body)",
                 fontWeight: 400,
                 fontSize: 'clamp(0.7rem, 1vw, 0.9rem)',
                 letterSpacing: '0.15em',

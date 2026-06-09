@@ -21,8 +21,8 @@
   --color-accent-dim: #cccccc;              /* Accent assombri */
 
   /* --- Typographies --- */
-  --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --font-body:    'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-display: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-body:    'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-mono:    'JetBrains Mono', 'Courier New', monospace;
 
   /* --- Tailles de police (scale) --- */
