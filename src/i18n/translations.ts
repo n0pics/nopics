@@ -7,10 +7,10 @@ export const translations: Record<string, { fr: string; en: string }> = {
   'nav.home': { fr: 'Accueil', en: 'Home' },
 
   // === Landing ===
-  'landing.production': { fr: 'PORTFOLIO', en: 'PORTFOLIO' },
+  'landing.production': { fr: 'STUDIO', en: 'STUDIO' },
   'landing.portfolio': {
-    fr: 'Portfolio de Votre Nom',
-    en: 'Portfolio by Your Name',
+    fr: 'Portfolio de Tom Mertens',
+    en: 'Portfolio by Tom Mertens',
   },
   'landing.portfolio.note': {
     fr: 'Décrivez ici votre activité en une phrase. Remplacez ce texte par votre propre accroche.',

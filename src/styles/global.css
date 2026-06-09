@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
+/* === Police de test : Longa Iberica (version DEMO, usage personnel) === */
+@font-face {
+  font-family: 'Longa Iberica';
+  src: url('/fonts/longa-iberica-demo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* === Reset & Base === */
 *, *::before, *::after {
   box-sizing: border-box;
