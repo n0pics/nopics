@@ -1,0 +1,313 @@
+---
+interface Props {
+  /** Star color as RGB (e.g. '0.3, 0.56, 0.85' for blue) */
+  colorRGB?: string;
+  /** Direction: 'left' | 'right' | 'down' */
+  direction?: 'left' | 'right' | 'down';
+  /** Number of shooting stars */
+  count?: number;
+  /** 'normal' for shooting stars, 'comet' for one huge comet */
+  mode?: 'normal' | 'comet';
+}
+
+const {
+  colorRGB = '1.0, 1.0, 1.0',
+  direction = 'down',
+  count = 35,
+  mode = 'normal',
+} = Astro.props;
+
+// Direction vector
+let dirX = 0, dirY = 0;
+if (direction === 'right') { dirX = 1.0; dirY = -0.15; }
+else if (direction === 'left') { dirX = -1.0; dirY = -0.15; }
+else { dirX = 0.0; dirY = -1.0; }
+---
+
+<div
+  class="starfield"
+  id="starfield"
+  data-color-rgb={colorRGB}
+  data-dir-x={String(dirX)}
+  data-dir-y={String(dirY)}
+  data-count={String(count)}
+  data-mode={mode}
+></div>
+
+<style>
+  .starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .starfield :global(canvas) {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+</style>
+
+<script>
+  import * as THREE from 'three';
+
+  const container = document.getElementById('starfield');
+
+  if (container) {
+    const colorRGB = container.dataset.colorRgb || '1.0,1.0,1.0';
+    const dirX = parseFloat(container.dataset.dirX || '0');
+    const dirY = parseFloat(container.dataset.dirY || '-1');
+    const starCount = parseInt(container.dataset.count || '35', 10);
+    const mode = container.dataset.mode || 'normal';
+
+    const [cr, cg, cb] = colorRGB.split(',').map(Number);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    const fragmentShader = mode === 'comet' ? `
+      // === COMET SHADER ===
+      uniform float iTime;
+      uniform vec2 iResolution;
+
+      float hash(float n) { return fract(sin(n) * 43758.5453); }
+
+      float noise(vec2 p) {
+        vec2 ip = floor(p);
+        vec2 fp = fract(p);
+        fp = fp * fp * (3.0 - 2.0 * fp);
+        float n = ip.x + ip.y * 57.0;
+        return mix(mix(hash(n), hash(n + 1.0), fp.x),
+                   mix(hash(n + 57.0), hash(n + 58.0), fp.x), fp.y);
+      }
+
+      float fbm(vec2 p) {
+        float v = 0.0;
+        float a = 0.5;
+        for (int i = 0; i < 4; i++) {
+          v += a * noise(p);
+          p *= 2.0;
+          a *= 0.5;
+        }
+        return v;
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / iResolution.xy;
+        float aspect = iResolution.x / iResolution.y;
+        vec2 p = vec2(uv.x * aspect, uv.y);
+
+        // Comet position — slow diagonal traverse
+        float cycle = mod(iTime * 0.06, 1.6) - 0.3;
+        vec2 cometPos = vec2(cycle * aspect * 1.2, 0.8 - cycle * 0.5);
+
+        // Direction of comet movement
+        vec2 cometDir = normalize(vec2(1.0, -0.4));
+        vec2 cometPerp = vec2(-cometDir.y, cometDir.x);
+
+        // Local coordinates relative to comet head
+        vec2 delta = p - cometPos;
+        float along = dot(delta, cometDir);
+        float perp = dot(delta, cometPerp);
+
+        vec4 col = vec4(0.0);
+
+        // === TAIL / FLAME TRAIL ===
+        float tailLength = 0.45;
+        if (along < 0.0 && along > -tailLength) {
+          float t = -along / tailLength; // 0 at head, 1 at end
+
+          // Flame width narrows from head to tail
+          float width = mix(0.025, 0.003, t * t);
+
+          // Turbulent flames
+          float n1 = fbm(vec2(along * 15.0 - iTime * 2.0, perp * 20.0)) * 0.015;
+          float n2 = fbm(vec2(along * 25.0 + iTime * 3.0, perp * 30.0 + 5.0)) * 0.01;
+          float flamedPerp = abs(perp + n1 + n2);
+
+          if (flamedPerp < width) {
+            float edgeFade = 1.0 - flamedPerp / width;
+            edgeFade = pow(edgeFade, 0.6);
+            float tailFade = 1.0 - pow(t, 0.8);
+
+            // Core is dark (black), outline is white
+            float outlineThickness = 0.4;
+            float isOutline = smoothstep(1.0 - outlineThickness, 1.0, flamedPerp / width);
+            isOutline = max(isOutline, smoothstep(0.0, 0.15, t)); // more outline toward tail
+
+            // White outline glow
+            float glow = edgeFade * tailFade;
+            col.rgb += vec3(1.0) * glow * isOutline * 0.8;
+            col.a += glow * 0.6;
+          }
+
+          // Outer glow
+          float outerGlow = exp(-flamedPerp * flamedPerp / (width * width * 4.0));
+          outerGlow *= (1.0 - t) * 0.15;
+          col.rgb += vec3(1.0) * outerGlow;
+          col.a += outerGlow * 0.5;
+        }
+
+        // === COMET HEAD ===
+        float headDist = length(delta);
+        float headRadius = 0.018;
+
+        // Black core with white border
+        if (headDist < headRadius * 1.8) {
+          float edge = smoothstep(headRadius * 0.7, headRadius, headDist);
+          float outerEdge = smoothstep(headRadius, headRadius * 1.8, headDist);
+
+          // White ring
+          float ring = edge * (1.0 - outerEdge);
+          col.rgb = mix(col.rgb, vec3(1.0), ring * 0.9);
+          col.a = max(col.a, ring * 0.9);
+
+          // Black fill
+          float fill = 1.0 - edge;
+          col.rgb = mix(col.rgb, vec3(0.02), fill);
+          col.a = max(col.a, fill);
+        }
+
+        // Head glow
+        float headGlow = exp(-headDist * headDist / 0.003);
+        col.rgb += vec3(1.0) * headGlow * 0.3;
+        col.a += headGlow * 0.25;
+
+        // === SPARKS ===
+        for (float i = 0.0; i < 6.0; i++) {
+          float st = hash(i * 73.13) * 0.9 + 0.05;
+          vec2 sparkPos = cometPos - cometDir * tailLength * st;
+          sparkPos += cometPerp * (hash(i * 31.7 + iTime * 0.5) - 0.5) * 0.03;
+          sparkPos += vec2(
+            noise(vec2(iTime * 2.0 + i * 10.0, 0.0)) - 0.5,
+            noise(vec2(0.0, iTime * 2.0 + i * 10.0)) - 0.5
+          ) * 0.01;
+
+          float sd = length(p - sparkPos);
+          float sparkGlow = exp(-sd * sd / 0.00003) * 0.5;
+          col.rgb += vec3(1.0) * sparkGlow;
+          col.a += sparkGlow * 0.4;
+        }
+
+        gl_FragColor = col;
+      }
+    ` : `
+      // === SHOOTING STARS SHADER ===
+      uniform float iTime;
+      uniform vec2 iResolution;
+      uniform vec3 uColor;
+      uniform vec2 uDirection;
+      uniform float uCount;
+
+      float hash(float n) { return fract(sin(n) * 43758.5453123); }
+      float hash2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / iResolution.xy;
+        float aspect = iResolution.x / iResolution.y;
+        vec2 p = vec2(uv.x * aspect, uv.y);
+
+        vec4 col = vec4(0.0);
+        vec2 dir = normalize(uDirection);
+
+        for (float i = 0.0; i < 50.0; i++) {
+          if (i >= uCount) break;
+
+          // Unique seed per star
+          float seed = i * 127.37;
+
+          // Star properties
+          float speed = 0.08 + hash(seed + 1.0) * 0.15;
+          float phase = hash(seed + 2.0) * 40.0;
+          float lifetime = 4.0 + hash(seed + 3.0) * 8.0;
+          float brightness = 0.15 + hash(seed + 4.0) * 0.55;
+          float size = 0.001 + hash(seed + 5.0) * 0.002;
+          float trailLen = 0.04 + hash(seed + 6.0) * 0.1;
+
+          // Perpendicular offset for spread
+          vec2 perp = vec2(-dir.y, dir.x);
+          float offset = (hash(seed + 7.0) - 0.5) * 1.2;
+
+          // Time within cycle
+          float t = mod(iTime * speed + phase, lifetime) / lifetime;
+
+          // Position along movement
+          float travel = 1.6;
+          vec2 startPos = vec2(aspect * 0.5, 0.5) - dir * travel * 0.5 + perp * offset;
+          vec2 starPos = startPos + dir * travel * t;
+
+          // Fade in/out
+          float fade = smoothstep(0.0, 0.05, t) * smoothstep(1.0, 0.85, t);
+
+          // Distance from point to the trail line segment
+          vec2 toPoint = p - starPos;
+          float alongTrail = dot(toPoint, -dir);
+          float perpDist = abs(dot(toPoint, perp));
+
+          // Head glow
+          float headDist = length(toPoint);
+          float headGlow = exp(-headDist * headDist / (size * 2.0)) * brightness * fade;
+
+          // Trail - extends behind the star
+          if (alongTrail > 0.0 && alongTrail < trailLen) {
+            float trailT = alongTrail / trailLen;
+            float trailWidth = size * 0.7 * (1.0 - trailT * trailT);
+            float trailFade = (1.0 - trailT);
+            trailFade = pow(trailFade, 1.5);
+
+            float trail = exp(-perpDist * perpDist / (trailWidth * trailWidth * 2.0));
+            trail *= trailFade * brightness * fade * 0.7;
+
+            col.rgb += uColor * trail;
+            col.a += trail * 0.5;
+          }
+
+          col.rgb += uColor * headGlow;
+          col.a += headGlow * 0.6;
+        }
+
+        // Clamp
+        col = clamp(col, 0.0, 1.0);
+        gl_FragColor = col;
+      }
+    `;
+
+    const material = new THREE.ShaderMaterial({
+      transparent: true,
+      uniforms: {
+        iTime: { value: 0 },
+        iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+        uColor: { value: new THREE.Vector3(cr, cg, cb) },
+        uDirection: { value: new THREE.Vector2(dirX, dirY) },
+        uCount: { value: starCount },
+      },
+      vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
+      fragmentShader,
+    });
+
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    let lastTime = performance.now();
+    function animate() {
+      const now = performance.now();
+      material.uniforms.iTime.value += (now - lastTime) / 1000;
+      lastTime = now;
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      material.uniforms.iResolution.value.set(window.innerWidth, window.innerHeight);
+    });
+  }
+</script>

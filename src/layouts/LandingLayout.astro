@@ -1,0 +1,36 @@
+---
+import SEO from '@/components/ui/SEO.astro';
+import Header from '@/components/layout/Header.astro';
+import '@/styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const { title, description, image } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#050505" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://www.youtube-nocookie.com" />
+    <link rel="preconnect" href="https://img.youtube.com" />
+    <SEO {title} {description} {image} />
+    <script is:inline>
+      (function(){var l=localStorage.getItem('site-lang')||'fr';document.documentElement.lang=l;})();
+    </script>
+  </head>
+  <body>
+    <a href="#hero-scroll" class="skip-link">Aller au contenu principal</a>
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+  </body>
+</html>

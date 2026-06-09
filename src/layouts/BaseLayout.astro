@@ -1,0 +1,47 @@
+---
+import SEO from '@/components/ui/SEO.astro';
+import Header from '@/components/layout/Header.astro';
+import Footer from '@/components/layout/Footer.astro';
+import '@/styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  /** Masque le header (ex: page hero plein écran) */
+  transparentHeader?: boolean;
+  /** Masque le footer */
+  noFooter?: boolean;
+  /** Thème clair (fond blanc, nav noir) */
+  theme?: 'dark' | 'light';
+}
+
+const { title, description, image, type, noindex, noFooter, theme } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#080808" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://www.youtube-nocookie.com" />
+    <link rel="preconnect" href="https://img.youtube.com" />
+    <link rel="preconnect" href="https://api.web3forms.com" />
+    <SEO {title} {description} {image} {type} {noindex} />
+    <script is:inline>
+      (function(){var l=localStorage.getItem('site-lang')||'fr';document.documentElement.lang=l;})();
+    </script>
+  </head>
+  <body data-theme={theme || 'dark'}>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <Header />
+    <main id="main-content" tabindex="-1" style="position: relative; z-index: 1;">
+      <slot />
+    </main>
+    {!noFooter && <Footer />}
+  </body>
+</html>

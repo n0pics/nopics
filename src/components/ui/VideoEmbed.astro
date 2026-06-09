@@ -1,0 +1,42 @@
+---
+interface Props {
+  /** ID YouTube ou Vimeo */
+  id: string;
+  platform?: 'youtube' | 'vimeo';
+  title: string;
+  /** Ratio d'aspect, défaut 16/9 */
+  ratio?: '16/9' | '4/3' | '1/1';
+  autoplay?: boolean;
+  class?: string;
+}
+
+const {
+  id,
+  platform = 'youtube',
+  title,
+  ratio = '16/9',
+  autoplay = false,
+  class: className,
+} = Astro.props;
+
+const ratioClasses = {
+  '16/9': 'aspect-video',
+  '4/3':  'aspect-4/3',
+  '1/1':  'aspect-square',
+};
+
+const src = platform === 'youtube'
+  ? `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1${autoplay ? '&autoplay=1&mute=1' : ''}`
+  : `https://player.vimeo.com/video/${id}?dnt=1${autoplay ? '&autoplay=1&muted=1' : ''}`;
+---
+
+<div class:list={['relative overflow-hidden bg-[var(--color-bg-muted)]', ratioClasses[ratio], className]}>
+  <iframe
+    {src}
+    {title}
+    loading="lazy"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen
+    class="absolute inset-0 w-full h-full border-0"
+  ></iframe>
+</div>

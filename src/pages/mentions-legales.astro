@@ -1,0 +1,57 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Mentions légales"
+  description="Mentions légales du site."
+  noindex={true}
+>
+  <section class="pt-40 pb-32">
+    <div class="container max-w-2xl">
+      <p class="text-xs tracking-[0.3em] uppercase text-[var(--color-primary-hex)] mb-4" data-i18n="legal.label">Légal</p>
+      <h1 style="font-weight: 500;" class="mb-12" data-i18n="legal.title">Mentions légales</h1>
+
+      <div class="space-y-10 text-sm text-[var(--color-text-muted)] leading-relaxed">
+        <div>
+          <h2 class="text-xs tracking-widest uppercase text-[var(--color-text-faint)] mb-3" data-i18n="legal.editor.title">Éditeur du site</h2>
+          <p data-i18n-html="legal.editor.content">
+            Votre Nom / Votre Structure<br/>
+            Statut juridique<br/>
+            Votre Ville, Pays<br/>
+            Email : <a href="mailto:contact@exemple.com" class="text-[var(--color-text)] hover:text-[var(--color-primary-hex)] transition-colors">contact@exemple.com</a><br/>
+            SIRET : à compléter
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-xs tracking-widest uppercase text-[var(--color-text-faint)] mb-3" data-i18n="legal.hosting.title">Hébergement</h2>
+          <p data-i18n-html="legal.hosting.content">
+            Indiquez ici votre hébergeur, son adresse et son site web.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-xs tracking-widest uppercase text-[var(--color-text-faint)] mb-3" data-i18n="legal.ip.title">Propriété intellectuelle</h2>
+          <p data-i18n="legal.ip.content">
+            L'ensemble des contenus présents sur ce site (textes, images, vidéos, logo) sont la propriété exclusive de leur auteur, sauf mention contraire. Toute reproduction, même partielle, est interdite sans accord préalable.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-xs tracking-widest uppercase text-[var(--color-text-faint)] mb-3" data-i18n="legal.data.title">Données personnelles</h2>
+          <p data-i18n="legal.data.content">
+            Les informations recueillies via le formulaire de contact sont utilisées uniquement pour répondre à votre demande. Elles ne sont ni conservées au-delà du nécessaire, ni cédées à des tiers. Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression de vos données en contactant : contact@exemple.com
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-xs tracking-widest uppercase text-[var(--color-text-faint)] mb-3" data-i18n="legal.cookies.title">Cookies</h2>
+          <p data-i18n="legal.cookies.content">
+            Ce site n'utilise pas de cookies tiers ni de trackers publicitaires. Les seuls cookies éventuels sont strictement fonctionnels.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

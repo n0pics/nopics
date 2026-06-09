@@ -1,0 +1,36 @@
+---
+interface Props {
+  class?: string;
+  /** Nombre de répétitions du contenu pour l'effet infini */
+  repeat?: number;
+  /** Direction inverse */
+  reverse?: boolean;
+}
+
+const {
+  class: className,
+  repeat = 4,
+  reverse = false,
+} = Astro.props;
+---
+
+<div
+  class:list={['overflow-hidden', className]}
+  aria-hidden="true"
+>
+  <div
+    class:list={['marquee-track', reverse && 'direction-reverse']}
+  >
+    {Array.from({ length: repeat }).map(() => (
+      <div class="flex items-center gap-[var(--marquee-gap)] shrink-0">
+        <slot />
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .direction-reverse {
+    animation-direction: reverse;
+  }
+</style>

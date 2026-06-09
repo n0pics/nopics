@@ -1,0 +1,574 @@
+---
+interface Props {
+  /** Video source URL */
+  mediaSrc: string;
+  /** Background image URL (behind the expanding media) — optional, defaults to black */
+  bgImageSrc?: string;
+  /** Project title — first word goes left, rest goes right */
+  title: string;
+  /** Subtitle / date line */
+  date?: string;
+  /** Scroll hint text */
+  scrollHint?: string;
+  /** YouTube URL — shows play overlay on video */
+  youtubeUrl?: string;
+  /** Auto-expand: animate automatically without scroll */
+  autoExpand?: boolean;
+}
+
+const { mediaSrc, bgImageSrc, title, date, scrollHint = 'Scroll to expand', youtubeUrl, autoExpand = false } = Astro.props;
+
+// Title on a single line
+const fullTitle = title;
+---
+
+<div class="seh-wrapper" id="seh-wrapper" data-auto-expand={autoExpand ? 'true' : undefined}>
+  <section class="seh-section">
+    <div class="seh-inner">
+
+      <!-- Background (fades out as scroll progresses) -->
+      <div class="seh-bg" id="seh-bg">
+        {bgImageSrc ? (
+          <img
+            src={bgImageSrc}
+            alt=""
+            class="seh-bg-img"
+            loading="eager"
+          />
+        ) : (
+          <div class="seh-bg-solid"></div>
+        )}
+        <div class="seh-bg-overlay"></div>
+      </div>
+
+      <!-- Centered expanding media -->
+      <div class="seh-viewport">
+        <!-- Title text — above media -->
+        <div class="seh-title-wrap" id="seh-title-wrap">
+          <h2 class="seh-title" id="seh-title">{fullTitle}</h2>
+        </div>
+
+        <div class="seh-media-container" id="seh-media">
+          <div class="seh-media-inner">
+            <video
+              src={mediaSrc}
+              autoplay
+              loop
+              muted
+              playsinline
+              class="seh-video"
+            ></video>
+            <div class="seh-media-dim" id="seh-media-dim"></div>
+            {youtubeUrl && (
+              <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" class="seh-youtube-overlay" id="seh-youtube-overlay">
+                <div class="seh-play-btn">
+                  <svg viewBox="0 0 68 48" class="seh-play-icon" aria-hidden="true">
+                    <path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="#ffffff"/>
+                    <path d="M45 24L27 14v20" fill="#050505"/>
+                  </svg>
+                </div>
+                <span class="seh-youtube-label" data-i18n="seh.youtube">Voir sur YouTube</span>
+              </a>
+            )}
+          </div>
+
+          <!-- Text below media -->
+          <div class="seh-meta">
+            {date && (
+              <p class="seh-date" id="seh-date">{date}</p>
+            )}
+            {scrollHint && (
+              <p class="seh-scroll-hint" id="seh-scroll-hint">{scrollHint}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Scroll indicator — hidden in autoExpand mode */}
+        {!autoExpand && (
+          <div class="seh-scroll-indicator" id="seh-scroll-indicator">
+            <span class="seh-scroll-indicator-text">Scroll</span>
+            <div class="seh-scroll-indicator-line">
+              <div class="seh-scroll-indicator-dot"></div>
+            </div>
+          </div>
+        )}
+
+      </div>
+
+    </div>
+
+    <!-- Content revealed after full expansion -->
+    <div class="seh-content" id="seh-content">
+      <slot />
+    </div>
+  </section>
+</div>
+
+<style>
+  .seh-wrapper {
+    overflow-x: hidden;
+  }
+
+  .seh-section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100dvh;
+  }
+
+  .seh-inner {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100dvh;
+  }
+
+  /* ---- Background ---- */
+  .seh-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    height: 100%;
+    transition: opacity 0.1s ease;
+  }
+
+  .seh-bg-img {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .seh-bg-solid {
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+  }
+
+  .seh-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  /* ---- Viewport ---- */
+  .seh-viewport {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100dvh;
+  }
+
+  /* ---- Expanding media ---- */
+  .seh-media-container {
+    position: absolute;
+    z-index: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 560px;
+    height: 420px;
+    max-width: 100vw;
+    max-height: 90vh;
+    border-radius: 0;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+    overflow: visible;
+  }
+
+  .seh-media-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .seh-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .seh-media-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 0;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+
+  /* ---- Meta text below media ---- */
+  .seh-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 1rem;
+    gap: 0.25rem;
+  }
+
+  .seh-date,
+  .seh-scroll-hint {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .seh-scroll-hint {
+    font-weight: 500;
+  }
+
+  /* ---- Scroll indicator ---- */
+  .seh-scroll-indicator {
+    position: absolute;
+    bottom: 18vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 20;
+    animation: seh-fade-in 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both;
+    transition: opacity 0.4s ease;
+  }
+
+  .seh-scroll-indicator-text {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(250, 250, 250, 0.4);
+  }
+
+  .seh-scroll-indicator-line {
+    width: 1px;
+    height: 40px;
+    background: rgba(250, 250, 250, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .seh-scroll-indicator-dot {
+    width: 1px;
+    height: 12px;
+    background: #ffffff;
+    position: absolute;
+    top: 0;
+    animation: seh-scroll-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes seh-scroll-dot {
+    0%   { top: -12px; opacity: 0; }
+    30%  { opacity: 1; }
+    100% { top: 40px; opacity: 0; }
+  }
+
+  @keyframes seh-fade-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(0.5rem); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* ---- Title above media ---- */
+  .seh-title-wrap {
+    position: absolute;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% - 260px));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .seh-title {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: center;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  /* ---- YouTube overlay ---- */
+  .seh-youtube-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    pointer-events: none;
+    border-radius: 0;
+    opacity: 0;
+    transition: background 0.3s ease, opacity 0.5s ease;
+  }
+
+  .seh-youtube-overlay.is-visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .seh-youtube-overlay:hover {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  .seh-play-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 48px;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    opacity: 0.85;
+  }
+
+  .seh-youtube-overlay:hover .seh-play-btn {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  .seh-play-icon {
+    width: 68px;
+    height: 48px;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+  }
+
+  .seh-youtube-label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    transition: color 0.3s ease;
+  }
+
+  .seh-youtube-overlay:hover .seh-youtube-label {
+    color: #ffffff;
+  }
+
+  /* ---- Content area ---- */
+  .seh-content {
+    width: 100%;
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+  }
+
+  .seh-content.is-visible {
+    opacity: 1;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 768px) {
+    .seh-media-container {
+      width: 360px;
+      height: 270px;
+    }
+
+    .seh-title-wrap {
+      transform: translate(-50%, calc(-50% - 180px));
+    }
+
+    .seh-title {
+      font-size: clamp(1.5rem, 8vw, 2.5rem);
+    }
+  }
+</style>
+
+<script>
+  // === ScrollExpandMedia — scroll-driven media expansion ===
+  const wrapper = document.getElementById('seh-wrapper');
+  const bg = document.getElementById('seh-bg');
+  const media = document.getElementById('seh-media') as HTMLElement | null;
+  const mediaDim = document.getElementById('seh-media-dim');
+  const sehTitle = document.getElementById('seh-title');
+  const projectNav = document.querySelector('.project-nav') as HTMLElement | null;
+  const sehDate = document.getElementById('seh-date');
+  const scrollHintEl = document.getElementById('seh-scroll-hint');
+  const content = document.getElementById('seh-content');
+  const scrollIndicator = document.getElementById('seh-scroll-indicator');
+  const youtubeOverlay = document.getElementById('seh-youtube-overlay');
+
+  if (wrapper && media) {
+    const isAutoExpand = wrapper.dataset.autoExpand === 'true';
+    let scrollProgress = 0;
+    let mediaFullyExpanded = false;
+    let touchStartY = 0;
+    const isMobile = window.innerWidth < 768;
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const BASE_W = isMobile ? 360 : 560;
+    const BASE_H = isMobile ? 270 : 420;
+    const TARGET_W = vw * 0.96;
+    const TARGET_H = TARGET_W / 2.55;
+    const EXPAND_W = TARGET_W - BASE_W;
+    const EXPAND_H = TARGET_H - BASE_H;
+
+    function update() {
+      const w = BASE_W + scrollProgress * EXPAND_W;
+      const h = BASE_H + scrollProgress * EXPAND_H;
+      media.style.width = `${w}px`;
+      media.style.height = `${h}px`;
+
+      if (bg) bg.style.opacity = String(1 - scrollProgress);
+      if (mediaDim) mediaDim.style.opacity = String(Math.max(0, 0.5 - scrollProgress * 0.3));
+
+      const fadeOut = Math.max(0, 1 - scrollProgress * 3);
+      if (sehTitle) sehTitle.style.opacity = String(fadeOut);
+      if (sehDate) sehDate.style.opacity = String(fadeOut);
+      if (scrollHintEl) scrollHintEl.style.opacity = String(fadeOut);
+
+      const uiFade = Math.max(0, 1 - scrollProgress * 4);
+      if (scrollIndicator) {
+        scrollIndicator.style.animation = 'none';
+        scrollIndicator.style.opacity = String(uiFade);
+      }
+
+      // In scroll mode: fade nav out as user scrolls
+      // In auto-expand mode: nav is inside seh-content, handled by content visibility
+      if (projectNav && !isAutoExpand) {
+        projectNav.style.opacity = String(uiFade);
+      }
+
+      if (youtubeOverlay) {
+        if (scrollProgress >= 0.8) {
+          youtubeOverlay.classList.add('is-visible');
+        } else {
+          youtubeOverlay.classList.remove('is-visible');
+        }
+      }
+
+      if (content) {
+        if (scrollProgress >= 1) {
+          content.classList.add('is-visible');
+        } else if (scrollProgress < 0.75) {
+          content.classList.remove('is-visible');
+        }
+      }
+    }
+
+    // ---- AUTO-EXPAND MODE ----
+    if (isAutoExpand) {
+      const AUTO_DURATION = 3500;
+      let animStartTime: number | null = null;
+      let animDone = false;
+
+      function easeInOutCubic(t: number): number {
+        return t < 0.5
+          ? 4 * t * t * t
+          : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+
+      function autoAnimate(timestamp: number) {
+        if (!animStartTime) animStartTime = timestamp;
+        const raw = Math.min((timestamp - animStartTime) / AUTO_DURATION, 1);
+        scrollProgress = easeInOutCubic(raw);
+
+        if (raw >= 1) {
+          scrollProgress = 1;
+          animDone = true;
+          mediaFullyExpanded = true;
+        }
+
+        update();
+
+        if (!animDone) {
+          requestAnimationFrame(autoAnimate);
+        }
+      }
+
+      update();
+      requestAnimationFrame(autoAnimate);
+
+    // ---- SCROLL MODE ----
+    } else {
+      function onWheel(e: WheelEvent) {
+        if (mediaFullyExpanded && e.deltaY < 0 && window.scrollY <= 5) {
+          mediaFullyExpanded = false;
+          e.preventDefault();
+        } else if (!mediaFullyExpanded) {
+          e.preventDefault();
+          const delta = e.deltaY * 0.0009;
+          scrollProgress = Math.min(Math.max(scrollProgress + delta, 0), 1);
+          update();
+          if (scrollProgress >= 1) mediaFullyExpanded = true;
+        }
+      }
+
+      function onTouchStart(e: TouchEvent) {
+        touchStartY = e.touches[0].clientY;
+      }
+
+      function onTouchMove(e: TouchEvent) {
+        if (!touchStartY) return;
+        const touchY = e.touches[0].clientY;
+        const deltaY = touchStartY - touchY;
+
+        if (mediaFullyExpanded && deltaY < -20 && window.scrollY <= 5) {
+          mediaFullyExpanded = false;
+          e.preventDefault();
+        } else if (!mediaFullyExpanded) {
+          e.preventDefault();
+          const factor = deltaY < 0 ? 0.008 : 0.005;
+          scrollProgress = Math.min(Math.max(scrollProgress + deltaY * factor, 0), 1);
+          update();
+          if (scrollProgress >= 1) mediaFullyExpanded = true;
+          touchStartY = touchY;
+        }
+      }
+
+      function onTouchEnd() {
+        touchStartY = 0;
+      }
+
+      function onScroll() {
+        if (!mediaFullyExpanded) window.scrollTo(0, 0);
+      }
+
+      window.addEventListener('wheel', onWheel, { passive: false });
+      window.addEventListener('scroll', onScroll);
+      window.addEventListener('touchstart', onTouchStart, { passive: false });
+      window.addEventListener('touchmove', onTouchMove, { passive: false });
+      window.addEventListener('touchend', onTouchEnd);
+    }
+
+    // Ensure video plays and loops at 30s
+    const video = media.querySelector('video');
+    if (video) {
+      const LOOP_AT = 30;
+      video.play().catch(() => {});
+      video.addEventListener('timeupdate', () => {
+        if (video.currentTime >= LOOP_AT) {
+          video.currentTime = 0;
+        }
+      });
+      video.addEventListener('pause', () => video.play().catch(() => {}));
+    }
+
+    update();
+  }
+</script>

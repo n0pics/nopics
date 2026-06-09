@@ -1,0 +1,234 @@
+---
+/**
+ * ShaderBackground — Tarantino-inspired ambient light
+ * Slow drifting smoke/dust particles caught in a warm spotlight beam,
+ * like the opening of a Tarantino film — moody, cinematic, analog grain.
+ */
+---
+
+<div id="shader-bg" class="shader-bg"></div>
+
+<style>
+  .shader-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .shader-bg :global(canvas) {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+</style>
+
+<script>
+  import * as THREE from 'three';
+
+  const container = document.getElementById('shader-bg');
+
+  if (container) {
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        iTime: { value: 0 },
+        iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+      },
+      vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
+      fragmentShader: `
+        uniform float iTime;
+        uniform vec2 iResolution;
+
+        // ---- Noise ----
+        float hash(vec2 p) {
+          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+        }
+
+        float noise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          return mix(
+            mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+            mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+            f.y
+          );
+        }
+
+        float fbm(vec2 p) {
+          float v = 0.0, a = 0.5;
+          mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
+          for (int i = 0; i < 5; i++) {
+            v += a * noise(p);
+            p = rot * p * 2.0 + vec2(100.0);
+            a *= 0.5;
+          }
+          return v;
+        }
+
+        // ---- Film grain ----
+        float grain(vec2 uv, float t) {
+          return hash(uv * 500.0 + vec2(t * 100.0, t * 73.0)) * 0.06 - 0.03;
+        }
+
+        void main() {
+          vec2 uv = gl_FragCoord.xy / iResolution.xy;
+          float aspect = iResolution.x / iResolution.y;
+          vec2 p = vec2(uv.x * aspect, uv.y);
+
+          float t = iTime;
+
+          // ============================================
+          // 1. SPOTLIGHT — warm cone of light from upper-right
+          //    like a projector beam cutting through darkness
+          // ============================================
+          vec2 lightOrigin = vec2(aspect * 0.85, 1.3);
+          vec2 lightDir = normalize(vec2(-0.5, -1.0));
+          vec2 toPixel = p - lightOrigin;
+          float alongBeam = dot(toPixel, lightDir);
+          float perpBeam = length(toPixel - lightDir * alongBeam);
+
+          // Cone widens with distance
+          float coneWidth = 0.08 + alongBeam * 0.35;
+          float beam = exp(-perpBeam * perpBeam / (coneWidth * coneWidth));
+          beam *= smoothstep(-0.1, 0.3, alongBeam); // starts after origin
+          beam *= smoothstep(2.0, 0.5, alongBeam);  // fades with distance
+          beam = pow(beam, 1.8);
+
+          // ============================================
+          // 2. SMOKE / DUST — drifting through the beam
+          //    lazy, organic, volumetric feel
+          // ============================================
+          vec2 smokeUV = p * 2.5;
+          smokeUV.x -= t * 0.06;
+          smokeUV.y += t * 0.03;
+
+          float smoke1 = fbm(smokeUV + vec2(t * 0.04, -t * 0.02));
+          float smoke2 = fbm(smokeUV * 1.5 + vec2(-t * 0.03, t * 0.05) + 5.0);
+          float smoke = smoke1 * 0.6 + smoke2 * 0.4;
+
+          // Sculpt smoke — keep wisps visible but subtle
+          smoke = smoothstep(0.3, 0.7, smoke);
+          smoke = pow(smoke, 1.5);
+
+          // Smoke is visible mainly inside the beam
+          float smokeInBeam = smoke * beam * 0.12;
+
+          // Very faint ambient smoke outside beam
+          float ambientSmoke = smoke * 0.015;
+
+          // ============================================
+          // 3. DUST MOTES — tiny bright particles floating
+          // ============================================
+          float dust = 0.0;
+          for (float i = 0.0; i < 8.0; i++) {
+            float seed = i * 127.37;
+            vec2 dustPos = vec2(
+              fract(hash(vec2(seed, 0.0)) + t * (0.01 + hash(vec2(seed, 1.0)) * 0.015)) * aspect,
+              fract(hash(vec2(seed, 2.0)) + t * (0.005 + hash(vec2(seed, 3.0)) * 0.01))
+            );
+
+            float d = length(p - dustPos);
+            float mote = exp(-d * d / 0.0001);
+
+            // Only visible near the beam
+            vec2 dustToLight = dustPos - lightOrigin;
+            float dustAlong = dot(dustToLight, lightDir);
+            float dustPerp = length(dustToLight - lightDir * dustAlong);
+            float dustCone = 0.08 + dustAlong * 0.35;
+            float dustInBeam = exp(-dustPerp * dustPerp / (dustCone * dustCone));
+            dustInBeam *= smoothstep(-0.1, 0.3, dustAlong);
+
+            // Flicker
+            float flicker = 0.5 + 0.5 * sin(t * (1.5 + hash(vec2(seed, 4.0))) + seed);
+            dust += mote * dustInBeam * flicker * 0.4;
+          }
+
+          // ============================================
+          // 4. SECOND SUBTLE LIGHT — warm glow from lower-left
+          //    like a practical lamp just out of frame
+          // ============================================
+          vec2 warmPos = vec2(aspect * 0.1, -0.15);
+          float warmDist = length(p - warmPos);
+          float warmGlow = exp(-warmDist * warmDist / 0.8);
+          warmGlow = pow(warmGlow, 2.5) * 0.03;
+
+          // ============================================
+          // 5. COLORS — warm amber/gold palette
+          //    Tarantino palette: deep amber, cigarette gold, film warmth
+          // ============================================
+          vec3 beamColor = vec3(1.0, 0.85, 0.55);     // warm projector gold
+          vec3 smokeColor = vec3(0.9, 0.82, 0.65);    // dusty amber
+          vec3 warmColor = vec3(0.85, 0.45, 0.2);     // deep amber/orange
+          vec3 bgColor = vec3(0.018, 0.015, 0.013);   // near-black with warm tint
+
+          // ============================================
+          // 6. COMPOSITE
+          // ============================================
+          vec3 col = bgColor;
+
+          // Beam light on the background
+          col += beamColor * beam * 0.04;
+
+          // Smoke catching the light
+          col += smokeColor * smokeInBeam;
+
+          // Ambient smoke (barely visible)
+          col += smokeColor * ambientSmoke;
+
+          // Dust motes
+          col += beamColor * dust;
+
+          // Warm secondary glow
+          col += warmColor * warmGlow;
+
+          // ============================================
+          // 7. FILM GRAIN — analog texture
+          // ============================================
+          float g = grain(uv, t);
+          col += vec3(g);
+
+          // ============================================
+          // 8. VIGNETTE — dark corners, Tarantino framing
+          // ============================================
+          vec2 vig = uv - 0.5;
+          float vigAmount = 1.0 - dot(vig, vig) * 1.4;
+          vigAmount = clamp(vigAmount, 0.0, 1.0);
+          vigAmount = pow(vigAmount, 1.2);
+          col *= vigAmount;
+
+          // Clamp
+          col = clamp(col, 0.0, 1.0);
+
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `,
+    });
+
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    let lastTime = performance.now();
+    function animate() {
+      const now = performance.now();
+      material.uniforms.iTime.value += (now - lastTime) / 1000;
+      lastTime = now;
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      material.uniforms.iResolution.value.set(window.innerWidth, window.innerHeight);
+    });
+  }
+</script>

@@ -1,0 +1,137 @@
+---
+interface Props {
+  texts: string[];
+  morphTime?: number;
+  cooldownTime?: number;
+}
+
+const { texts, morphTime = 1, cooldownTime = 0.25 } = Astro.props;
+---
+
+<div class="gooey-container" id="gooey-container">
+  <svg class="gooey-svg-filter" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="gooey-threshold">
+        <feColorMatrix
+          in="SourceGraphic"
+          type="matrix"
+          values="1 0 0 0 0
+                  0 1 0 0 0
+                  0 0 1 0 0
+                  0 0 0 255 -140"
+        />
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="gooey-text-wrap" style="filter: url(#gooey-threshold);">
+    <span class="gooey-text" id="gooey-text1"></span>
+    <span class="gooey-text" id="gooey-text2"></span>
+  </div>
+</div>
+
+<style>
+  .gooey-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gooey-svg-filter {
+    position: absolute;
+    height: 0;
+    width: 0;
+  }
+
+  .gooey-text-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .gooey-text {
+    position: absolute;
+    display: inline-block;
+    user-select: none;
+    text-align: center;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(2rem, 6vw, 3.75rem);
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+</style>
+
+<script define:vars={{ texts, morphTime, cooldownTime }}>
+  const text1 = document.getElementById('gooey-text1');
+  const text2 = document.getElementById('gooey-text2');
+
+  if (text1 && text2) {
+    let textIndex = texts.length - 1;
+    let time = Date.now();
+    let morph = 0;
+    let cooldown = cooldownTime;
+
+    function setMorph(fraction) {
+      text2.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+      text2.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+
+      const f2 = 1 - fraction;
+      text1.style.filter = `blur(${Math.min(8 / f2 - 8, 100)}px)`;
+      text1.style.opacity = `${Math.pow(f2, 0.4) * 100}%`;
+    }
+
+    function doCooldown() {
+      morph = 0;
+      text2.style.filter = '';
+      text2.style.opacity = '100%';
+      text1.style.filter = '';
+      text1.style.opacity = '0%';
+    }
+
+    function doMorph() {
+      morph -= cooldown;
+      cooldown = 0;
+      let fraction = morph / morphTime;
+
+      if (fraction > 1) {
+        cooldown = cooldownTime;
+        fraction = 1;
+      }
+
+      setMorph(fraction);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = Date.now();
+      const shouldIncrement = cooldown > 0;
+      const dt = (now - time) / 1000;
+      time = now;
+
+      cooldown -= dt;
+
+      if (cooldown <= 0) {
+        if (shouldIncrement) {
+          textIndex = (textIndex + 1) % texts.length;
+          text1.textContent = texts[textIndex % texts.length];
+          text2.textContent = texts[(textIndex + 1) % texts.length];
+        }
+        doMorph();
+      } else {
+        doCooldown();
+      }
+    }
+
+    // Init
+    text1.textContent = texts[textIndex % texts.length];
+    text2.textContent = texts[(textIndex + 1) % texts.length];
+    animate();
+  }
+</script>

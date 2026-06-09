@@ -1,0 +1,616 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+type Item = {
+  id: number;
+  title: string;
+  year: number;
+  role: string;
+  roleKey: string;
+  /** Couverture vidéo : ex. '/videos/mon-projet.mp4' */
+  video?: string;
+  start?: number;
+  end?: number;
+  loop?: boolean;
+  /** Couverture en grille de photos : ex. ['/images/p1.jpg', ...] */
+  gridCover?: string[];
+  /** true => floute la couverture (projet sous NDA / à venir) */
+  nda: boolean;
+  slug: string;
+};
+
+// Projets de démonstration — remplacez-les par les vôtres.
+// Sans `video` ni `gridCover`, la couverture est un fond noir.
+const items: Item[] = [
+  {
+    id: 0,
+    title: 'Projet 01',
+    year: 2025,
+    role: 'Votre rôle',
+    roleKey: 'proj.01.role',
+    nda: false,
+    slug: 'projet-01',
+  },
+  {
+    id: 1,
+    title: 'Projet 02',
+    year: 2025,
+    role: 'Votre rôle',
+    roleKey: 'proj.02.role',
+    nda: false,
+    slug: 'projet-02',
+  },
+  {
+    id: 2,
+    title: 'Projet 03',
+    year: 2025,
+    role: 'Votre rôle',
+    roleKey: 'proj.03.role',
+    nda: false,
+    slug: 'projet-03',
+  },
+];
+---
+
+<BaseLayout
+  title="Projets — Votre Portfolio"
+  description="Découvrez une sélection de projets. Remplacez ce contenu par le vôtre."
+  noFooter
+>
+
+  <h1 class="sr-only">Projets — Votre Portfolio</h1>
+
+  <main class="projects-stack" id="projects-stack">
+    {items.map((item, i) => (
+      <section
+        class={`project-slide ${item.nda ? 'is-nda' : ''}`}
+        data-project={i}
+        data-nda={item.nda ? 'true' : 'false'}
+        id={`slide-${i}`}
+      >
+
+        <!-- Cover layer -->
+        {item.video ? (
+          <video
+            class="project-cover"
+            data-project={i}
+            data-start={item.start}
+            data-end={item.end}
+            id={`pv-${i}`}
+            src={item.video}
+            muted
+            playsinline
+            loop={item.loop}
+            preload={i === 0 ? 'auto' : 'metadata'}
+          ></video>
+        ) : item.gridCover ? (
+          <div class="project-cover project-grid-cover" data-project={i} id={`pv-${i}`} aria-hidden="true">
+            {item.gridCover.map((src: string) => (
+              <div class="grid-tile">
+                <img src={src} alt={item.title} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="project-cover project-bg-black" data-project={i} id={`pv-${i}`} aria-hidden="true"></div>
+        )}
+
+        <!-- NDA blur + morphing text — per-slide, only on NDA projects -->
+        {item.nda && (
+          <div class="nda-overlay" aria-hidden="true">
+            <div class="nda-text-wrap" style="filter: url(#nda-gooey-threshold);">
+              <span class="nda-text nda-text-a"></span>
+              <span class="nda-text nda-text-b"></span>
+            </div>
+          </div>
+        )}
+
+        <!-- Gradient overlay for readability -->
+        <div class="projects-gradient" aria-hidden="true"></div>
+
+        <!-- Project info — bottom right -->
+        <div class="project-info">
+          <h2 class="info-title">
+            {item.title}
+            {item.year && <span class="info-year">— {item.year}</span>}
+          </h2>
+          <span class="info-role" data-i18n={item.roleKey}>{item.role}</span>
+          <a href={`/projets/${item.slug}`} class="info-discover" data-i18n="project.discover">DÉCOUVRIR</a>
+        </div>
+
+        <!-- Next-project hint, centered bottom — hidden on the last slide -->
+        {i < items.length - 1 && (
+          <button class="next-hint" data-next-index={i + 1} aria-label="Projet suivant">
+            <span class="next-hint-label" data-i18n="project.nextHint">PROJET SUIVANT</span>
+            <svg class="next-hint-arrow" viewBox="0 0 14 8" width="14" height="8" aria-hidden="true">
+              <path d="M1 1l6 6 6-6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        )}
+
+      </section>
+    ))}
+  </main>
+
+  <!-- Single SVG filter def shared by every per-slide NDA overlay -->
+  <svg class="nda-svg-filter" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="nda-gooey-threshold">
+        <feColorMatrix
+          in="SourceGraphic"
+          type="matrix"
+          values="1 0 0 0 0
+                  0 1 0 0 0
+                  0 0 1 0 0
+                  0 0 0 255 -140"
+        />
+      </filter>
+    </defs>
+  </svg>
+
+</BaseLayout>
+
+<!--
+  Keep the site nav transparent on every slide of the gallery — by
+  default it gains a frosted background after 40 px of scroll, and
+  with scroll-snap that fires the moment you leave slide 1.
+-->
+<style is:global>
+  /* Match by structural :has so we don't depend on a body data attr or
+     extra JS to flag this page. */
+  body:has(.projects-stack) .site-header.is-scrolled {
+    background-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+</style>
+
+<style>
+  /* ============================================================
+     PROJECTS PAGE — vertical scroll-snap gallery
+     One 100vh slide per project, native browser scroll
+     ============================================================ */
+
+  html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+
+  /* The stack — body scrolls naturally through it */
+  .projects-stack {
+    width: 100%;
+    background: #050505;
+  }
+
+  /* ---- One slide per project ---- */
+  .project-slide {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    background: #050505;
+  }
+
+  /* ---- Cover layer (video / grid / black) ---- */
+  .project-cover {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  /* Pure-black covers (NDA placeholders without video) */
+  .project-bg-black {
+    background: #000;
+  }
+
+  /* 3-column photo grid cover (Top Marques) */
+  .project-grid-cover {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0;
+    background: #000;
+  }
+
+  .project-grid-cover .grid-tile {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-grid-cover .grid-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (max-width: 600px) {
+    .project-grid-cover {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+    }
+    .project-grid-cover .grid-tile:nth-child(n+9) {
+      display: none;
+    }
+  }
+
+  /* ---- Gradient overlay (readability bottom-right info) ---- */
+  .projects-gradient {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      transparent 30%,
+      rgba(5, 5, 5, 0.15) 50%,
+      rgba(5, 5, 5, 0.5) 70%,
+      rgba(5, 5, 5, 0.85) 90%,
+      rgba(5, 5, 5, 0.95) 100%
+    );
+  }
+
+  /* ============================================================
+     NDA BLUR OVERLAY — one per NDA slide, covers the cover layer
+     ============================================================ */
+  .nda-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4; /* above cover (z-1) + gradient (z-3), below info (z-10) */
+    pointer-events: none;
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    background: rgba(5, 5, 5, 0.55);
+  }
+
+  :global(.nda-svg-filter) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Morphing text — dead-centered on the slide */
+  .nda-text-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(90vw, 32rem);
+    height: 5rem;
+  }
+
+  .nda-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #ffffff;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  /* ============================================================
+     PROJECT INFO — bottom-right, per slide
+     ============================================================ */
+  .project-info {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    z-index: 10;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.35rem;
+  }
+
+  .info-title {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(1.75rem, 4vw, 3.25rem);
+    font-weight: 800;
+    color: #ffffff;
+    text-transform: uppercase;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+    margin: 0;
+  }
+
+  .info-year {
+    font-weight: 300;
+    font-size: 0.55em;
+    color: rgba(255, 255, 255, 0.55);
+    letter-spacing: 0.06em;
+    margin-left: 0.4em;
+    vertical-align: middle;
+  }
+
+  .info-role {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(0.7rem, 1vw, 0.9rem);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .info-discover {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    padding: 0.6rem 1.8rem;
+    margin-top: 0.85rem;
+    display: inline-block;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .info-discover:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* ============================================================
+     NEXT-PROJECT HINT — centered bottom, click to advance
+     ============================================================ */
+  .next-hint {
+    position: absolute;
+    bottom: 1.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+    transition: color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: next-hint-pulse 2.4s ease-in-out infinite;
+  }
+
+  .next-hint:hover {
+    color: #ffffff;
+    transform: translateX(-50%) translateY(2px);
+  }
+
+  .next-hint-label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+
+  .next-hint-arrow {
+    animation: next-hint-bounce 1.6s ease-in-out infinite;
+  }
+
+  @keyframes next-hint-pulse {
+    0%, 100% { opacity: 0.65; }
+    50%      { opacity: 1; }
+  }
+
+  @keyframes next-hint-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(3px); }
+  }
+
+  /* ============================================================
+     Responsive
+     ============================================================ */
+  @media (max-width: 768px) {
+    .project-info {
+      right: 24px;
+      bottom: 80px;
+      max-width: calc(100vw - 48px);
+    }
+
+    .info-title {
+      font-size: clamp(1.4rem, 6vw, 2rem);
+    }
+
+    .info-role {
+      font-size: 0.7rem;
+    }
+
+    .info-discover {
+      font-size: 0.6rem;
+      padding: 0.5rem 1.4rem;
+    }
+
+    .next-hint {
+      bottom: 1.25rem;
+    }
+
+    .next-hint-label {
+      font-size: 9px;
+      letter-spacing: 0.28em;
+    }
+
+    /* NDA: hide morphing text on mobile (clutter) — keep just the blur */
+    .nda-text-wrap {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // PROJECTS PAGE — scroll-snap, with per-slide video play/pause and
+  // a single NDA overlay toggled when an NDA slide is in view.
+  // ============================================================
+
+  const stack = document.getElementById('projects-stack');
+  const slides = document.querySelectorAll<HTMLElement>('.project-slide');
+  const videos = document.querySelectorAll<HTMLVideoElement>('video.project-cover');
+  const nextHints = document.querySelectorAll<HTMLButtonElement>('.next-hint');
+
+  // One overlay per NDA slide, all driven by the same morph timeline.
+  const ndaTextsA = document.querySelectorAll<HTMLElement>('.nda-text-a');
+  const ndaTextsB = document.querySelectorAll<HTMLElement>('.nda-text-b');
+
+  const ndaMessages = [
+    'Pas encore disponible',
+    'Not yet available',
+    'Non ancora disponibile',
+    'Aun no disponible',
+    'Noch nicht verfügbar',
+  ];
+
+  // ---- Time-range looping on <video> covers ----
+  videos.forEach((v) => {
+    v.addEventListener('timeupdate', () => {
+      const end = parseFloat(v.dataset.end || '0');
+      const start = parseFloat(v.dataset.start || '0');
+      if (end > 0 && v.currentTime >= end) {
+        v.currentTime = start;
+      }
+    });
+  });
+
+  // ---- Click on the "PROJET SUIVANT" hint → smooth scroll to next slide ----
+  nextHints.forEach((hint) => {
+    hint.addEventListener('click', () => {
+      const nextIndex = parseInt(hint.dataset.nextIndex || '0', 10);
+      const nextSlide = document.getElementById(`slide-${nextIndex}`);
+      nextSlide?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // ---- IntersectionObserver: which slide owns the viewport center? ----
+  // rootMargin of -50% top + -50% bottom collapses the observation area to
+  // a 1-px-tall band at the vertical midpoint of the viewport. Whichever
+  // slide intersects that band is the dominant one in view.
+  if (slides.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const slide = entry.target as HTMLElement;
+          const idx = parseInt(slide.dataset.project || '0', 10);
+          const video = document.getElementById(`pv-${idx}`);
+          if (!(video instanceof HTMLVideoElement)) return;
+
+          if (entry.isIntersecting) {
+            video.preload = 'auto';
+            const start = parseFloat(video.dataset.start || '0');
+            if (video.paused) {
+              video.currentTime = start;
+            }
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { rootMargin: '-50% 0px -50% 0px', threshold: 0 },
+    );
+
+    slides.forEach((slide) => observer.observe(slide));
+  }
+
+  // ============================================================
+  // GooeyText animation — drives every per-slide NDA overlay in sync.
+  // Standard 2-phase loop: cooldown (text steady) → morph (cross-fade to
+  // the next language) → cooldown again. No tricks.
+  // ============================================================
+  if (ndaTextsA.length > 0 && ndaTextsB.length > 0) {
+    const morphTime = 1;        // seconds for one cross-fade
+    const cooldownTime = 0.35;  // seconds the current language stays steady
+    let ndaTextIndex = ndaMessages.length - 1;
+    let ndaTime = Date.now();
+    let ndaMorph = 0;
+    let ndaCooldown = cooldownTime;
+
+    function setNdaMorph(fraction: number) {
+      const f2 = 1 - fraction;
+      const blurA = Math.min(8 / f2 - 8, 100);
+      const opA = Math.pow(f2, 0.4) * 100;
+      const blurB = Math.min(8 / fraction - 8, 100);
+      const opB = Math.pow(fraction, 0.4) * 100;
+      ndaTextsA.forEach((el) => {
+        el.style.filter = `blur(${blurA}px)`;
+        el.style.opacity = `${opA}%`;
+      });
+      ndaTextsB.forEach((el) => {
+        el.style.filter = `blur(${blurB}px)`;
+        el.style.opacity = `${opB}%`;
+      });
+    }
+
+    function ndaDoCooldown() {
+      ndaMorph = 0;
+      ndaTextsA.forEach((el) => {
+        el.style.filter = '';
+        el.style.opacity = '0';
+      });
+      ndaTextsB.forEach((el) => {
+        el.style.filter = '';
+        el.style.opacity = '1';
+      });
+    }
+
+    function ndaDoMorph() {
+      ndaMorph -= ndaCooldown;
+      ndaCooldown = 0;
+      let fraction = ndaMorph / morphTime;
+      if (fraction > 1) {
+        ndaCooldown = cooldownTime;
+        fraction = 1;
+      }
+      setNdaMorph(fraction);
+    }
+
+    function ndaAnimate() {
+      requestAnimationFrame(ndaAnimate);
+      const newTime = Date.now();
+      const shouldIncrement = ndaCooldown > 0;
+      const dt = (newTime - ndaTime) / 1000;
+      ndaTime = newTime;
+      ndaCooldown -= dt;
+      if (ndaCooldown <= 0) {
+        if (shouldIncrement) {
+          ndaTextIndex = (ndaTextIndex + 1) % ndaMessages.length;
+          const a = ndaMessages[ndaTextIndex % ndaMessages.length];
+          const b = ndaMessages[(ndaTextIndex + 1) % ndaMessages.length];
+          ndaTextsA.forEach((el) => { el.textContent = a; });
+          ndaTextsB.forEach((el) => { el.textContent = b; });
+        }
+        ndaDoMorph();
+      } else {
+        ndaDoCooldown();
+      }
+    }
+
+    // Initial content: A is the previous language, B is the current one
+    // (the cooldown phase keeps B visible until the morph starts).
+    const initA = ndaMessages[ndaMessages.length - 1];
+    const initB = ndaMessages[0];
+    ndaTextsA.forEach((el) => { el.textContent = initA; el.style.opacity = '0'; });
+    ndaTextsB.forEach((el) => { el.textContent = initB; el.style.opacity = '1'; });
+    ndaAnimate();
+  }
+</script>

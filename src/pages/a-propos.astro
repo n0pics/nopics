@@ -1,0 +1,350 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="À propos — Votre Portfolio"
+  description="Présentez votre parcours et votre vision. Remplacez cette description par la vôtre."
+  noFooter
+>
+
+  <!-- ============================================================
+       HERO OVERLAY — fixed, covers everything, removed on CTA click
+       ============================================================ -->
+  <div class="hero-screen" id="hero-screen">
+    <h1 class="sr-only">À propos — Votre Portfolio</h1>
+    <div class="hero-text-inner" id="hero-text-inner">
+      <div class="hero-line" data-i18n="about.hero.serve">AU SERVICE DE</div>
+      <div class="hero-line hero-words-line">
+        <div class="hero-words" id="hero-words">
+          <span class="hero-word is-active" data-i18n="about.hero.word1">LA VISION</span>
+          <span class="hero-word" data-i18n="about.hero.word2">LA PASSION</span>
+          <span class="hero-word" data-i18n="about.hero.word3">LA CRÉATIVITÉ</span>
+          <span class="hero-word" data-i18n="about.hero.word4">LA NARRATION</span>
+          <span class="hero-word" data-i18n="about.hero.word5">LA BEAUTÉ</span>
+          <span class="hero-word" data-i18n="about.hero.word6">LE VIVANT</span>
+          <span class="hero-word" data-i18n="about.hero.word7">L'IMPACTANT</span>
+          <span class="hero-word" data-i18n="about.hero.word8">VOS PROJETS</span>
+        </div>
+      </div>
+    </div>
+    <button class="hero-cta" id="hero-cta" data-i18n="about.cta">DÉCOUVRIR</button>
+  </div>
+
+  <!-- ============================================================
+       PAGE CONTENT — normal flow, scrollable after hero dismissed
+       ============================================================ -->
+  <div class="about-page">
+
+    <section class="founder-section">
+      <div class="founder-inner">
+        <span class="founder-label" data-i18n="about.founder.label">PRÉSENTATION</span>
+        <h2 class="founder-name">Votre Nom</h2>
+        <p class="founder-bio" data-i18n-html="about.founder.bio">
+          Présentez-vous en quelques lignes&nbsp;: votre parcours, ce qui vous anime, votre manière de travailler.<br /><br />
+          Remplacez ce texte par votre propre biographie pour raconter qui vous êtes.<br /><br />
+          Terminez par les valeurs qui portent chacun de vos projets.
+        </p>
+      </div>
+    </section>
+
+    <section class="vision-section">
+      <div class="vision-inner">
+        <span class="vision-label" data-i18n="about.vision.label">LA VISION</span>
+        <h2 class="vision-title" data-i18n="about.vision.title">Une accroche forte qui résume votre approche.</h2>
+        <p class="vision-text" data-i18n-html="about.vision.text">
+          Présentez votre vision en quelques lignes. Qu'est-ce qui vous distingue&nbsp;? Quelle est votre manière de travailler&nbsp;?<br /><br />
+          Remplacez ce paragraphe par votre propre texte pour donner du sens à votre démarche.<br /><br />
+          Parlez de ce qui compte vraiment pour vous et pour vos clients.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+</BaseLayout>
+
+<style>
+  /* ============================================================
+     HERO SCREEN — fixed overlay, blocks scroll
+     ============================================================ */
+
+  .hero-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: #050505;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease;
+  }
+
+  .hero-screen.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hero-text-inner {
+    text-align: center;
+    width: 100%;
+    padding: 1.5rem 2rem;
+    color: #ffffff;
+    opacity: 0;
+    animation: hero-enter 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  }
+
+  .hero-line {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(3.5rem, 13vw, 12rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .hero-words-line {
+    position: relative;
+    height: 1.35em;
+    overflow: hidden;
+  }
+
+  .hero-words {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-word {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(110%);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-word.is-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .hero-word.is-exiting {
+    opacity: 0;
+    transform: translateY(-110%);
+  }
+
+  .hero-cta {
+    position: absolute;
+    bottom: 6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 0;
+    padding: 0.85rem 2.5rem;
+    cursor: pointer;
+    opacity: 1;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .hero-cta:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* ============================================================
+     PAGE CONTENT
+     ============================================================ */
+
+  .about-page {
+    background: #ffffff;
+  }
+
+  /* ============================================================
+     FOUNDER
+     ============================================================ */
+
+  .founder-section {
+    padding: 6rem 3rem 3rem;
+  }
+
+  .founder-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .founder-label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #050505;
+  }
+
+  .founder-name {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: #050505;
+  }
+
+  .founder-bio {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+    font-weight: 400;
+    color: #050505;
+    line-height: 1.7;
+    text-align: justify;
+  }
+
+  /* ============================================================
+     VISION
+     ============================================================ */
+
+  .vision-section {
+    padding: 0 3rem 6rem;
+  }
+
+  .vision-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .vision-title {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: #050505;
+  }
+
+  .vision-label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #050505;
+  }
+
+  .vision-text {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+    font-weight: 400;
+    color: #050505;
+    line-height: 1.7;
+    text-align: justify;
+  }
+
+  /* ============================================================
+     ANIMATIONS
+     ============================================================ */
+
+  @keyframes hero-enter {
+    from { opacity: 0; transform: translateY(1.5rem); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+
+  @media (max-width: 768px) {
+    .hero-line {
+      font-size: clamp(2.5rem, 12vw, 5rem);
+    }
+
+    .founder-section {
+      padding: 5rem 1.5rem 3rem;
+    }
+
+    .founder-bio {
+      font-size: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .vision-section {
+      padding: 0 1.5rem 4rem;
+    }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // 1. Lock scroll while hero is visible
+  // ============================================================
+  document.body.style.overflow = 'hidden';
+
+  // ============================================================
+  // 2. Word rotation
+  // ============================================================
+  const heroWords = document.querySelectorAll<HTMLElement>('.hero-word');
+
+  if (heroWords.length > 0) {
+    let currentIndex = 0;
+    const lastIndex = heroWords.length - 1;
+
+    const interval = setInterval(() => {
+      const prev = currentIndex;
+      currentIndex++;
+
+      heroWords[prev].classList.remove('is-active');
+      heroWords[prev].classList.add('is-exiting');
+      heroWords[currentIndex].classList.add('is-active');
+
+      setTimeout(() => heroWords[prev].classList.remove('is-exiting'), 600);
+
+      if (currentIndex >= lastIndex) clearInterval(interval);
+    }, 1200);
+  }
+
+  // ============================================================
+  // 3. CTA click — fade hero, unlock scroll
+  // ============================================================
+  const heroScreen = document.getElementById('hero-screen');
+  const heroCta    = document.getElementById('hero-cta');
+
+  heroCta?.addEventListener('click', () => {
+    if (!heroScreen) return;
+
+    /* Fade out the entire hero overlay */
+    heroScreen.classList.add('is-hidden');
+
+    /* Switch nav to dark (white page behind) */
+    document.body.dataset.theme = 'light';
+
+    /* Unlock scroll */
+    document.body.style.overflow = '';
+
+    /* Remove from DOM after transition */
+    heroScreen.addEventListener('transitionend', () => {
+      heroScreen.remove();
+    }, { once: true });
+  });
+
+</script>

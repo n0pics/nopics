@@ -1,0 +1,349 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="footer-wrapper">
+  <!-- Background gradient -->
+  <div class="footer-bg" aria-hidden="true"></div>
+
+  <div class="footer-content">
+    <div class="container">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 md:gap-12 lg:gap-20 pb-16">
+
+        <!-- Marque -->
+        <div class="flex flex-col space-y-6">
+          <a href="/" class="flex items-center" aria-label="Accueil">
+            <span class="text-xl font-extrabold tracking-wide text-white uppercase" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">STUDIO</span>
+          </a>
+          <p class="text-sm leading-relaxed text-white/60" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;" data-i18n="footer.desc">
+            Une courte description de votre activité.
+            Remplacez ce texte par votre propre présentation.
+          </p>
+        </div>
+
+        <!-- Navigation -->
+        <div>
+          <h4 class="footer-heading" data-i18n="footer.nav">Navigation</h4>
+          <ul class="space-y-4 list-none">
+            {[
+              { label: 'Accueil',  href: '/',       key: 'footer.home'     },
+              { label: 'Projets',  href: '/projets', key: 'footer.projects' },
+            ].map(link => (
+              <li>
+                <a href={link.href} class="footer-link" data-i18n={link.key}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- Ressources -->
+        <div>
+          <h4 class="footer-heading" data-i18n="footer.resources">Ressources</h4>
+          <ul class="space-y-4 list-none">
+            <li><a href="/mentions-legales" class="footer-link" data-i18n="footer.legal">Mentions légales</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div>
+          <h4 class="footer-heading" data-i18n="footer.contact.title">Contact</h4>
+          <ul class="space-y-5 list-none">
+            <li>
+              <a href="mailto:contact@exemple.com" class="footer-contact-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="footer-icon" aria-hidden="true">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <path d="M22 4L12 13 2 4"/>
+                </svg>
+                <span>contact@exemple.com</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="footer-contact-item" aria-label="Instagram (nouvelle fenêtre)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="footer-icon" aria-hidden="true">
+                  <rect x="2" y="2" width="20" height="20" rx="5"/>
+                  <circle cx="12" cy="12" r="5"/>
+                  <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+                </svg>
+                <span>@votre_compte</span>
+              </a>
+            </li>
+            <li class="footer-contact-item footer-contact-static">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="footer-icon" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>Votre Ville, Pays</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Séparateur -->
+      <hr class="border-t border-white/10 my-10" />
+
+      <!-- Bottom bar -->
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <!-- Social icons -->
+        <div class="flex space-x-8">
+          <a
+            href="https://www.instagram.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            class="text-white/40 hover:text-[var(--color-primary-hex)] transition-colors duration-300"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="5"/>
+              <circle cx="12" cy="12" r="5"/>
+              <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Copyright -->
+        <p class="footer-copyright">
+          &copy; {year} Votre Nom. <span data-i18n="footer.copyright">Tous droits réservés.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEXT HOVER EFFECT -->
+  <div class="text-hover-container" aria-hidden="true">
+    <svg
+      id="footer-hover-svg"
+      width="100%"
+      height="100%"
+      viewBox="0 0 500 100"
+      xmlns="http://www.w3.org/2000/svg"
+      class="text-hover-svg"
+    >
+      <defs>
+        <linearGradient id="footerTextGradient" gradientUnits="userSpaceOnUse"
+          x1="0" y1="50" x2="500" y2="50">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="25%" stop-color="#cccccc" />
+          <stop offset="50%" stop-color="#ffffff" />
+          <stop offset="75%" stop-color="#cccccc" />
+          <stop offset="100%" stop-color="#ffffff" />
+        </linearGradient>
+
+        <radialGradient id="footerRevealMask" gradientUnits="userSpaceOnUse" r="20%" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="white" />
+          <stop offset="100%" stop-color="black" />
+        </radialGradient>
+
+        <mask id="footerTextMask">
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#footerRevealMask)" />
+        </mask>
+      </defs>
+
+      <text
+        x="50%" y="50%"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        stroke-width="0.3"
+        class="footer-text-base"
+        id="footer-text-ghost"
+      >
+        STUDIO
+      </text>
+
+      <text
+        x="50%" y="50%"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        stroke-width="0.3"
+        class="footer-text-stroke"
+        id="footer-text-stroke"
+      >
+        STUDIO
+      </text>
+
+      <text
+        x="50%" y="50%"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        stroke="url(#footerTextGradient)"
+        stroke-width="0.3"
+        mask="url(#footerTextMask)"
+        class="footer-text-gradient"
+      >
+        STUDIO
+      </text>
+    </svg>
+  </div>
+</footer>
+
+<style>
+  .footer-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    margin: 2rem;
+    background: rgba(15, 15, 17, 0.15);
+  }
+
+  .footer-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(125% 125% at 50% 10%, rgba(6,6,6,0.95) 50%, rgba(255,255,255,0.04) 100%);
+  }
+
+  .footer-content {
+    position: relative;
+    z-index: 10;
+    padding: 4.5rem 0 3.5rem;
+  }
+
+  /* Headings — Helvetica bold blanc */
+  .footer-heading {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.75rem;
+    letter-spacing: 0.01em;
+  }
+
+  /* Links — Helvetica, blanc lisible */
+  .footer-link {
+    display: block;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+    transition: color 0.3s;
+  }
+
+  .footer-link:hover {
+    color: var(--color-primary-hex);
+  }
+
+  /* Contact items */
+  .footer-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+    transition: color 0.3s;
+  }
+
+  a.footer-contact-item:hover {
+    color: var(--color-primary-hex);
+  }
+
+  .footer-contact-static {
+    cursor: default;
+  }
+
+  .footer-icon {
+    color: var(--color-primary-hex);
+    flex-shrink: 0;
+  }
+
+  /* Copyright */
+  .footer-copyright {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-weight: 400;
+  }
+
+  /* TEXT HOVER EFFECT */
+  .text-hover-container {
+    display: none;
+    height: 30rem;
+    margin-top: -12rem;
+    margin-bottom: -8rem;
+    position: relative;
+    z-index: 50;
+  }
+
+  @media (min-width: 1024px) {
+    .text-hover-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .text-hover-svg {
+    user-select: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    max-width: 100%;
+  }
+
+  .footer-text-base,
+  .footer-text-stroke,
+  .footer-text-gradient {
+    fill: transparent;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 72px;
+    font-weight: 700;
+  }
+
+  .footer-text-base {
+    stroke: rgba(255, 255, 255, 0.15);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .footer-text-stroke {
+    stroke: var(--color-primary-hex);
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: footer-stroke-draw 4s ease-in-out forwards;
+  }
+
+  @keyframes footer-stroke-draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @media (max-width: 768px) {
+    .footer-wrapper {
+      margin: 1rem;
+      border-radius: 1rem;
+    }
+
+    .footer-content {
+      padding: 3rem 0 2.5rem;
+    }
+  }
+</style>
+
+<script>
+  const svg = document.getElementById('footer-hover-svg') as SVGSVGElement | null;
+  const ghostText = document.getElementById('footer-text-ghost');
+  const revealMask = document.getElementById('footerRevealMask') as SVGRadialGradientElement | null;
+
+  if (svg && ghostText && revealMask) {
+    let isHovered = false;
+
+    svg.addEventListener('mouseenter', () => {
+      isHovered = true;
+      ghostText.style.opacity = '0.7';
+    });
+
+    svg.addEventListener('mouseleave', () => {
+      isHovered = false;
+      ghostText.style.opacity = '0';
+      revealMask.setAttribute('cx', '50%');
+      revealMask.setAttribute('cy', '50%');
+    });
+
+    svg.addEventListener('mousemove', (e: MouseEvent) => {
+      if (!isHovered) return;
+      const rect = svg.getBoundingClientRect();
+      const cx = ((e.clientX - rect.left) / rect.width) * 100;
+      const cy = ((e.clientY - rect.top) / rect.height) * 100;
+      revealMask.setAttribute('cx', `${cx}%`);
+      revealMask.setAttribute('cy', `${cy}%`);
+    });
+  }
+</script>

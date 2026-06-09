@@ -1,0 +1,461 @@
+---
+---
+
+<header class="site-header" id="site-header">
+  <!-- Home link (left) -->
+  <a href="/" class="header-home" data-i18n="nav.home">Accueil</a>
+
+  <!-- Center nav (desktop) -->
+  <nav class="header-nav" id="header-nav" aria-label="Navigation principale">
+    <a href="/projets" class="header-link" data-i18n="nav.projects">Projets</a>
+    <a href="/services" class="header-link" data-i18n="nav.services">Services</a>
+    <a href="/a-propos" class="header-link" data-i18n="nav.about">À propos</a>
+    <a href="/contact" class="header-link" data-i18n="nav.contact">Contact</a>
+  </nav>
+
+  <!-- Right side: language + hamburger -->
+  <div class="header-right">
+    <div class="header-lang" id="header-lang">
+      <button class="lang-btn active" data-lang="fr" aria-label="Français">FR</button>
+      <span class="lang-sep">/</span>
+      <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+    </div>
+    <button class="header-burger" id="header-burger" aria-label="Menu" aria-expanded="false">
+      <span class="burger-line"></span>
+      <span class="burger-line"></span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile fullscreen menu -->
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <div class="mobile-menu-inner">
+    <nav class="mobile-nav" aria-label="Navigation mobile">
+      <a href="/" class="mobile-link" data-i18n="nav.home">Accueil</a>
+      <a href="/projets" class="mobile-link" data-i18n="nav.projects">Projets</a>
+      <a href="/services" class="mobile-link" data-i18n="nav.services">Services</a>
+      <a href="/a-propos" class="mobile-link" data-i18n="nav.about">À propos</a>
+      <a href="/contact" class="mobile-link" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <div class="mobile-lang">
+      <button class="lang-btn active" data-lang="fr" aria-label="Français">FR</button>
+      <span class="lang-sep">/</span>
+      <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ============================================================
+     HEADER — Iconoclast-inspired fixed transparent nav
+     Logo left · Nav center · Lang right
+     ============================================================ */
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    pointer-events: none;
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .site-header > * {
+    pointer-events: auto;
+  }
+
+  /* Scrolled state — dark theme (default): semi-transparent black blur */
+  .site-header.is-scrolled {
+    background-color: rgba(8, 8, 8, 0.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  /* Scrolled state — light theme: semi-transparent white blur */
+  :global(body[data-theme="light"]) .site-header.is-scrolled {
+    background-color: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  /* ---- Home link (left) ---- */
+  .header-home {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 28px 0;
+    display: flex;
+    align-items: center;
+    opacity: 0.4;
+    transition: opacity 0.3s ease, color 0.3s ease;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .header-home:hover {
+    opacity: 1;
+  }
+
+  /* ---- Center nav ---- */
+  .header-nav {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    gap: 40px;
+  }
+
+  .header-nav > * {
+    pointer-events: auto;
+  }
+
+  .header-link {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 28px 0;
+    display: flex;
+    align-items: center;
+    opacity: 0.4;
+    transition: opacity 0.3s ease, color 0.3s ease;
+  }
+
+  .header-link:hover,
+  .header-link.is-active {
+    opacity: 1;
+  }
+
+  /* ---- Right side ---- */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .header-lang {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lang-btn {
+    background: none;
+    border: none;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #ffffff;
+    opacity: 0.35;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.3s ease, color 0.3s ease;
+    line-height: 1;
+  }
+
+  .lang-btn:hover,
+  .lang-btn.active {
+    opacity: 1;
+  }
+
+  .lang-sep {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.15);
+    line-height: 1;
+    user-select: none;
+    transition: color 0.3s ease;
+  }
+
+  /* ---- Hamburger (mobile only) ---- */
+  .header-burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px 0;
+    width: 26px;
+  }
+
+  .burger-line {
+    display: block;
+    width: 100%;
+    height: 1.5px;
+    background: #ffffff;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.25s ease,
+                background 0.3s ease;
+    transform-origin: center;
+  }
+
+  .header-burger.is-open .burger-line:first-child {
+    transform: translateY(3.25px) rotate(45deg);
+  }
+
+  .header-burger.is-open .burger-line:last-child {
+    transform: translateY(-3.25px) rotate(-45deg);
+  }
+
+  /* ---- Mobile menu overlay ---- */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: rgba(5, 5, 5, 0.96);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mobile-menu.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobile-menu-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+  }
+
+  .mobile-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .mobile-link {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity 0.3s ease, color 0.3s ease;
+  }
+
+  .mobile-link:hover {
+    opacity: 1;
+  }
+
+  .mobile-lang {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mobile-lang .lang-btn {
+    font-size: 13px;
+  }
+
+  .mobile-lang .lang-sep {
+    font-size: 13px;
+  }
+
+  /* ---- Light theme (white background pages) ---- */
+  :global(body[data-theme="light"]) .header-home,
+  :global(body[data-theme="light"]) .header-link {
+    color: #191919;
+  }
+
+  :global(body[data-theme="light"]) .header-lang .lang-btn {
+    color: #191919;
+  }
+
+  :global(body[data-theme="light"]) .header-lang .lang-sep {
+    color: rgba(25, 25, 25, 0.15);
+  }
+
+  :global(body[data-theme="light"]) .burger-line {
+    background: #191919;
+  }
+
+  /* ---- Mobile menu: force white text regardless of theme ---- */
+  .mobile-menu .mobile-link,
+  .mobile-menu .lang-btn {
+    color: #ffffff !important;
+  }
+
+  .mobile-menu .lang-sep {
+    color: rgba(255, 255, 255, 0.25) !important;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 900px) {
+    .site-header {
+      padding: 0 24px;
+    }
+
+    .header-nav {
+      display: none;
+    }
+
+    .header-lang {
+      display: none;
+    }
+
+    .header-burger {
+      display: flex;
+    }
+  }
+</style>
+
+<script>
+  import { translations } from '@/i18n/translations';
+
+  // ============================================================
+  // i18n — Language switching
+  // ============================================================
+  type Lang = 'fr' | 'en';
+
+  function getLang(): Lang {
+    return (localStorage.getItem('site-lang') as Lang) || 'fr';
+  }
+
+  function applyLang(lang: Lang) {
+    try {
+      localStorage.setItem('site-lang', lang);
+    } catch {
+      // Private mode / blocked storage — keep going, the visible swap still works
+    }
+    document.documentElement.lang = lang;
+
+    let i18nMatched = 0;
+    document.querySelectorAll<HTMLElement>('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n')!;
+      const t = translations[key];
+      if (t) { el.textContent = t[lang]; i18nMatched++; }
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-i18n-html]').forEach(el => {
+      const key = el.getAttribute('data-i18n-html')!;
+      const t = translations[key];
+      if (t) { el.innerHTML = t[lang]; i18nMatched++; }
+    });
+
+    document.querySelectorAll<HTMLElement>('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+
+    console.log(`[i18n] applied "${lang}", updated ${i18nMatched} elements`);
+  }
+
+  applyLang(getLang());
+
+  // Use event delegation on document so dynamically-mounted .lang-btn nodes
+  // (mobile menu, etc.) work even if they're inserted after this script runs.
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement | null;
+    const btn = target?.closest<HTMLButtonElement>('.lang-btn');
+    if (!btn) return;
+    const lang = btn.dataset.lang as Lang | undefined;
+    if (lang === 'fr' || lang === 'en') {
+      console.log(`[i18n] click on ${lang} button`);
+      applyLang(lang);
+    }
+  });
+
+  // ============================================================
+  // Mobile menu — hamburger toggle
+  // ============================================================
+  const burger = document.getElementById('header-burger');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  if (burger && mobileMenu) {
+    function toggleMenu(open?: boolean) {
+      const isOpen = open ?? !mobileMenu!.classList.contains('is-open');
+      burger!.classList.toggle('is-open', isOpen);
+      burger!.setAttribute('aria-expanded', String(isOpen));
+      mobileMenu!.classList.toggle('is-open', isOpen);
+      mobileMenu!.setAttribute('aria-hidden', String(!isOpen));
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    }
+
+    burger.addEventListener('click', () => toggleMenu());
+
+    // Close on link click
+    mobileMenu.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => toggleMenu(false));
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('is-open')) {
+        toggleMenu(false);
+      }
+    });
+  }
+
+  // ============================================================
+  // Active link highlight
+  // ============================================================
+  const currentPath = window.location.pathname;
+  document.querySelectorAll<HTMLElement>('.header-link').forEach(link => {
+    const href = link.getAttribute('href');
+    if (href && currentPath.startsWith(href) && href !== '/') {
+      link.classList.add('is-active');
+    }
+  });
+
+  // ============================================================
+  // Scrolled state — adds bg/blur when page is scrolled past 40px
+  // ============================================================
+  const siteHeader = document.getElementById('site-header');
+  if (siteHeader) {
+    const SCROLL_THRESHOLD = 40;
+    let ticking = false;
+
+    function updateScrolled() {
+      const scrolled = window.scrollY > SCROLL_THRESHOLD;
+      siteHeader!.classList.toggle('is-scrolled', scrolled);
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateScrolled);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateScrolled();
+  }
+</script>

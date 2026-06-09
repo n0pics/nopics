@@ -1,0 +1,251 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Contact — Votre Portfolio"
+  description="Contactez-moi pour discuter de votre projet. Remplacez cette description par la vôtre."
+  noFooter
+>
+  <section class="contact">
+    <div class="contact-inner">
+
+      <!-- Colonne gauche : présentation + coordonnées -->
+      <div class="contact-intro">
+        <h1 class="contact-title" data-i18n="contact.title">Parlons de votre projet</h1>
+        <p class="contact-subtitle" data-i18n-html="contact.subtitle">
+          Une idée, un besoin, une envie&nbsp;?<br />Je suis là pour donner vie à votre vision.
+        </p>
+
+        <ul class="contact-list">
+          <li>
+            <span class="contact-label" data-i18n="contact.email">Email</span>
+            <a href="mailto:contact@exemple.com" class="contact-value">contact@exemple.com</a>
+          </li>
+          <li>
+            <span class="contact-label" data-i18n="contact.instagram">Instagram</span>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="contact-value">@votre_compte</a>
+          </li>
+          <li>
+            <span class="contact-label" data-i18n="contact.location">Localisation</span>
+            <span class="contact-value">Votre Ville, Pays</span>
+          </li>
+        </ul>
+
+        <p class="contact-cta" data-i18n="contact.cta">
+          Disponible pour des projets partout en France et à l'international.
+        </p>
+      </div>
+
+      <!-- Colonne droite : formulaire -->
+      <form class="contact-form" id="contact-form">
+        <p class="form-subtitle" data-i18n="contact.form.subtitle">
+          Une idée, un besoin, une envie&nbsp;? Écrivez-moi directement.
+        </p>
+
+        <div class="form-row">
+          <label class="form-field">
+            <span data-i18n="contact.form.firstname">Prénom</span>
+            <input type="text" name="firstname" autocomplete="given-name" required />
+          </label>
+          <label class="form-field">
+            <span data-i18n="contact.form.lastname">Nom</span>
+            <input type="text" name="lastname" autocomplete="family-name" required />
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label class="form-field">
+            <span data-i18n="contact.form.email">Email</span>
+            <input type="email" name="email" autocomplete="email" required />
+          </label>
+          <label class="form-field">
+            <span data-i18n="contact.form.phone">Téléphone</span>
+            <input type="tel" name="phone" autocomplete="tel" />
+          </label>
+        </div>
+
+        <label class="form-field">
+          <span data-i18n="contact.form.message">Message</span>
+          <textarea name="message" rows="5" required></textarea>
+        </label>
+
+        <button type="submit" class="form-submit" data-i18n="contact.form.submit">Envoyer</button>
+      </form>
+
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 1.5rem 4rem;
+    color: #ffffff;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  .contact-inner {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  /* ---- Intro ---- */
+  .contact-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0 0 1.25rem;
+  }
+
+  .contact-subtitle {
+    font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 2.5rem;
+  }
+
+  .contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .contact-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .contact-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .contact-value {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  a.contact-value:hover { color: var(--color-primary-hex); }
+
+  .contact-cta {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ---- Form ---- */
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .form-subtitle {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 0 0 0.5rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-field span {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .form-field input,
+  .form-field textarea {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0;
+    padding: 0.75rem 0.9rem;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .form-field input:focus,
+  .form-field textarea:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .form-field textarea { resize: vertical; }
+
+  .form-submit {
+    align-self: flex-start;
+    margin-top: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 0.85rem 2.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .form-submit:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 820px) {
+    .contact-inner {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  // Le formulaire est un placeholder : branchez votre propre service
+  // (Web3Forms, Formspree, une API, etc.) en définissant `action`/`method`
+  // sur le <form>, ou en gérant l'envoi ici.
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    alert('Formulaire de démonstration — connectez votre service d\'envoi pour le rendre fonctionnel.');
+  });
+</script>

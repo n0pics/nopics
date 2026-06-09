@@ -1,0 +1,133 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  keywords?: string;
+}
+
+const {
+  title,
+  description = 'Portfolio — remplacez cette description par la vôtre.',
+  image = '/favicon.svg',
+  type = 'website',
+  noindex = false,
+  keywords = 'portfolio, créatif, projets',
+} = Astro.props;
+
+const siteName = 'Votre Portfolio';
+const siteUrl  = 'https://exemple.com';
+const fullTitle = title ? `${title}` : `${siteName} — Portfolio`;
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+const imageUrl = new URL(image, siteUrl).href;
+
+/* Breadcrumb — auto-built from URL path */
+const pathSegments = Astro.url.pathname.split('/').filter(Boolean);
+const breadcrumbItems = [
+  { name: 'Accueil', url: siteUrl },
+  ...pathSegments.map((seg, i) => ({
+    name: decodeURIComponent(seg).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    url: `${siteUrl}/${pathSegments.slice(0, i + 1).join('/')}`,
+  })),
+];
+---
+
+<!-- Balises essentielles -->
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<meta name="keywords" content={keywords} />
+<meta name="author" content="Votre Nom" />
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Robots -->
+{noindex
+  ? <meta name="robots" content="noindex,nofollow" />
+  : <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+}
+
+<!-- Language / Locale -->
+<meta http-equiv="content-language" content="fr-FR" />
+
+<!-- Hreflang — FR / EN -->
+<link rel="alternate" hreflang="fr" href={canonicalUrl} />
+<link rel="alternate" hreflang="en" href={canonicalUrl} />
+<link rel="alternate" hreflang="x-default" href={canonicalUrl} />
+
+<!-- Open Graph -->
+<meta property="og:type"        content={type} />
+<meta property="og:url"         content={canonicalUrl} />
+<meta property="og:title"       content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:image"       content={imageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt"   content={siteName} />
+<meta property="og:site_name"   content={siteName} />
+<meta property="og:locale"      content="fr_FR" />
+<meta property="og:locale:alternate" content="en_US" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card"        content="summary_large_image" />
+<meta name="twitter:title"       content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image"       content={imageUrl} />
+<meta name="twitter:image:alt"   content={siteName} />
+
+<!-- JSON-LD Organisation -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${siteUrl}/#organization`,
+  name: siteName,
+  url: siteUrl,
+  logo: {
+    '@type': 'ImageObject',
+    url: `${siteUrl}/favicon.svg`,
+  },
+  image: `${siteUrl}${image}`,
+  description,
+  founder: {
+    '@type': 'Person',
+    name: 'Votre Nom',
+  },
+})} />
+
+<!-- JSON-LD WebSite -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${siteUrl}/#website`,
+  url: siteUrl,
+  name: siteName,
+  description,
+  publisher: { '@id': `${siteUrl}/#organization` },
+  inLanguage: ['fr-FR', 'en-US'],
+})} />
+
+<!-- JSON-LD SiteNavigationElement -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'SiteNavigationElement', position: 1, name: 'Accueil',  url: `${siteUrl}/` },
+    { '@type': 'SiteNavigationElement', position: 2, name: 'Projets',  url: `${siteUrl}/projets` },
+    { '@type': 'SiteNavigationElement', position: 3, name: 'Services', url: `${siteUrl}/services` },
+    { '@type': 'SiteNavigationElement', position: 4, name: 'À propos', url: `${siteUrl}/a-propos` },
+    { '@type': 'SiteNavigationElement', position: 5, name: 'Contact',  url: `${siteUrl}/contact` },
+  ],
+})} />
+
+<!-- JSON-LD BreadcrumbList -->
+{breadcrumbItems.length > 1 && (
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  })} />
+)}
