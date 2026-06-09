@@ -53,7 +53,7 @@ const DEFAULT_DEPTH_RANGE = 50;
 const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
 // Vitesse du défilement automatique permanent (plus la valeur est haute, plus c'est rapide).
-const AUTOPLAY_SPEED = 1.9;
+const AUTOPLAY_SPEED = 3.6;
 
 const createClothMaterial = () => {
 	return new THREE.ShaderMaterial({
