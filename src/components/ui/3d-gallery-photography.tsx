@@ -459,14 +459,16 @@ export default function InfiniteGallery({
 	images,
 	className = 'h-96 w-full',
 	style,
+	speed = 1,
+	visibleCount = 12,
 	fadeSettings = {
-		fadeIn: { start: 0.05, end: 0.25 },
-		fadeOut: { start: 0.4, end: 0.43 },
+		fadeIn: { start: 0.0, end: 0.12 },
+		fadeOut: { start: 0.42, end: 0.47 },
 	},
 	blurSettings = {
-		blurIn: { start: 0.0, end: 0.1 },
-		blurOut: { start: 0.4, end: 0.43 },
-		maxBlur: 8.0,
+		blurIn: { start: 0.0, end: 0.08 },
+		blurOut: { start: 0.42, end: 0.47 },
+		maxBlur: 6.0,
 	},
 }: InfiniteGalleryProps) {
 	const [webglSupported, setWebglSupported] = useState(true);
@@ -501,6 +503,8 @@ export default function InfiniteGallery({
 			>
 				<GalleryScene
 					images={images}
+					speed={speed}
+					visibleCount={visibleCount}
 					fadeSettings={fadeSettings}
 					blurSettings={blurSettings}
 				/>

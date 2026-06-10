@@ -10,14 +10,14 @@ interface Props {
 
 const {
   title,
-  description = 'Portfolio — remplacez cette description par la vôtre.',
+  description = 'Portfolio de Tom Mertens, graphic designer — n0pics.',
   image = '/favicon.svg',
   type = 'website',
   noindex = false,
-  keywords = 'portfolio, créatif, projets',
+  keywords = 'Tom Mertens, n0pics, graphic designer, portfolio, design, branding',
 } = Astro.props;
 
-const siteName = 'Votre Portfolio';
+const siteName = 'n0pics';
 const siteUrl  = 'https://exemple.com';
 const fullTitle = title ? `${title}` : `${siteName} — Portfolio`;
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
@@ -38,7 +38,7 @@ const breadcrumbItems = [
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
 <meta name="keywords" content={keywords} />
-<meta name="author" content="Votre Nom" />
+<meta name="author" content="Tom Mertens" />
 <link rel="canonical" href={canonicalUrl} />
 
 <!-- Robots -->
@@ -90,7 +90,7 @@ const breadcrumbItems = [
   description,
   founder: {
     '@type': 'Person',
-    name: 'Votre Nom',
+    name: 'Tom Mertens',
   },
 })} />
 
