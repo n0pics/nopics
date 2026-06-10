@@ -12,6 +12,10 @@ export const translations: Record<string, { fr: string; en: string }> = {
     fr: 'Portfolio de Tom Mertens',
     en: 'Portfolio by Tom Mertens',
   },
+  'landing.cta': {
+    fr: 'Voir les projets',
+    en: 'View projects',
+  },
   'landing.portfolio.note': {
     fr: 'Décrivez ici votre activité en une phrase. Remplacez ce texte par votre propre accroche.',
     en: 'Describe your work in one sentence here. Replace this text with your own tagline.',

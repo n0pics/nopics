@@ -44,6 +44,13 @@ for (let i = galleryImages.length - 1; i > 0; i--) {
       </a>
       <span class="hero-logo-author" data-i18n="landing.portfolio">Portfolio de Tom Mertens</span>
     </div>
+
+    <!-- Porte d'entrée discrète vers les projets -->
+    <a href="/projets" class="hero-cta" aria-label="Voir les projets">
+      <svg viewBox="0 0 44 12" width="44" height="12" aria-hidden="true" focusable="false">
+        <path d="M1 6 H41 M34 1 L41 6 L34 11" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
   </section>
 </LandingLayout>
 
@@ -72,6 +79,33 @@ for (let i = galleryImages.length - 1; i > 0; i--) {
     height: 100vh;
     overflow: hidden;
     background: #050505;
+  }
+
+  /* CTA discret — flèche en bas à droite vers les projets */
+  .hero-cta {
+    position: absolute;
+    bottom: 2.25rem;
+    right: 2.5rem;
+    z-index: 25;
+    display: inline-flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.55);
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
+    transition: color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: hero-fade 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+  }
+
+  .hero-cta:hover {
+    color: #ffffff;
+    transform: translateX(5px);
+  }
+
+  /* ---- Mobile ---- */
+  @media (max-width: 600px) {
+    .hero-cta {
+      bottom: 1.5rem;
+      right: 1.5rem;
+    }
   }
 
   /* ---- Wordmark superposé, centré ---- */
