@@ -2,8 +2,10 @@
 ---
 
 <header class="site-header" id="site-header">
-  <!-- Home link (left) -->
-  <a href="/" class="header-home" data-i18n="nav.home">Accueil</a>
+  <!-- Logo (left) — lien vers l'accueil -->
+  <a href="/" class="header-home" aria-label="Accueil">
+    <img src="/brand/logo-blanc.png" alt="n0pics" class="header-logo-img" width="22" height="28" />
+  </a>
 
   <!-- Center nav (desktop) -->
   <nav class="header-nav" id="header-nav" aria-label="Navigation principale">
@@ -97,7 +99,7 @@
     padding: 28px 0;
     display: flex;
     align-items: center;
-    opacity: 0.4;
+    opacity: 0.85;
     transition: opacity 0.3s ease, color 0.3s ease;
     flex-shrink: 0;
     position: relative;
@@ -106,6 +108,18 @@
 
   .header-home:hover {
     opacity: 1;
+  }
+
+  /* Logo dans le header */
+  .header-logo-img {
+    height: 28px;
+    width: auto;
+    display: block;
+  }
+
+  /* Pages à fond clair : inverse le logo blanc en foncé */
+  :global(body[data-theme="light"]) .header-logo-img {
+    filter: invert(1);
   }
 
   /* ---- Center nav ---- */
