@@ -1,129 +1,126 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-
-// Page de détail générique pour un projet.
-// Les `slug` ci-dessous doivent correspondre à ceux listés dans projets.astro.
-// Dupliquez un bloc pour ajouter un projet, ou branchez une collection de contenu.
-type Project = {
-  slug: string;
-  title: string;
-  year: number;
-  role: string;
-  description: string;
-};
+import { projets, type Projet } from '@/data/projets';
 
 export function getStaticPaths() {
-  const description =
-    "Décrivez ce projet : le contexte, votre intervention et le résultat obtenu. Remplacez ce texte par votre propre étude de cas.";
-
-  const projects: Project[] = [
-    { slug: 'projet-01', title: 'Projet 01', year: 2025, role: 'Votre rôle', description },
-    { slug: 'projet-02', title: 'Projet 02', year: 2025, role: 'Votre rôle', description },
-    { slug: 'projet-03', title: 'Projet 03', year: 2025, role: 'Votre rôle', description },
-  ];
-
-  return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));
+  return projets
+    .filter((p) => !p.comingSoon)
+    .map((p) => ({ params: { slug: p.slug }, props: { projet: p } }));
 }
 
-const { project } = Astro.props as { project: Project };
+const { projet } = Astro.props as { projet: Projet };
+
+// Build-time : charge toutes les photos du dossier du projet.
+let images: string[] = [];
+if (projet.galleryDir) {
+  const dir = path.join(process.cwd(), 'public', projet.galleryDir);
+  try {
+    images = fs
+      .readdirSync(dir)
+      .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
+      .sort()
+      .map((f) => `/${projet.galleryDir}/${f}`);
+  } catch {
+    images = [];
+  }
+}
 ---
 
-<BaseLayout title={`${project.title} — Votre Portfolio`} description={project.description}>
-  <article class="project-detail">
-    <a href="/projets" class="back-link" data-i18n="project.back">PROJETS</a>
+<BaseLayout title={`${projet.title} — n0pics`} description={projet.comment}>
+  <article class="projet-detail">
+    <a href="/projets" class="detail-back">← Projets</a>
 
-    <header class="detail-header">
-      <p class="detail-role">{project.role}</p>
+    <header class="detail-head">
+      {projet.category && <p class="detail-cat">{projet.category}</p>}
       <h1 class="detail-title">
-        {project.title}
-        <span class="detail-year">— {project.year}</span>
+        {projet.title}<span class="detail-year"> — {projet.date}</span>
       </h1>
+      {projet.comment && <p class="detail-comment">{projet.comment}</p>}
     </header>
 
-    <!-- Zone média : déposez une image ou une vidéo de couverture ici -->
-    <div class="detail-media" aria-hidden="true"></div>
-
-    <section class="detail-about">
-      <h2 class="detail-about-label" data-i18n="project.about">À propos du projet</h2>
-      <p class="detail-description">{project.description}</p>
-    </section>
+    <div class="detail-gallery">
+      {images.map((src) => (
+        <img src={src} alt={projet.title} loading="lazy" decoding="async" />
+      ))}
+    </div>
   </article>
 </BaseLayout>
 
 <style>
-  .project-detail {
-    max-width: 960px;
+  .projet-detail {
+    max-width: 1100px;
     margin: 0 auto;
     padding: 8rem 1.5rem 6rem;
-    color: #ffffff;
-    font-family: var(--font-body);
+    color: var(--color-text);
   }
 
-  .back-link {
+  .detail-back {
     display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
-    text-decoration: none;
-    margin-bottom: 3rem;
-    transition: color 0.3s ease;
-  }
-  .back-link::before { content: '← '; }
-  .back-link:hover { color: #ffffff; }
-
-  .detail-role {
-    font-size: clamp(0.7rem, 1vw, 0.85rem);
-    font-weight: 400;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
-    margin: 0 0 0.5rem;
-  }
-
-  .detail-title {
-    font-size: clamp(2rem, 6vw, 4rem);
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    line-height: 1.05;
-    text-transform: uppercase;
-    margin: 0;
-  }
-
-  .detail-year {
-    font-weight: 300;
-    font-size: 0.45em;
-    color: rgba(255, 255, 255, 0.5);
-    letter-spacing: 0.06em;
-    margin-left: 0.4em;
-    vertical-align: middle;
-  }
-
-  .detail-media {
-    margin: 3rem 0;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 0.75rem;
-    background: radial-gradient(120% 120% at 50% 30%, #1a1a1f 0%, #0a0a0c 60%, #050505 100%);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-  }
-
-  .detail-about-label {
-    font-size: 0.7rem;
-    font-weight: 600;
+    font-size: 0.72rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
-    margin: 0 0 1rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+    transition: color 0.3s ease;
+  }
+  .detail-back:hover {
+    color: var(--color-text);
   }
 
-  .detail-description {
-    font-size: clamp(0.95rem, 1.4vw, 1.15rem);
-    font-weight: 300;
-    line-height: 1.8;
-    color: rgba(255, 255, 255, 0.85);
+  .detail-head {
     max-width: 680px;
+    margin-bottom: 3rem;
+  }
+  .detail-cat {
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0 0 0.8rem;
+  }
+  .detail-title {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
     margin: 0;
+    text-transform: uppercase;
+  }
+  .detail-year {
+    font-weight: 300;
+    text-transform: none;
+    color: var(--color-text-faint);
+  }
+  .detail-comment {
+    margin: 1.2rem 0 0;
+    color: var(--color-text-muted);
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    line-height: 1.7;
+  }
+
+  /* Galerie en colonnes (masonry) — on descend pour tout voir */
+  .detail-gallery {
+    columns: 2;
+    column-gap: 1rem;
+  }
+  .detail-gallery img {
+    width: 100%;
+    display: block;
+    margin-bottom: 1rem;
+    break-inside: avoid;
+    border-radius: 2px;
+    background: var(--color-bg-soft);
+  }
+
+  @media (max-width: 760px) {
+    .projet-detail {
+      padding-top: 6.5rem;
+    }
+    .detail-gallery {
+      columns: 1;
+    }
   }
 </style>
