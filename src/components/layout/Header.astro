@@ -57,7 +57,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    right: 0;
     z-index: 100;
     display: flex;
     justify-content: space-between;
@@ -65,27 +65,46 @@
     padding: 0 40px;
     pointer-events: none;
     background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 0;
     backdrop-filter: blur(0px);
     -webkit-backdrop-filter: blur(0px);
-    transition: background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+    transition:
+      top 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      left 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      right 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      padding 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      border-radius 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.4s ease,
+      background-color 0.35s ease,
+      backdrop-filter 0.35s ease,
+      -webkit-backdrop-filter 0.35s ease,
+      box-shadow 0.35s ease;
   }
 
   .site-header > * {
     pointer-events: auto;
   }
 
-  /* Scrolled state — dark theme (default): semi-transparent black blur */
+  /* Scrolled state — le header se détache et devient un cadre flottant flou */
   .site-header.is-scrolled {
-    background-color: rgba(8, 8, 8, 0.72);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+    top: 0.85rem;
+    left: max(1rem, calc((100% - 1120px) / 2));
+    right: max(1rem, calc((100% - 1120px) / 2));
+    padding: 0 26px;
+    border-radius: 16px;
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   }
 
-  /* Scrolled state — light theme: semi-transparent white blur */
+  /* Scrolled state — light theme */
   :global(body[data-theme="light"]) .site-header.is-scrolled {
-    background-color: rgba(255, 255, 255, 0.78);
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.08);
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   }
 
   /* ---- Home link (left) ---- */
@@ -517,12 +536,24 @@
   // ============================================================
   const siteHeader = document.getElementById('site-header');
   if (siteHeader) {
-    const SCROLL_THRESHOLD = 40;
+    const SCROLL_THRESHOLD = 24;
     let ticking = false;
+    let wasScrolled = siteHeader.classList.contains('is-scrolled');
 
     function updateScrolled() {
       const scrolled = window.scrollY > SCROLL_THRESHOLD;
       siteHeader!.classList.toggle('is-scrolled', scrolled);
+      // Quand le header change de forme (largeur/position), on garde le trait
+      // du menu aligné sous la section active pendant toute la transition.
+      if (scrolled !== wasScrolled) {
+        wasScrolled = scrolled;
+        const start = performance.now();
+        const follow = () => {
+          placeUnderline(activeLink, true);
+          if (performance.now() - start < 520) requestAnimationFrame(follow);
+        };
+        requestAnimationFrame(follow);
+      }
       ticking = false;
     }
 
