@@ -54,6 +54,8 @@ const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
 // Vitesse du défilement automatique permanent (plus la valeur est haute, plus c'est rapide).
 const AUTOPLAY_SPEED = 3.6;
+// Taille des images (était 2). Plus haut = images plus grandes.
+const IMAGE_SIZE = 3.4;
 
 const createClothMaterial = () => {
 	return new THREE.ShaderMaterial({
@@ -184,24 +186,20 @@ function GalleryScene({
 
 	const spatialPositions = useMemo(() => {
 		const positions: { x: number; y: number }[] = [];
-		const maxHorizontalOffset = MAX_HORIZONTAL_OFFSET;
-		const maxVerticalOffset = MAX_VERTICAL_OFFSET;
+		// Distribution en ANNEAU autour du centre : les images passent autour
+		// du texte (zone centrale laissée libre) pour rester lisible.
+		const minRadius = 7.5; // rayon mini = trou central pour le texte (élargi car images plus grandes)
+		const maxRadius = 12;
+		const golden = Math.PI * (3 - Math.sqrt(5)); // angle d'or (répartition régulière)
 
 		for (let i = 0; i < visibleCount; i++) {
-			// Create varied distribution patterns for both axes
-			const horizontalAngle = (i * 2.618) % (Math.PI * 2); // Golden angle for natural distribution
-			const verticalAngle = (i * 1.618 + Math.PI / 3) % (Math.PI * 2); // Offset angle for vertical
-
-			const horizontalRadius = (i % 3) * 1.2; // Vary the distance from center
-			const verticalRadius = ((i + 1) % 4) * 0.8; // Different pattern for vertical
-
-			const x =
-				(Math.sin(horizontalAngle) * horizontalRadius * maxHorizontalOffset) /
-				3;
-			const y =
-				(Math.cos(verticalAngle) * verticalRadius * maxVerticalOffset) / 4;
-
-			positions.push({ x, y });
+			const angle = i * golden;
+			const t = (i % 4) / 3; // fait varier le rayon (0, .33, .66, 1)
+			const radius = minRadius + t * (maxRadius - minRadius);
+			positions.push({
+				x: Math.cos(angle) * radius * 1.2, // un peu plus large horizontalement
+				y: Math.sin(angle) * radius,
+			});
 		}
 
 		return positions;
@@ -410,7 +408,9 @@ function GalleryScene({
 					? texture.image.width / texture.image.height
 					: 1;
 				const scale: [number, number, number] =
-					aspect > 1 ? [2 * aspect, 2, 1] : [2, 2 / aspect, 1];
+					aspect > 1
+						? [IMAGE_SIZE * aspect, IMAGE_SIZE, 1]
+						: [IMAGE_SIZE, IMAGE_SIZE / aspect, 1];
 
 				return (
 					<ImagePlane
