@@ -18,11 +18,10 @@ export const projets: Projet[] = [
   {
     slug: 'solognac',
     title: 'Solognac',
-    date: '2025',
+    date: '2026',
     category: 'Direction artistique',
-    comment:
-      'Direction artistique et création de visuels pour Solognac. Remplace ce texte par ta propre description du projet.',
-    cover: '/images/accueil/dino-3.jpg',
+    comment: 'Création de visuels pour Solognac',
+    cover: '/images/accueil/treemetic-inspiration.jpg',
     galleryDir: 'images/accueil',
   },
   // Cartes placeholder — remplace-les par tes futurs projets (ou supprime-les).
