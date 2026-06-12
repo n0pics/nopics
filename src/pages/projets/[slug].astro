@@ -68,6 +68,16 @@ if (projet.galleryDir) {
       ))}
     </div>
   </article>
+
+  <!-- Lightbox : clic sur une photo = plein écran -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+        <path d="M5 5l14 14M19 5L5 19" />
+      </svg>
+    </button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="" />
+  </div>
 </BaseLayout>
 
 <style>
@@ -135,6 +145,64 @@ if (projet.galleryDir) {
     break-inside: avoid;
     border-radius: 2px;
     background: var(--color-bg-soft);
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+  .detail-gallery img:hover {
+    opacity: 0.7;
+  }
+
+  /* ---- Lightbox ---- */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4vmin;
+    background: rgba(5, 5, 5, 0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    cursor: pointer;
+    transition: opacity 0.32s ease, visibility 0.32s;
+  }
+  .lightbox.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .lightbox-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 3px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+    transform: scale(0.94);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .lightbox.is-open .lightbox-img {
+    transform: scale(1);
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.4rem;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: color 0.25s ease;
+  }
+  .lightbox-close:hover {
+    color: #ffffff;
   }
 
   @media (max-width: 760px) {
@@ -146,3 +214,39 @@ if (projet.galleryDir) {
     }
   }
 </style>
+
+<script>
+  const gallery = document.querySelector<HTMLElement>('.detail-gallery');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+
+  if (gallery && lightbox && lightboxImg) {
+    // Sort la lightbox de <main> pour qu'elle passe au-dessus du header (z-index)
+    document.body.appendChild(lightbox);
+
+    const open = (src: string, alt: string) => {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt;
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+    const close = () => {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+
+    gallery.addEventListener('click', (e) => {
+      const img = (e.target as HTMLElement).closest('img');
+      if (img instanceof HTMLImageElement) open(img.src, img.alt);
+    });
+
+    // Clic n'importe où sur la lightbox (fond, image ou croix) = fermeture
+    lightbox.addEventListener('click', close);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
+    });
+  }
+</script>
