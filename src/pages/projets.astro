@@ -10,12 +10,12 @@ import { projets } from '@/data/projets';
 >
   <section class="projets-page">
     <header class="projets-head">
-      <p class="projets-eyebrow">Sélection</p>
       <h1 class="projets-title">Projets</h1>
       <p class="projets-intro">
         Une sélection de projets — direction artistique, identité et création de
         visuels. Remplace ce texte par ta propre introduction.
       </p>
+      <div class="projets-rule"></div>
     </header>
 
     <div class="projets-grid">
@@ -57,35 +57,40 @@ import { projets } from '@/data/projets';
     color: var(--color-text);
   }
 
+  /* ---- En-tête centré, éditorial ---- */
   .projets-head {
-    max-width: 640px;
-    margin-bottom: 3.5rem;
-  }
-  .projets-eyebrow {
-    font-size: 0.7rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-    margin: 0 0 0.9rem;
+    text-align: center;
+    max-width: 860px;
+    margin: 0 auto;
   }
   .projets-title {
-    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-size: clamp(2.75rem, 7.5vw, 5.5rem);
     font-weight: 700;
-    letter-spacing: -0.02em;
-    margin: 0 0 1.1rem;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin: 0 0 1.4rem;
   }
   .projets-intro {
+    max-width: 62ch;
+    margin: 0 auto;
     color: var(--color-text-muted);
-    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
-    line-height: 1.7;
-    margin: 0;
+    font-size: clamp(0.7rem, 0.9vw, 0.82rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1.9;
+  }
+  .projets-rule {
+    width: 170px;
+    height: 1px;
+    background: var(--color-border-mid);
+    margin: 2.5rem auto 3.75rem;
   }
 
-  /* ---- Grille de projets ---- */
+  /* ---- Grille de projets (couvertures portrait) ---- */
   .projets-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2.75rem 2rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem 1.75rem;
   }
 
   .projet-card {
@@ -96,7 +101,7 @@ import { projets } from '@/data/projets';
 
   .projet-cover {
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 3 / 4;
     overflow: hidden;
     background: var(--color-bg-soft);
     border-radius: 3px;
@@ -115,8 +120,9 @@ import { projets } from '@/data/projets';
     background: radial-gradient(120% 120% at 50% 30%, #1a1a1f 0%, #0c0c0e 60%, #070708 100%);
   }
 
+  /* ---- Légende (sans numéro) ---- */
   .projet-meta {
-    padding-top: 1.1rem;
+    padding-top: 1rem;
   }
   .projet-meta-top {
     display: flex;
@@ -125,24 +131,24 @@ import { projets } from '@/data/projets';
     gap: 1rem;
   }
   .projet-name {
-    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
+    font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
     margin: 0;
   }
   .projet-date {
     font-size: 0.8rem;
     color: var(--color-text-faint);
     flex-shrink: 0;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
   }
   .projet-comment {
-    margin: 0.6rem 0 0;
+    margin: 0.55rem 0 0;
     font-size: 0.85rem;
     line-height: 1.6;
     color: var(--color-text-muted);
-    max-width: 42ch;
   }
 
   .is-soon {
@@ -150,13 +156,18 @@ import { projets } from '@/data/projets';
     opacity: 0.5;
   }
 
-  @media (max-width: 760px) {
+  @media (max-width: 900px) {
+    .projets-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
     .projets-page {
       padding-top: 7rem;
     }
     .projets-grid {
       grid-template-columns: 1fr;
-      gap: 2.25rem;
+      gap: 2.5rem;
     }
   }
 </style>
