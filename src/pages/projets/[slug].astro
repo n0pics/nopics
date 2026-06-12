@@ -12,16 +12,38 @@ export function getStaticPaths() {
 
 const { projet } = Astro.props as { projet: Projet };
 
-// Build-time : charge toutes les photos du dossier du projet.
+// Build-time : charge toutes les photos du dossier du projet, puis les entrelace
+// par "famille" (nom sans le numéro final) pour éviter deux photos qui se
+// ressemblent côte à côte.
 let images: string[] = [];
 if (projet.galleryDir) {
   const dir = path.join(process.cwd(), 'public', projet.galleryDir);
   try {
-    images = fs
+    const files = fs
       .readdirSync(dir)
       .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
-      .sort()
-      .map((f) => `/${projet.galleryDir}/${f}`);
+      .sort();
+
+    const groups = new Map<string, string[]>();
+    for (const f of files) {
+      const key = f.replace(/\.[^.]+$/, '').replace(/-\d+$/, '');
+      const arr = groups.get(key) ?? [];
+      arr.push(f);
+      groups.set(key, arr);
+    }
+
+    // Familles triées par taille décroissante, puis on prend une photo de
+    // chaque famille à tour de rôle (round-robin).
+    const groupList = [...groups.values()].sort((a, b) => b.length - a.length);
+    const maxLen = Math.max(0, ...groupList.map((g) => g.length));
+    const ordered: string[] = [];
+    for (let r = 0; r < maxLen; r++) {
+      for (const g of groupList) {
+        if (g[r]) ordered.push(g[r]);
+      }
+    }
+
+    images = ordered.map((f) => `/${projet.galleryDir}/${f}`);
   } catch {
     images = [];
   }
