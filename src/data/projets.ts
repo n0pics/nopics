@@ -20,7 +20,7 @@ export const projets: Projet[] = [
     title: 'Solognac',
     date: '2026',
     category: 'Direction artistique',
-    comment: 'Création de visuels pour Solognac',
+    comment: 'Création de visuels pour Solognac.',
     cover: '/images/accueil/treemetic-inspiration.jpg',
     galleryDir: 'images/accueil',
   },
