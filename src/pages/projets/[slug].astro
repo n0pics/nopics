@@ -48,6 +48,9 @@ if (projet.galleryDir) {
     images = [];
   }
 }
+
+// Nombre de photos affichées avant le bouton « Voir plus »
+const INITIAL = 12;
 ---
 
 <BaseLayout title={`${projet.title} — n0pics`} description={projet.comment} noFooter>
@@ -63,10 +66,22 @@ if (projet.galleryDir) {
     </header>
 
     <div class="detail-gallery">
-      {images.map((src) => (
-        <img src={src} alt={projet.title} loading="lazy" decoding="async" />
+      {images.map((src, i) => (
+        <img
+          src={src}
+          alt={projet.title}
+          loading="lazy"
+          decoding="async"
+          class={i >= INITIAL ? 'is-extra' : undefined}
+        />
       ))}
     </div>
+
+    {images.length > INITIAL && (
+      <div class="gallery-more-wrap">
+        <button class="gallery-more" id="gallery-more" type="button">Voir plus</button>
+      </div>
+    )}
   </article>
 
   <!-- Lightbox : clic sur une photo = plein écran -->
@@ -135,7 +150,7 @@ if (projet.galleryDir) {
 
   /* Galerie en colonnes (masonry) — on descend pour tout voir */
   .detail-gallery {
-    columns: 2;
+    columns: 3;
     column-gap: 1rem;
   }
   .detail-gallery img {
@@ -150,6 +165,38 @@ if (projet.galleryDir) {
   }
   .detail-gallery img:hover {
     opacity: 0.7;
+  }
+  .detail-gallery img.is-extra {
+    display: none;
+  }
+  .detail-gallery img.just-shown {
+    animation: gallery-fade 0.5s ease both;
+  }
+  @keyframes gallery-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Bouton « Voir plus » */
+  .gallery-more-wrap {
+    text-align: center;
+    margin-top: 3rem;
+  }
+  .gallery-more {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 0.85rem 2.4rem;
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+  .gallery-more:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.85);
   }
 
   /* ---- Lightbox ---- */
@@ -205,12 +252,19 @@ if (projet.galleryDir) {
     color: #ffffff;
   }
 
+  @media (max-width: 720px) {
+    .detail-gallery {
+      columns: 2;
+    }
+  }
+  @media (max-width: 460px) {
+    .detail-gallery {
+      columns: 1;
+    }
+  }
   @media (max-width: 760px) {
     .projet-detail {
       padding-top: 6.5rem;
-    }
-    .detail-gallery {
-      columns: 1;
     }
   }
 </style>
@@ -247,6 +301,25 @@ if (projet.galleryDir) {
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
+    });
+  }
+
+  // « Voir plus » — révèle les photos cachées par lots
+  const moreBtn = document.getElementById('gallery-more');
+  const galleryEl = document.querySelector('.detail-gallery');
+  if (moreBtn && galleryEl) {
+    const BATCH = 8;
+    moreBtn.addEventListener('click', () => {
+      const hidden = Array.from(
+        galleryEl.querySelectorAll<HTMLElement>('img.is-extra'),
+      ).slice(0, BATCH);
+      hidden.forEach((img) => {
+        img.classList.remove('is-extra');
+        img.classList.add('just-shown');
+      });
+      if (galleryEl.querySelectorAll('img.is-extra').length === 0) {
+        moreBtn.style.display = 'none';
+      }
     });
   }
 </script>
