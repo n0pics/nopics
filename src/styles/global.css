@@ -206,6 +206,61 @@ img, video {
   }
 }
 
+/* === Bouton « verre » — repris du cadre flottant du header
+   (bord fin, coins arrondis, fond translucide flouté) === */
+.btn-glass {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--color-text);
+  padding: 0.95rem 2.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background-color: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glass:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  transform: translateY(-2px);
+}
+.btn-glass:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+}
+.btn-glass:focus-visible {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Variante fond clair (pages theme="light") */
+body[data-theme="light"] .btn-glass {
+  color: #111;
+  border-color: rgba(0, 0, 0, 0.12);
+  background-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+body[data-theme="light"] .btn-glass:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
 /* === Reduced motion — accessibility === */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

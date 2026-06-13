@@ -93,7 +93,7 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
 
     {images.length > INITIAL && (
       <div class="gallery-more-wrap">
-        <button class="gallery-more" id="gallery-more" type="button">Voir plus</button>
+        <button class="btn-glass" id="gallery-more" type="button">Voir plus</button>
       </div>
     )}
   </article>
@@ -202,22 +202,7 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
     text-align: center;
     margin-top: 3rem;
   }
-  .gallery-more {
-    font-family: var(--font-body);
-    font-size: 0.72rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--color-text);
-    background: none;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    padding: 0.85rem 2.4rem;
-    cursor: pointer;
-    transition: background 0.3s ease, border-color 0.3s ease;
-  }
-  .gallery-more:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.85);
-  }
+  /* Bouton « Voir plus » : style verre partagé (.btn-glass dans global.css) */
 
   /* ---- Lightbox ---- */
   .lightbox {

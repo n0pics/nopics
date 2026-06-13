@@ -70,7 +70,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           <textarea name="message" rows="5" required></textarea>
         </label>
 
-        <button type="submit" class="form-submit" data-i18n="contact.form.submit">Envoyer</button>
+        <button type="submit" class="form-submit btn-glass" data-i18n="contact.form.submit">Envoyer</button>
       </form>
 
     </div>
@@ -206,24 +206,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
   .form-field textarea { resize: vertical; }
 
+  /* Alignement uniquement — le style vient de .btn-glass (global.css) */
   .form-submit {
     align-self: flex-start;
     margin-top: 0.5rem;
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: #ffffff;
-    background: none;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    padding: 0.85rem 2.5rem;
-    cursor: pointer;
-    transition: background 0.3s ease, border-color 0.3s ease;
-  }
-
-  .form-submit:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.8);
   }
 
   /* ---- Responsive ---- */
