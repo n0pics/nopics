@@ -8,25 +8,17 @@ import { projets } from '@/data/projets';
   description="Sélection de projets de Tom Mertens — n0pics."
   noFooter
 >
-  <section class="projets-page">
-    <header class="projets-head">
-      <h1 class="projets-title">Projets</h1>
-      <p class="projets-intro">
-        Une sélection de projets — direction artistique, identité et création de
-        visuels. Remplace ce texte par ta propre introduction.
-      </p>
-      <div class="projets-rule"></div>
-    </header>
+  <section class="projets">
+    <h1 class="sr-only">Projets — Tom Mertens, n0pics</h1>
 
-    <div class="projets-grid">
+    <!-- Galerie horizontale : défile vers la droite à la molette -->
+    <div class="projets-track" id="projets-track">
       {projets.map((p) =>
         p.comingSoon ? (
           <div class="projet-card is-soon" aria-hidden="true">
             <div class="projet-cover projet-cover--placeholder"></div>
             <div class="projet-meta">
-              <div class="projet-meta-top">
-                <h2 class="projet-name">{p.title}</h2>
-              </div>
+              <h2 class="projet-name">{p.title}</h2>
               <p class="projet-comment">Bientôt disponible</p>
             </div>
           </div>
@@ -46,54 +38,50 @@ import { projets } from '@/data/projets';
         )
       )}
     </div>
+
+    <div class="projets-nav">
+      <button class="projets-arrow projets-prev" id="projets-prev" type="button" aria-label="Projet précédent" hidden>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 12H5M11 6l-6 6 6 6" />
+        </svg>
+      </button>
+      <button class="projets-arrow projets-next" id="projets-next" type="button" aria-label="Projet suivant">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </button>
+    </div>
   </section>
 </BaseLayout>
 
 <style>
-  .projets-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 9rem 1.5rem 6rem;
+  .projets {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 7rem 0 3rem;
     color: var(--color-text);
   }
 
-  /* ---- En-tête centré, éditorial ---- */
-  .projets-head {
-    text-align: center;
-    max-width: 860px;
-    margin: 0 auto;
+  /* ---- Piste horizontale ---- */
+  .projets-track {
+    display: flex;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    width: 100%;
+    overflow-x: auto;
+    padding: 0 clamp(1.5rem, 5vw, 4rem);
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
-  .projets-title {
-    font-size: clamp(2.75rem, 7.5vw, 5.5rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    margin: 0 0 1.4rem;
-  }
-  .projets-intro {
-    max-width: 62ch;
-    margin: 0 auto;
-    color: var(--color-text-muted);
-    font-size: clamp(0.7rem, 0.9vw, 0.82rem);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    line-height: 1.9;
-  }
-  .projets-rule {
-    width: 170px;
-    height: 1px;
-    background: var(--color-border-mid);
-    margin: 2.5rem auto 3.75rem;
+  .projets-track::-webkit-scrollbar {
+    display: none;
   }
 
-  /* ---- Grille de projets (couvertures portrait) ---- */
-  .projets-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3rem 1.75rem;
-  }
-
+  /* ---- Carte projet (grande) ---- */
   .projet-card {
+    flex: 0 0 clamp(260px, 44vw, 540px);
     display: block;
     text-decoration: none;
     color: inherit;
@@ -111,7 +99,7 @@ import { projets } from '@/data/projets';
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .projet-card:hover .projet-cover img {
     transform: scale(1.04);
@@ -120,9 +108,9 @@ import { projets } from '@/data/projets';
     background: radial-gradient(120% 120% at 50% 30%, #1a1a1f 0%, #0c0c0e 60%, #070708 100%);
   }
 
-  /* ---- Légende (sans numéro) ---- */
+  /* ---- Légende ---- */
   .projet-meta {
-    padding-top: 1rem;
+    padding-top: 1.1rem;
   }
   .projet-meta-top {
     display: flex;
@@ -131,22 +119,22 @@ import { projets } from '@/data/projets';
     gap: 1rem;
   }
   .projet-name {
-    font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+    font-size: clamp(1.3rem, 2vw, 1.9rem);
     font-weight: 600;
-    letter-spacing: -0.01em;
-    line-height: 1.15;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
     margin: 0;
   }
   .projet-date {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--color-text-faint);
     flex-shrink: 0;
     letter-spacing: 0.04em;
     font-variant-numeric: tabular-nums;
   }
   .projet-comment {
-    margin: 0.55rem 0 0;
-    font-size: 0.85rem;
+    margin: 0.6rem 0 0;
+    font-size: 0.9rem;
     line-height: 1.6;
     color: var(--color-text-muted);
   }
@@ -156,18 +144,110 @@ import { projets } from '@/data/projets';
     opacity: 0.5;
   }
 
-  @media (max-width: 900px) {
-    .projets-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  /* ---- Flèches de défilement (bas droite), style verre ---- */
+  .projets-nav {
+    position: absolute;
+    right: clamp(1.5rem, 5vw, 4rem);
+    bottom: clamp(1.5rem, 4vw, 2.75rem);
+    z-index: 5;
+    display: flex;
+    gap: 0.6rem;
   }
-  @media (max-width: 560px) {
-    .projets-page {
-      padding-top: 7rem;
+  .projets-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(10, 10, 10, 0.5);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background 0.35s ease, border-color 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .projets-arrow:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+  .projets-next:hover {
+    transform: translateX(2px);
+  }
+  .projets-prev:hover {
+    transform: translateX(-2px);
+  }
+  .projets-arrow[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 760px) {
+    .projets {
+      padding-top: 6rem;
     }
-    .projets-grid {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
+    /* Sur mobile : une carte large par "écran", on swipe */
+    .projet-card {
+      flex-basis: 78vw;
     }
   }
 </style>
+
+<script>
+  // Défilement horizontal via les flèches (bas droite), en douceur.
+  const track = document.getElementById('projets-track');
+  const prevBtn = document.getElementById('projets-prev');
+  const nextBtn = document.getElementById('projets-next');
+
+  if (track && prevBtn && nextBtn) {
+    const cards = () => Array.from(track.querySelectorAll<HTMLElement>('.projet-card'));
+    const maxScroll = () => track.scrollWidth - track.clientWidth;
+    const clampScroll = (x: number) => Math.max(0, Math.min(x, maxScroll()));
+    // Position du bord gauche d'une carte dans le contenu défilable
+    const cardLeft = (c: HTMLElement) =>
+      c.getBoundingClientRect().left - track.getBoundingClientRect().left + track.scrollLeft;
+
+    // Index de la carte la plus proche du centre de la fenêtre
+    const currentIndex = () => {
+      const list = cards();
+      const viewCenter = track.scrollLeft + track.clientWidth / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      list.forEach((c, i) => {
+        const center = cardLeft(c) + c.getBoundingClientRect().width / 2;
+        const d = Math.abs(center - viewCenter);
+        if (d < bestDist) { bestDist = d; best = i; }
+      });
+      return best;
+    };
+
+    // Centre la carte d'index i dans la fenêtre (défilement smooth)
+    const centerCard = (i: number) => {
+      const list = cards();
+      const c = list[Math.max(0, Math.min(i, list.length - 1))];
+      if (!c) return;
+      const target = cardLeft(c) - (track.clientWidth - c.getBoundingClientRect().width) / 2;
+      track.scrollTo({ left: clampScroll(target), behavior: 'smooth' });
+    };
+
+    // Affiche/masque les flèches selon la position de défilement
+    const update = () => {
+      const max = maxScroll();
+      if (max <= 4) {
+        prevBtn.hidden = true;
+        nextBtn.hidden = true;
+        return;
+      }
+      prevBtn.hidden = track.scrollLeft <= 4;
+      nextBtn.hidden = track.scrollLeft >= max - 4;
+    };
+
+    nextBtn.addEventListener('click', () => centerCard(currentIndex() + 1));
+    prevBtn.addEventListener('click', () => centerCard(currentIndex() - 1));
+
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  }
+</script>
