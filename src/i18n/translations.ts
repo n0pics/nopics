@@ -69,12 +69,12 @@ export const translations: Record<string, { fr: string; en: string }> = {
   'about.cta': { fr: 'DÉCOUVRIR', en: 'DISCOVER' },
   'about.vision.label': { fr: 'Angle créatif', en: 'Creative angle' },
   'about.vision.title': {
-    fr: 'Une accroche forte qui résume votre approche.',
-    en: 'A strong headline that sums up your approach.',
+    fr: 'De l’idée à l’image',
+    en: 'From idea to image',
   },
   'about.vision.text': {
-    fr: 'Présentez votre vision en quelques lignes. Qu\'est-ce qui vous distingue ? Quelle est votre manière de travailler ?<br /><br />Remplacez ce paragraphe par votre propre texte pour donner du sens à votre démarche.<br /><br />Parlez de ce qui compte vraiment pour vous et pour vos clients.',
-    en: 'Introduce your vision in a few lines. What sets you apart? How do you like to work?<br /><br />Replace this paragraph with your own text to give meaning to your approach.<br /><br />Talk about what truly matters to you and to your clients.',
+    fr: 'Au départ d’un projet, il y a souvent un élément discret qui attire le regard et laisse entrevoir une direction possible. À partir de là, je développe des images construites où esthétique et intention trouvent leur équilibre.<br /><br />J’accompagne chaque projet de son point de départ jusqu’à sa forme finale, en affinant les idées pour aboutir à une expression visuelle claire, cohérente et maîtrisée.<br /><br />Mon travail consiste à donner une présence évidente aux concepts, à travers des identités et des compositions pensées pour durer et s’imposer naturellement.',
+    en: 'At the start of a project, there is often a discreet element that catches the eye and hints at a possible direction. From there, I build crafted images where aesthetics and intent find their balance.<br /><br />I guide each project from its starting point to its final form, refining ideas to reach a visual expression that is clear, coherent and controlled.<br /><br />My work is about giving concepts an obvious presence, through identities and compositions designed to last and assert themselves naturally.',
   },
   'about.stats.label': { fr: 'LES CHIFFRES', en: 'THE NUMBERS' },
   'about.stats.title': { fr: 'Vos résultats en quelques chiffres.', en: 'Your results in a few numbers.' },
