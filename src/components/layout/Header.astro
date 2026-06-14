@@ -426,6 +426,12 @@
       if (t) { el.innerHTML = t[lang]; i18nMatched++; }
     });
 
+    document.querySelectorAll<HTMLElement>('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder')!;
+      const t = translations[key];
+      if (t) { el.setAttribute('placeholder', t[lang]); i18nMatched++; }
+    });
+
     document.querySelectorAll<HTMLElement>('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === lang);
     });

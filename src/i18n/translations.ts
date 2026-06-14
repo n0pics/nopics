@@ -112,6 +112,7 @@ export const translations: Record<string, { fr: string; en: string }> = {
   },
   'contact.form.firstname': { fr: 'Prénom', en: 'First name' },
   'contact.form.lastname': { fr: 'Nom', en: 'Last name' },
+  'contact.form.fullname': { fr: 'Nom complet', en: 'Full name' },
   'contact.form.email': { fr: 'Email', en: 'Email' },
   'contact.form.phone': { fr: 'Téléphone', en: 'Phone' },
   'contact.form.message': { fr: 'Message', en: 'Message' },
