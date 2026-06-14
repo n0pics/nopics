@@ -1,253 +1,212 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-const items = [
+
+// Les textes (FR par défaut ci-dessous) sont traduits via i18n :
+// data-i18n="svc.<key>.title" / "svc.<key>.desc" (voir src/i18n/translations.ts).
+const services = [
   {
-    title: 'SERVICE 01',
-    i18nKey: 'svc.realisation-video',
-    descKey: 'svc.desc.realisation-video',
-    desc: 'Décrivez votre premier service et la valeur que vous apportez à vos clients.',
+    key: 'digital',
+    title: 'Design digital',
+    desc: 'Création de visuels adaptés aux réseaux sociaux et aux écrans, pensés pour capter l’attention et renforcer votre présence en ligne.',
   },
   {
-    title: 'SERVICE 02',
-    i18nKey: 'svc.photographie',
-    descKey: 'svc.desc.photographie',
-    desc: 'Décrivez votre deuxième service et la valeur que vous apportez à vos clients.',
+    key: 'print',
+    title: 'Design print',
+    desc: 'Conception de supports imprimés clairs et impactants, alliant lisibilité, esthétique et contraintes techniques d’impression.',
   },
   {
-    title: 'SERVICE 03',
-    i18nKey: 'svc.prise-de-vue-aerienne',
-    descKey: 'svc.desc.prise-de-vue-aerienne',
-    desc: 'Décrivez votre troisième service et la valeur que vous apportez à vos clients.',
+    key: 'direction',
+    title: 'Direction artistique',
+    desc: 'Définition d’un univers visuel cohérent pour donner une identité forte et reconnaissable à votre marque ou projet.',
   },
   {
-    title: 'SERVICE 04',
-    i18nKey: 'svc.post-prod',
-    descKey: 'svc.desc.post-prod',
-    desc: 'Décrivez votre quatrième service et la valeur que vous apportez à vos clients.',
-  },
-  {
-    title: 'SERVICE 05',
-    i18nKey: 'svc.ecriture',
-    descKey: 'svc.desc.ecriture',
-    desc: 'Décrivez votre cinquième service et la valeur que vous apportez à vos clients.',
+    key: 'illustration',
+    title: 'Illustration & assets graphiques',
+    desc: 'Création d’éléments visuels sur mesure pour enrichir votre identité et rendre vos supports plus distinctifs et mémorables.',
   },
 ];
 ---
 
 <BaseLayout
-  title="Services — Votre Portfolio"
-  description="Présentez vos services. Remplacez cette description par la vôtre."
+  title="Services — n0pics"
+  description="Les services de Tom Mertens — n0pics : direction artistique, identité visuelle, création de visuels."
   noFooter
-  theme="light"
 >
+  <section class="services">
+    <h1 class="sr-only">Services — Tom Mertens, n0pics</h1>
 
-  <section class="services-section">
-    <h1 class="sr-only">Services — Réalisation vidéo, photographie, drone, post-production</h1>
-    <div class="services-list">
-      {items.map((item, i) => (
-        <div class="service-block" style={`--i: ${i}`}>
-          <button
-            class="service-name"
-            data-i18n={item.i18nKey}
-            aria-expanded="false"
-          >
-            {item.title}
+    <ul class="svc-list">
+      {services.map((s) => (
+        <li class="svc-item">
+          <button class="svc-head" type="button" aria-expanded="false">
+            <span class="svc-title" data-i18n={`svc.${s.key}.title`}>{s.title}</span>
+            <span class="svc-toggle" aria-hidden="true"></span>
           </button>
-          <div class="service-desc-wrap">
-            <p class="service-desc" data-i18n-html={item.descKey} set:html={item.desc}>
-            </p>
+          <div class="svc-panel">
+            <div class="svc-panel-inner">
+              <p class="svc-desc" data-i18n={`svc.${s.key}.desc`}>{s.desc}</p>
+            </div>
           </div>
-        </div>
+        </li>
       ))}
-      <span
-        class="service-name service-more"
-        style="--i: 5"
-        data-i18n="svc.more"
-      >
-        + ENCORE
-      </span>
-    </div>
+    </ul>
   </section>
-
 </BaseLayout>
 
 <style>
-  /* ============================================================
-     SERVICES PAGE — Outlined text list with expand on click
-     White background, outlined/stroked text, fill on hover
-     ============================================================ */
-
-  .services-section {
-    width: 100vw;
+  .services {
     min-height: 100vh;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem 4rem;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    background: #ffffff;
-    padding: 6rem 2rem;
+    color: var(--color-text);
   }
 
-  .services-list {
+  /* ---- Liste accordéon ---- */
+  .svc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .svc-item {
+    border-top: 1px solid var(--color-border-mid, rgba(255, 255, 255, 0.12));
+  }
+  .svc-item:last-child {
+    border-bottom: 1px solid var(--color-border-mid, rgba(255, 255, 255, 0.12));
+  }
+
+  /* En-tête de ligne (cliquable) */
+  .svc-head {
+    position: relative;
+    isolation: isolate;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    gap: 0.15em;
-  }
-
-  /* ---- Service block (title + description) ---- */
-  .service-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    /* Entrance animation */
-    opacity: 0;
-    transform: translateY(30px);
-    animation: service-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: calc(var(--i) * 0.08s + 0.15s);
-  }
-
-  /* ---- Outlined text effect ---- */
-  .service-name {
-    font-family: var(--font-body);
-    font-size: clamp(1.8rem, 5.5vw, 4.5rem);
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: -0.01em;
-    line-height: 1.15;
-    display: block;
-    padding: 0.1em 0.25em;
-    cursor: pointer;
+    gap: 1.5rem;
+    width: 100%;
+    padding: clamp(1.15rem, 2.6vw, 1.8rem) clamp(1rem, 2.5vw, 1.5rem);
     background: none;
     border: none;
-
-    /* Outlined / hollow text */
-    color: #191919;
-    -webkit-text-fill-color: transparent;
-    -webkit-text-stroke: 1.5px #191919;
-
-    /* Hover transition */
-    transition: -webkit-text-fill-color 0.25s ease,
-                transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    text-align: left;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    transition: color 0.6s ease;
   }
-
+  /* Balayage de remplissage au survol */
+  .svc-head::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-text);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
   @media (hover: hover) and (pointer: fine) {
-    .service-name:hover {
-      -webkit-text-fill-color: #191919;
+    .svc-head:hover {
+      color: #050505;
+    }
+    .svc-head:hover::before {
+      transform: scaleX(1);
     }
   }
 
-  /* Active state — title lifts up + stays filled */
-  .service-block.is-open .service-name {
-    -webkit-text-fill-color: #191919;
-    transform: translateY(-0.15em);
+  .svc-title {
+    flex: 1;
+    min-width: 0;
+    font-size: clamp(1.35rem, 3.4vw, 2.3rem);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    color: inherit;
   }
 
-  /* ---- Description wrapper — collapsed by default ---- */
-  .service-desc-wrap {
+  /* Indicateur + / − */
+  .svc-toggle {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+  .svc-toggle::before,
+  .svc-toggle::after {
+    content: "";
+    position: absolute;
+    background: currentColor;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
+  }
+  .svc-toggle::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    transform: translateY(-50%);
+  }
+  .svc-toggle::after {
+    left: 50%;
+    top: 0;
+    width: 1.5px;
+    height: 100%;
+    transform: translateX(-50%);
+  }
+  .svc-item.is-open .svc-toggle::after {
+    transform: translateX(-50%) scaleY(0);
+    opacity: 0;
+  }
+
+  /* Panneau dépliant (transition fluide via grid) */
+  .svc-panel {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow: hidden;
+    transition: grid-template-rows 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
-
-  .service-block.is-open .service-desc-wrap {
+  .svc-item.is-open .svc-panel {
     grid-template-rows: 1fr;
   }
-
-  .service-desc {
+  .svc-panel-inner {
     min-height: 0;
+    overflow: hidden;
+  }
+  .svc-desc {
+    max-width: 56ch;
+    margin: 0;
+    /* aligné sur le titre + respiration en bas */
+    padding: 0 clamp(1rem, 2.5vw, 1.5rem) clamp(1.5rem, 3vw, 2rem);
     font-family: var(--font-body);
-    font-size: clamp(0.9rem, 1.4vw, 1.15rem);
-    font-weight: 500;
-    color: #191919;
-    line-height: 1.7;
-    text-align: center;
-    padding: 0 1rem;
-    opacity: 0;
-    transform: translateY(-0.5rem);
-    transition: opacity 0.4s ease 0.1s,
-                transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+    font-size: clamp(0.92rem, 1.15vw, 1.02rem);
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--color-text-muted);
   }
 
-  .service-block.is-open .service-desc {
-    opacity: 1;
-    transform: translateY(0);
-    padding-bottom: 0.75em;
-  }
-
-  /* ---- "+ ENCORE" subtle variant ---- */
-  .service-more {
-    margin-top: 0.3em;
-    font-size: clamp(1.2rem, 3vw, 2.5rem);
-    font-weight: 600;
-    -webkit-text-stroke-width: 1px;
-    cursor: default;
-
-    /* Entrance animation */
-    opacity: 0;
-    transform: translateY(30px);
-    animation: service-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: calc(var(--i) * 0.08s + 0.15s);
-  }
-
-  /* ---- Entrance animation ---- */
-  @keyframes service-enter {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* ---- Responsive ---- */
-  @media (max-width: 768px) {
-    .services-section {
-      padding: 5rem 1rem;
-    }
-
-    .service-name {
-      -webkit-text-stroke-width: 1px;
-    }
-
-    .service-more {
-      -webkit-text-stroke-width: 0.75px;
-    }
-
-    .service-desc {
-      max-width: 100%;
-      font-size: 0.8rem;
+  @media (max-width: 600px) {
+    .services {
+      padding-top: 7.5rem;
     }
   }
 </style>
 
 <script>
-  // ============================================================
-  // Services — toggle description on click
-  // ============================================================
-  const blocks = document.querySelectorAll<HTMLElement>('.service-block');
+  const items = document.querySelectorAll<HTMLElement>('.svc-item');
 
-  blocks.forEach((block) => {
-    const btn = block.querySelector('.service-name') as HTMLButtonElement;
+  items.forEach((item) => {
+    const head = item.querySelector<HTMLButtonElement>('.svc-head');
+    head?.addEventListener('click', () => {
+      const isOpen = item.classList.contains('is-open');
 
-    btn?.addEventListener('click', () => {
-      const isOpen = block.classList.contains('is-open');
-
-      // Close all others
-      blocks.forEach((b) => {
-        b.classList.remove('is-open');
-        const otherBtn = b.querySelector('.service-name');
-        otherBtn?.setAttribute('aria-expanded', 'false');
+      // Ferme tous les autres (accordéon : un seul ouvert à la fois)
+      items.forEach((other) => {
+        other.classList.remove('is-open');
+        other.querySelector('.svc-head')?.setAttribute('aria-expanded', 'false');
       });
 
-      // Toggle current
       if (!isOpen) {
-        block.classList.add('is-open');
-        btn.setAttribute('aria-expanded', 'true');
+        item.classList.add('is-open');
+        head.setAttribute('aria-expanded', 'true');
       }
     });
   });

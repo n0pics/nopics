@@ -21,34 +21,26 @@ export const translations: Record<string, { fr: string; en: string }> = {
     en: 'Describe your work in one sentence here. Replace this text with your own tagline.',
   },
 
-  // === Services (carousel items) ===
-  'svc.realisation-video': { fr: 'SERVICE 01', en: 'SERVICE 01' },
-  'svc.photographie': { fr: 'SERVICE 02', en: 'SERVICE 02' },
-  'svc.prise-de-vue-aerienne': { fr: 'SERVICE 03', en: 'SERVICE 03' },
-  'svc.post-prod': { fr: 'SERVICE 04', en: 'SERVICE 04' },
-  'svc.ecriture': { fr: 'SERVICE 05', en: 'SERVICE 05' },
-  'svc.more': { fr: '+ ENCORE', en: '+ MORE' },
-
-  // === Service descriptions ===
-  'svc.desc.realisation-video': {
-    fr: 'Décrivez votre premier service et la valeur que vous apportez à vos clients.',
-    en: 'Describe your first service and the value you bring to your clients.',
+  // === Services ===
+  'svc.digital.title': { fr: 'Design digital', en: 'Digital design' },
+  'svc.digital.desc': {
+    fr: 'Création de visuels adaptés aux réseaux sociaux et aux écrans, pensés pour capter l’attention et renforcer votre présence en ligne.',
+    en: 'Creating visuals tailored to social media and screens, designed to grab attention and strengthen your online presence.',
   },
-  'svc.desc.photographie': {
-    fr: 'Décrivez votre deuxième service et la valeur que vous apportez à vos clients.',
-    en: 'Describe your second service and the value you bring to your clients.',
+  'svc.print.title': { fr: 'Design print', en: 'Print design' },
+  'svc.print.desc': {
+    fr: 'Conception de supports imprimés clairs et impactants, alliant lisibilité, esthétique et contraintes techniques d’impression.',
+    en: 'Designing clear, impactful printed materials that balance legibility, aesthetics and the technical constraints of print.',
   },
-  'svc.desc.prise-de-vue-aerienne': {
-    fr: 'Décrivez votre troisième service et la valeur que vous apportez à vos clients.',
-    en: 'Describe your third service and the value you bring to your clients.',
+  'svc.direction.title': { fr: 'Direction artistique', en: 'Art direction' },
+  'svc.direction.desc': {
+    fr: 'Définition d’un univers visuel cohérent pour donner une identité forte et reconnaissable à votre marque ou projet.',
+    en: 'Defining a coherent visual world to give your brand or project a strong, recognisable identity.',
   },
-  'svc.desc.post-prod': {
-    fr: 'Décrivez votre quatrième service et la valeur que vous apportez à vos clients.',
-    en: 'Describe your fourth service and the value you bring to your clients.',
-  },
-  'svc.desc.ecriture': {
-    fr: 'Décrivez votre cinquième service et la valeur que vous apportez à vos clients.',
-    en: 'Describe your fifth service and the value you bring to your clients.',
+  'svc.illustration.title': { fr: 'Illustration & assets graphiques', en: 'Illustration & graphic assets' },
+  'svc.illustration.desc': {
+    fr: 'Création d’éléments visuels sur mesure pour enrichir votre identité et rendre vos supports plus distinctifs et mémorables.',
+    en: 'Creating bespoke visual elements to enrich your identity and make your materials more distinctive and memorable.',
   },
 
   // === About page — hero ===
