@@ -47,14 +47,27 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       <!-- Panneau droit : coordonnées regroupées, centrées -->
       <aside class="contact-info">
         <div class="contact-info-content">
-          <p class="contact-info-brand">n0pics<span>— Tom Mertens</span></p>
+          <div class="contact-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span data-i18n="contact.status">Disponible pour de nouveaux projets</span>
+          </div>
+
+          <p class="contact-info-brand">n0pics<span>Tom Mertens</span></p>
 
           <div class="contact-info-rule"></div>
 
           <ul class="contact-list">
             <li>
               <span class="contact-label" data-i18n="contact.email">Email</span>
-              <a href="mailto:nopics.prod@gmail.com" class="contact-value">nopics.prod@gmail.com</a>
+              <button
+                type="button"
+                class="contact-value contact-copy"
+                data-copy="nopics.prod@gmail.com"
+                aria-label="Copier l'email"
+              >
+                <span class="copy-text">nopics.prod@gmail.com</span>
+                <span class="copy-feedback" aria-hidden="true"><span data-i18n="contact.copied">Copié</span> ✓</span>
+              </button>
             </li>
             <li>
               <span class="contact-label" data-i18n="contact.location">Localisation</span>
@@ -222,6 +235,73 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     background: rgba(255, 255, 255, 0.18);
   }
 
+  /* Pastille de disponibilité (point qui pulse) */
+  .contact-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.28rem 0.7rem 0.28rem 0.58rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.025);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .status-dot {
+    position: relative;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3ad17e;
+    flex-shrink: 0;
+  }
+  .status-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #3ad17e;
+    animation: status-pulse 2.2s ease-out infinite;
+  }
+  @keyframes status-pulse {
+    0%   { transform: scale(1);   opacity: 0.7; }
+    70%  { transform: scale(2.6); opacity: 0; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+
+  /* Email copiable au clic */
+  .contact-copy {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .contact-copy .copy-text {
+    transition: opacity 0.25s ease;
+  }
+  .contact-copy .copy-feedback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3ad17e;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+  .contact-copy.copied .copy-text { opacity: 0; }
+  .contact-copy.copied .copy-feedback { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status-dot::after { animation: none; }
+  }
+
   .contact-list {
     list-style: none;
     padding: 0;
@@ -283,5 +363,26 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
     alert('Formulaire de démonstration — connectez votre service d\'envoi pour le rendre fonctionnel.');
+  });
+
+  // Email copiable au clic, avec retour visuel « Copié ✓ »
+  document.querySelectorAll<HTMLButtonElement>('.contact-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch {}
+        ta.remove();
+      }
+      btn.classList.add('copied');
+      window.setTimeout(() => btn.classList.remove('copied'), 1500);
+    });
   });
 </script>

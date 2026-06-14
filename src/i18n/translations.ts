@@ -102,6 +102,8 @@ export const translations: Record<string, { fr: string; en: string }> = {
   'contact.email': { fr: 'Email', en: 'Email' },
   'contact.instagram': { fr: 'Instagram', en: 'Instagram' },
   'contact.location': { fr: 'Localisation', en: 'Location' },
+  'contact.status': { fr: 'Disponible pour de nouveaux projets', en: 'Available for new projects' },
+  'contact.copied': { fr: 'Copié', en: 'Copied' },
   'contact.cta': {
     fr: 'Disponible pour des projets partout en France et à l\'international.',
     en: 'Available for projects throughout France and internationally.',
