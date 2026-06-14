@@ -27,20 +27,36 @@ export const translations: Record<string, { fr: string; en: string }> = {
     fr: 'Création de visuels adaptés aux réseaux sociaux et aux écrans, pensés pour capter l’attention et renforcer votre présence en ligne.',
     en: 'Creating visuals tailored to social media and screens, designed to grab attention and strengthen your online presence.',
   },
-  'svc.print.title': { fr: 'Design print', en: 'Print design' },
+  'svc.digital.items': {
+    fr: 'Visuels réseaux sociaux · Bannières web · Templates',
+    en: 'Social media visuals · Web banners · Templates',
+  },
+  'svc.retouche.title': { fr: 'Retouche photo / Post-production', en: 'Photo retouching / Post-production' },
+  'svc.retouche.desc': {
+    fr: 'Amélioration des images pour leur donner un rendu plus propre, cohérent et impactant, en renforçant leur style et leur ambiance générale.',
+    en: 'Enhancing images to give them a cleaner, more coherent and impactful look, reinforcing their style and overall mood.',
+  },
+  'svc.retouche.items': {
+    fr: 'Color grading · Harmonisation · Recadrage / composition',
+    en: 'Color grading · Color matching · Cropping / composition',
+  },
+  'svc.print.title': { fr: 'Design d’impression', en: 'Print design' },
   'svc.print.desc': {
     fr: 'Conception de supports imprimés clairs et impactants, alliant lisibilité, esthétique et contraintes techniques d’impression.',
     en: 'Designing clear, impactful printed materials that balance legibility, aesthetics and the technical constraints of print.',
   },
-  'svc.direction.title': { fr: 'Direction artistique', en: 'Art direction' },
-  'svc.direction.desc': {
-    fr: 'Définition d’un univers visuel cohérent pour donner une identité forte et reconnaissable à votre marque ou projet.',
-    en: 'Defining a coherent visual world to give your brand or project a strong, recognisable identity.',
+  'svc.print.items': {
+    fr: 'Affiches / posters · Cartes de visite',
+    en: 'Posters · Business cards',
   },
   'svc.illustration.title': { fr: 'Illustration & assets graphiques', en: 'Illustration & graphic assets' },
   'svc.illustration.desc': {
     fr: 'Création d’éléments visuels sur mesure pour enrichir votre identité et rendre vos supports plus distinctifs et mémorables.',
     en: 'Creating bespoke visual elements to enrich your identity and make your materials more distinctive and memorable.',
+  },
+  'svc.illustration.items': {
+    fr: 'Compositions visuelles · Collages · Photomontage',
+    en: 'Visual compositions · Collages · Photo montage',
   },
 
   // === About page — hero ===

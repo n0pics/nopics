@@ -8,21 +8,25 @@ const services = [
     key: 'digital',
     title: 'Design digital',
     desc: 'Création de visuels adaptés aux réseaux sociaux et aux écrans, pensés pour capter l’attention et renforcer votre présence en ligne.',
+    items: ['Visuels réseaux sociaux', 'Bannières web', 'Templates'],
+  },
+  {
+    key: 'retouche',
+    title: 'Retouche photo / Post-production',
+    desc: 'Amélioration des images pour leur donner un rendu plus propre, cohérent et impactant, en renforçant leur style et leur ambiance générale.',
+    items: ['Color grading', 'Harmonisation', 'Recadrage / composition'],
   },
   {
     key: 'print',
-    title: 'Design print',
+    title: 'Design d’impression',
     desc: 'Conception de supports imprimés clairs et impactants, alliant lisibilité, esthétique et contraintes techniques d’impression.',
-  },
-  {
-    key: 'direction',
-    title: 'Direction artistique',
-    desc: 'Définition d’un univers visuel cohérent pour donner une identité forte et reconnaissable à votre marque ou projet.',
+    items: ['Affiches / posters', 'Cartes de visite'],
   },
   {
     key: 'illustration',
     title: 'Illustration & assets graphiques',
     desc: 'Création d’éléments visuels sur mesure pour enrichir votre identité et rendre vos supports plus distinctifs et mémorables.',
+    items: ['Compositions visuelles', 'Collages', 'Photomontage'],
   },
 ];
 ---
@@ -44,7 +48,12 @@ const services = [
           </button>
           <div class="svc-panel">
             <div class="svc-panel-inner">
-              <p class="svc-desc" data-i18n={`svc.${s.key}.desc`}>{s.desc}</p>
+              <div class="svc-panel-content">
+                <p class="svc-desc" data-i18n={`svc.${s.key}.desc`}>{s.desc}</p>
+                {s.items.length > 0 && (
+                  <p class="svc-meta" data-i18n={`svc.${s.key}.items`}>{s.items.join(' · ')}</p>
+                )}
+              </div>
             </div>
           </div>
         </li>
@@ -171,16 +180,29 @@ const services = [
     min-height: 0;
     overflow: hidden;
   }
+  .svc-panel-content {
+    padding-bottom: clamp(1.5rem, 3vw, 2rem);
+  }
   .svc-desc {
     max-width: 56ch;
     margin: 0;
-    /* aligné sur le titre + respiration en bas */
-    padding: 0 clamp(1rem, 2.5vw, 1.5rem) clamp(1.5rem, 3vw, 2rem);
+    padding: 0 clamp(1rem, 2.5vw, 1.5rem);
     font-family: var(--font-body);
     font-size: clamp(0.92rem, 1.15vw, 1.02rem);
     font-weight: 300;
     line-height: 1.8;
     color: var(--color-text-muted);
+  }
+  /* Ligne de prestations (mots-clés séparés par des points médians) */
+  .svc-meta {
+    margin: 1.1rem 0 0;
+    padding: 0 clamp(1rem, 2.5vw, 1.5rem);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text-faint, rgba(242, 240, 235, 0.4));
   }
 
   @media (max-width: 600px) {
