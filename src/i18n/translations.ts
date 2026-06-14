@@ -67,7 +67,7 @@ export const translations: Record<string, { fr: string; en: string }> = {
   'about.hero.word8': { fr: 'VOS PROJETS', en: 'YOUR PROJECTS' },
   'about.counter.label': { fr: 'vues sur les réseaux', en: 'social media views' },
   'about.cta': { fr: 'DÉCOUVRIR', en: 'DISCOVER' },
-  'about.vision.label': { fr: 'LA VISION', en: 'THE VISION' },
+  'about.vision.label': { fr: 'Angle créatif', en: 'Creative angle' },
   'about.vision.title': {
     fr: 'Une accroche forte qui résume votre approche.',
     en: 'A strong headline that sums up your approach.',
@@ -86,13 +86,13 @@ export const translations: Record<string, { fr: string; en: string }> = {
   'about.stats.satisfaction': { fr: 'clients satisfaits', en: 'client satisfaction' },
   'about.intro.eyebrow': { fr: 'À propos', en: 'About' },
   'about.intro.headline': {
-    fr: 'Graphic designer indépendant — je façonne des identités et des visuels qui marquent les esprits.',
-    en: 'Independent graphic designer — I craft identities and visuals that leave a mark.',
+    fr: 'Passionné par l\'image, je crée des visuels qui mettent en valeur ce que chaque chose a d\'unique.',
+    en: 'Passionate about imagery, I create visuals that bring out what makes each thing unique.',
   },
-  'about.founder.label': { fr: 'PRÉSENTATION', en: 'INTRODUCTION' },
+  'about.founder.label': { fr: 'Qui suis-je', en: 'Who I am' },
   'about.founder.bio': {
-    fr: 'Présentez-vous en quelques lignes : votre parcours, ce qui vous anime, votre manière de travailler.<br /><br />Remplacez ce texte par votre propre biographie pour raconter qui vous êtes.<br /><br />Terminez par les valeurs qui portent chacun de vos projets.',
-    en: 'Introduce yourself in a few lines: your background, what drives you, the way you work.<br /><br />Replace this text with your own biography to tell who you are.<br /><br />Finish with the values behind every project you take on.',
+    fr: 'Graphic designer indépendant, j’explore la création d’images et d’identités visuelles comme un terrain d’expression.<br /><br />Je suis attiré par ce qui est beau, partout où il apparaît : dans une lumière, une texture ou un détail presque silencieux.<br /><br />Cette année, j’ai fondé n0pics studio, un espace d’expérimentation où je développe ma direction créative à travers différents projets. J’y cherche avant tout à transformer une idée en une image impactante et forte de sens.',
+    en: 'An independent graphic designer, I explore image-making and visual identities as a field for expression.<br /><br />I’m drawn to whatever is beautiful, wherever it appears: in a light, a texture or an almost silent detail.<br /><br />This year I founded n0pics studio, a space for experimentation where I develop my creative direction across a range of projects. There, above all, I aim to turn an idea into a striking, meaningful image.',
   },
 
   // === Contact page ===
