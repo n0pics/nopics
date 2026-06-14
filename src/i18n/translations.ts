@@ -84,6 +84,11 @@ export const translations: Record<string, { fr: string; en: string }> = {
   },
   'about.stats.content': { fr: 'de contenu produit', en: 'of content produced' },
   'about.stats.satisfaction': { fr: 'clients satisfaits', en: 'client satisfaction' },
+  'about.intro.eyebrow': { fr: 'À propos', en: 'About' },
+  'about.intro.headline': {
+    fr: 'Graphic designer indépendant — je façonne des identités et des visuels qui marquent les esprits.',
+    en: 'Independent graphic designer — I craft identities and visuals that leave a mark.',
+  },
   'about.founder.label': { fr: 'PRÉSENTATION', en: 'INTRODUCTION' },
   'about.founder.bio': {
     fr: 'Présentez-vous en quelques lignes : votre parcours, ce qui vous anime, votre manière de travailler.<br /><br />Remplacez ce texte par votre propre biographie pour raconter qui vous êtes.<br /><br />Terminez par les valeurs qui portent chacun de vos projets.',
