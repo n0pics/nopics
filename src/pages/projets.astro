@@ -199,7 +199,10 @@ import { projets } from '@/data/projets';
     .projets {
       padding-top: 6rem;
     }
-    /* Sur mobile : une carte large par "écran", on swipe */
+    /* Sur mobile : on swipe au doigt, pas de flèches */
+    .projets-nav {
+      display: none;
+    }
     .projet-card {
       flex-basis: 78vw;
     }

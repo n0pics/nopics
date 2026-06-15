@@ -51,15 +51,6 @@ if (projet.galleryDir) {
 
 // Nombre de photos affichées avant le bouton « Voir plus »
 const INITIAL = 12;
-
-// Répartition round-robin dans 3 colonnes : garantit qu'aucune photo de la
-// même famille ne se retrouve côte à côte (ni verticalement, ni horizontalement).
-const COLS = 3;
-const galleryCols: { src: string; i: number }[][] = Array.from(
-  { length: COLS },
-  () => [],
-);
-images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
 ---
 
 <BaseLayout title={`${projet.title} — n0pics`} description={projet.comment} noFooter>
@@ -75,19 +66,15 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
     </header>
 
     <div class="detail-gallery">
-      {galleryCols.map((col) => (
-        <div class="gallery-col">
-          {col.map(({ src, i }) => (
-            <img
-              src={src}
-              alt={projet.title}
-              loading="lazy"
-              decoding="async"
-              data-i={i}
-              class={i >= INITIAL ? 'is-extra' : undefined}
-            />
-          ))}
-        </div>
+      {images.map((src, i) => (
+        <img
+          src={src}
+          alt={projet.title}
+          loading="lazy"
+          decoding="async"
+          data-i={i}
+          class={i >= INITIAL ? 'is-extra' : undefined}
+        />
       ))}
     </div>
 
@@ -162,22 +149,16 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
     line-height: 1.7;
   }
 
-  /* Galerie : 3 colonnes alignées, photos réparties pour éviter les familles côte à côte */
+  /* Galerie masonry en colonnes CSS (décalage naturel, responsive) */
   .detail-gallery {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  .gallery-col {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    columns: 3;
+    column-gap: 1rem;
   }
   .detail-gallery img {
     width: 100%;
     display: block;
+    margin-bottom: 1rem;
+    break-inside: avoid;
     border-radius: 2px;
     background: var(--color-bg-soft);
     cursor: pointer;
@@ -259,7 +240,7 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
 
   @media (max-width: 720px) {
     .detail-gallery {
-      flex-direction: column;
+      columns: 2;
     }
     .projet-detail {
       padding-top: 6.5rem;
