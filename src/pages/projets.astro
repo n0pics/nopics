@@ -9,7 +9,7 @@ import { projets } from '@/data/projets';
   noFooter
 >
   <section class="projets">
-    <h1 class="sr-only">Projets — Tom Mertens, n0pics</h1>
+    <h1 class="projets-title" data-i18n="projets.title">Au fil des projets…</h1>
 
     <!-- Galerie horizontale : défile vers la droite à la molette -->
     <div class="projets-track" id="projets-track">
@@ -59,8 +59,20 @@ import { projets } from '@/data/projets';
     position: relative;
     min-height: 100vh;
     display: flex;
-    align-items: center;
-    padding: 7rem 0 3rem;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5.5rem 0 2rem;
+    color: var(--color-text);
+  }
+
+  /* ---- Titre discret au-dessus de la galerie ---- */
+  .projets-title {
+    margin: 0 0 1.25rem;
+    padding: 0 clamp(1.5rem, 5vw, 4rem);
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 2vw, 1.7rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
     color: var(--color-text);
   }
 
@@ -81,7 +93,7 @@ import { projets } from '@/data/projets';
 
   /* ---- Carte projet (grande) ---- */
   .projet-card {
-    flex: 0 0 clamp(260px, 44vw, 540px);
+    flex: 0 0 clamp(280px, min(46vw, 52vh), 560px);
     display: block;
     text-decoration: none;
     color: inherit;

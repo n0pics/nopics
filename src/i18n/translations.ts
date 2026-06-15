@@ -59,6 +59,9 @@ export const translations: Record<string, { fr: string; en: string }> = {
     en: 'Visual compositions · Collages · Photo montage',
   },
 
+  // === Projets page ===
+  'projets.title': { fr: 'Au fil des projets…', en: 'Project after project…' },
+
   // === About page — hero ===
   'about.desc': {
     fr: 'Une courte description de votre activité.',
