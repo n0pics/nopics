@@ -111,39 +111,40 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
   .contact-card {
     width: 100%;
-    max-width: 1180px;
+    max-width: 980px;
     display: grid;
-    grid-template-columns: 1.05fr 0.95fr;
-    gap: 1.25rem;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: center;
   }
 
   /* Panneau gauche : aucun cadre, fond transparent */
   .contact-form-panel {
     background: transparent;
     border: none;
-    padding: clamp(0.5rem, 2vw, 1.5rem) clamp(1rem, 3vw, 2.5rem) clamp(0.5rem, 2vw, 1.5rem) 0;
+    padding: 0;
   }
 
   /* ---- Titre ---- */
   .contact-title {
-    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-size: clamp(2.2rem, 5vw, 3.75rem);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.05;
-    margin: 0 0 2.5rem;
+    margin: 0 0 2.8rem;
   }
 
   /* ---- Formulaire ---- */
   .contact-form {
     display: flex;
     flex-direction: column;
-    gap: 1.9rem;
+    gap: 2.2rem;
   }
 
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.9rem;
+    gap: 2.2rem;
   }
 
   .field {
@@ -158,10 +159,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     border: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 0;
-    padding: 0.7rem 0;
+    padding: 0.9rem 0;
     color: #ffffff;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     transition: border-color 0.3s ease;
   }
 
