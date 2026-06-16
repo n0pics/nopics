@@ -184,12 +184,21 @@ function GalleryScene({
 		[visibleCount]
 	);
 
+	// Taille du canvas : sert à resserrer l'anneau sur écran portrait (mobile).
+	const { size } = useThree();
+
 	const spatialPositions = useMemo(() => {
 		const positions: { x: number; y: number }[] = [];
 		// Distribution en ANNEAU autour du centre : les images passent autour
 		// du texte (zone centrale laissée libre) pour rester lisible.
-		const minRadius = 7.5; // rayon mini = trou central pour le texte (élargi car images plus grandes)
-		const maxRadius = 12;
+		// Sur écran portrait (mobile), on resserre le rayon pour que les photos
+		// soient plus proches du centre → on en voit davantage défiler.
+		// En paysage (PC), on garde exactement le rendu d'origine.
+		const aspect = size.width / Math.max(1, size.height);
+		const scale = aspect >= 1 ? 1 : Math.max(0.55, aspect);
+		const horizMul = aspect >= 1 ? 1.2 : 1.05;
+		const minRadius = 7.5 * scale; // rayon mini = trou central pour le texte
+		const maxRadius = 12 * scale;
 		const golden = Math.PI * (3 - Math.sqrt(5)); // angle d'or (répartition régulière)
 
 		for (let i = 0; i < visibleCount; i++) {
@@ -197,13 +206,13 @@ function GalleryScene({
 			const t = (i % 4) / 3; // fait varier le rayon (0, .33, .66, 1)
 			const radius = minRadius + t * (maxRadius - minRadius);
 			positions.push({
-				x: Math.cos(angle) * radius * 1.2, // un peu plus large horizontalement
+				x: Math.cos(angle) * radius * horizMul,
 				y: Math.sin(angle) * radius,
 			});
 		}
 
 		return positions;
-	}, [visibleCount]);
+	}, [visibleCount, size.width, size.height]);
 
 	const totalImages = normalizedImages.length;
 	const depthRange = DEFAULT_DEPTH_RANGE;
