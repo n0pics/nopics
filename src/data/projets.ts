@@ -21,7 +21,7 @@ export const projets: Projet[] = [
     date: '2026',
     category: 'Direction artistique',
     comment: 'Création de visuels pour Solognac.',
-    cover: '/images/accueil/treemetic-inspiration.jpg',
+    cover: '/images/solognac-cover.jpg',
     galleryDir: 'images/accueil',
   },
   // Cartes placeholder — remplace-les par tes futurs projets (ou supprime-les).
