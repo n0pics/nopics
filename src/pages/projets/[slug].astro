@@ -51,6 +51,16 @@ if (projet.galleryDir) {
 
 // Nombre de photos affichées avant le bouton « Voir plus »
 const INITIAL = 12;
+
+// Répartition en colonnes (round-robin) au build : chaque photo a une colonne
+// fixe → « Voir plus » ajoute les suivantes en bas de leur colonne sans
+// déplacer les autres (ordre statique). Le JS rebascule à 2 colonnes sur mobile.
+const COLS = 3;
+const galleryCols: { src: string; i: number }[][] = Array.from(
+  { length: COLS },
+  () => [],
+);
+images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
 ---
 
 <BaseLayout title={`${projet.title} — n0pics`} description={projet.comment} noFooter>
@@ -66,15 +76,19 @@ const INITIAL = 12;
     </header>
 
     <div class="detail-gallery">
-      {images.map((src, i) => (
-        <img
-          src={src}
-          alt={projet.title}
-          loading="lazy"
-          decoding="async"
-          data-i={i}
-          class={i >= INITIAL ? 'is-extra' : undefined}
-        />
+      {galleryCols.map((col) => (
+        <div class="gallery-col">
+          {col.map(({ src, i }) => (
+            <img
+              src={src}
+              alt={projet.title}
+              loading="lazy"
+              decoding="async"
+              data-i={i}
+              class={i >= INITIAL ? 'is-extra' : undefined}
+            />
+          ))}
+        </div>
       ))}
     </div>
 
@@ -149,16 +163,24 @@ const INITIAL = 12;
     line-height: 1.7;
   }
 
-  /* Galerie masonry en colonnes CSS (décalage naturel, responsive) */
+  /* Galerie en colonnes explicites (flex) : ordre statique, pas de
+     rééquilibrage au « Voir plus ». Le nombre de colonnes est géré en JS. */
   .detail-gallery {
-    columns: 3;
-    column-gap: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  /* :global car les colonnes sont (re)générées en JS et n'ont pas l'attribut de scope Astro */
+  .detail-gallery :global(.gallery-col) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
   .detail-gallery img {
     width: 100%;
     display: block;
-    margin-bottom: 1rem;
-    break-inside: avoid;
     border-radius: 2px;
     background: var(--color-bg-soft);
     cursor: pointer;
@@ -239,9 +261,6 @@ const INITIAL = 12;
   }
 
   @media (max-width: 720px) {
-    .detail-gallery {
-      columns: 2;
-    }
     .projet-detail {
       padding-top: 6.5rem;
     }
@@ -250,6 +269,38 @@ const INITIAL = 12;
 
 <script>
   const gallery = document.querySelector<HTMLElement>('.detail-gallery');
+
+  // Colonnes responsives à ordre STATIQUE : chaque photo (triée par data-i) est
+  // redistribuée en round-robin dans 3 colonnes (desktop) ou 2 (mobile).
+  // « Voir plus » révèle les photos déjà placées dans leur colonne → rien ne bouge.
+  if (gallery) {
+    const targetCols = () =>
+      window.matchMedia('(max-width: 720px)').matches ? 2 : 3;
+
+    const relayout = () => {
+      const cols = targetCols();
+      if (gallery.dataset.cols === String(cols)) return;
+      const imgs = Array.from(gallery.querySelectorAll<HTMLImageElement>('img')).sort(
+        (a, b) => Number(a.dataset.i) - Number(b.dataset.i),
+      );
+      const colEls = Array.from({ length: cols }, () => {
+        const d = document.createElement('div');
+        d.className = 'gallery-col';
+        return d;
+      });
+      imgs.forEach((img, idx) => colEls[idx % cols].appendChild(img));
+      gallery.replaceChildren(...colEls);
+      gallery.dataset.cols = String(cols);
+    };
+
+    relayout();
+    let resizeTimer: number;
+    window.addEventListener('resize', () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(relayout, 150);
+    });
+  }
+
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
 
