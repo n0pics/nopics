@@ -108,8 +108,8 @@ export const translations: Record<string, { fr: string; en: string }> = {
 
   // === Contact page ===
   'contact.title': {
-    fr: 'Parlons de votre projet',
-    en: 'Your project',
+    fr: 'Donnons forme à vos idées',
+    en: 'Let’s give shape to your ideas',
   },
   'contact.subtitle': {
     fr: 'Une idée, un besoin, une envie ?<br />Je suis là pour donner vie à votre vision.',

@@ -12,7 +12,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
       <!-- Panneau gauche : formulaire -->
       <div class="contact-form-panel">
-        <h1 class="contact-title" data-i18n="contact.title">Parlons de votre projet</h1>
+        <h1 class="contact-title" data-i18n="contact.title">Donnons forme à vos idées</h1>
 
         <form class="contact-form" id="contact-form">
           <div class="form-row">
@@ -82,11 +82,6 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
                 class="contact-value contact-social"
                 aria-label="Instagram n0pics_"
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="5" />
-                  <circle cx="12" cy="12" r="4" />
-                  <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
-                </svg>
                 <span>@n0pics_</span>
               </a>
             </li>
@@ -111,10 +106,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
   .contact-card {
     width: 100%;
-    max-width: 980px;
+    max-width: 1060px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: clamp(1.5rem, 3vw, 3rem);
+    gap: clamp(2rem, 4vw, 3.5rem);
     align-items: center;
   }
 
@@ -127,24 +122,24 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
   /* ---- Titre ---- */
   .contact-title {
-    font-size: clamp(2.2rem, 5vw, 3.75rem);
+    font-size: clamp(2.5rem, 5.5vw, 4.25rem);
     font-weight: 700;
     letter-spacing: -0.02em;
-    line-height: 1.05;
-    margin: 0 0 2.8rem;
+    line-height: 1.04;
+    margin: 0 0 3.2rem;
   }
 
   /* ---- Formulaire ---- */
   .contact-form {
     display: flex;
     flex-direction: column;
-    gap: 2.2rem;
+    gap: 2.6rem;
   }
 
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2.2rem;
+    gap: 2.6rem;
   }
 
   .field {
@@ -159,10 +154,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     border: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 0;
-    padding: 0.9rem 0;
+    padding: 1.1rem 0;
     color: #ffffff;
     font-family: inherit;
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     transition: border-color 0.3s ease;
   }
 
@@ -191,9 +186,12 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   /* Alignement uniquement — le style vient de .btn-glass (global.css) */
   .form-submit {
     align-self: stretch;
-    margin-top: 0.6rem;
+    margin-top: 1rem;
     width: 100%;
     border-radius: 999px;
+    font-size: 0.82rem;
+    padding-top: 1.15rem;
+    padding-bottom: 1.15rem;
   }
 
   /* ---- Panneau infos : coordonnées regroupées, centrées ---- */
@@ -208,22 +206,22 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 2.4rem;
+    gap: 2.9rem;
     padding: 2rem;
   }
 
   .contact-info-brand {
     font-family: 'Longa Iberica', Georgia, serif;
-    font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+    font-size: clamp(2.2rem, 3.8vw, 3.1rem);
     line-height: 1;
     margin: 0;
     color: #ffffff;
   }
   .contact-info-brand span {
     display: block;
-    margin-top: 0.8rem;
+    margin-top: 0.9rem;
     font-family: var(--font-body);
-    font-size: 0.62rem;
+    font-size: 0.68rem;
     font-weight: 600;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -231,7 +229,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   }
 
   .contact-info-rule {
-    width: 48px;
+    width: 64px;
     height: 1px;
     background: rgba(255, 255, 255, 0.18);
   }
@@ -240,12 +238,12 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   .contact-status {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
-    padding: 0.28rem 0.7rem 0.28rem 0.58rem;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem 0.35rem 0.7rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.025);
-    font-size: 0.55rem;
+    font-size: 0.62rem;
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -310,23 +308,23 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.8rem;
+    gap: 2.3rem;
   }
   .contact-list li {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.55rem;
   }
   .contact-label {
-    font-size: 0.6rem;
+    font-size: 0.66rem;
     font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.45);
   }
   .contact-value {
-    font-size: 1.05rem;
+    font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.92);
     text-decoration: none;
     transition: color 0.3s ease;
