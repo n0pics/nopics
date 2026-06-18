@@ -26,11 +26,11 @@ export const projets: Projet[] = [
   },
   // Cartes placeholder — remplace-les par tes futurs projets (ou supprime-les).
   {
-    slug: 'projet-02',
-    title: 'Projet 02',
+    slug: 'naaman',
+    title: 'Naâman',
     date: '—',
     category: '',
-    comment: '',
+    comment: 'Proposition de design promotionnel pour Naâman.',
     cover: '',
     comingSoon: true,
   },

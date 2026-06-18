@@ -16,10 +16,12 @@ import { projets } from '@/data/projets';
       {projets.map((p) =>
         p.comingSoon ? (
           <div class="projet-card is-soon" aria-hidden="true">
-            <div class="projet-cover projet-cover--placeholder"></div>
+            <div class="projet-cover projet-cover--placeholder">
+              <span class="shining-text">Prochainement</span>
+            </div>
             <div class="projet-meta">
               <h2 class="projet-name">{p.title}</h2>
-              <p class="projet-comment">Bientôt disponible</p>
+              {p.comment && <p class="projet-comment">{p.comment}</p>}
             </div>
           </div>
         ) : (
@@ -118,6 +120,31 @@ import { projets } from '@/data/projets';
   }
   .projet-cover--placeholder {
     background: radial-gradient(120% 120% at 50% 30%, #1a1a1f 0%, #0c0c0e 60%, #070708 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Texte « brillant » (dégradé qui balaie) pour les projets à venir */
+  .shining-text {
+    background: linear-gradient(110deg, #404040 35%, #ffffff 50%, #404040 75%, #404040);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    animation: shining-sweep 3s linear infinite;
+  }
+  @keyframes shining-sweep {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shining-text { animation: none; }
   }
 
   /* ---- Légende ---- */
