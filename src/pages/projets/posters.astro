@@ -1,0 +1,325 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+// Charge toutes les images de public/images/posters/ (dépose tes posters là).
+// Même tri "famille" que Solognac pour éviter deux visuels proches côte à côte.
+const GALLERY_DIR = 'images/posters';
+let images: string[] = [];
+{
+  const dir = path.join(process.cwd(), 'public', GALLERY_DIR);
+  try {
+    const files = fs
+      .readdirSync(dir)
+      .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
+      .sort();
+
+    const groups = new Map<string, string[]>();
+    for (const f of files) {
+      const key = f.replace(/\.[^.]+$/, '').replace(/-\d+$/, '');
+      const arr = groups.get(key) ?? [];
+      arr.push(f);
+      groups.set(key, arr);
+    }
+    const groupList = [...groups.values()].sort((a, b) => b.length - a.length);
+    const maxLen = Math.max(0, ...groupList.map((g) => g.length));
+    const ordered: string[] = [];
+    for (let r = 0; r < maxLen; r++) {
+      for (const g of groupList) {
+        if (g[r]) ordered.push(g[r]);
+      }
+    }
+    images = ordered.map((f) => `/${GALLERY_DIR}/${f}`);
+  } catch {
+    images = [];
+  }
+}
+
+const INITIAL = 12;
+
+// Répartition en colonnes (round-robin) au build : ordre statique au « Voir plus ».
+// Posters : 2 colonnes (1 sur mobile).
+const COLS = 2;
+const galleryCols: { src: string; i: number }[][] = Array.from(
+  { length: COLS },
+  () => [],
+);
+images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
+---
+
+<BaseLayout title="Posters — n0pics" description="Quelques posters en vrac — Tom Mertens, n0pics." noFooter>
+  <article class="projet-detail">
+    <a href="/projets" class="detail-back">← Projets</a>
+
+    <header class="detail-head">
+      <p class="detail-cat">Affiches</p>
+      <h1 class="detail-title">Posters</h1>
+      <p class="detail-comment">Quelques posters en vrac.</p>
+    </header>
+
+    <div class="detail-gallery">
+      {galleryCols.map((col) => (
+        <div class="gallery-col">
+          {col.map(({ src, i }) => (
+            <img
+              src={src}
+              alt="Poster"
+              loading="lazy"
+              decoding="async"
+              data-i={i}
+              class={i >= INITIAL ? 'is-extra' : undefined}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+
+    {images.length > INITIAL && (
+      <div class="gallery-more-wrap">
+        <button class="btn-glass" id="gallery-more" type="button">Voir plus</button>
+      </div>
+    )}
+  </article>
+
+  <!-- Lightbox : clic sur une photo = plein écran -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+        <path d="M5 5l14 14M19 5L5 19" />
+      </svg>
+    </button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="" />
+  </div>
+</BaseLayout>
+
+<style>
+  .projet-detail {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem 6rem;
+    color: var(--color-text);
+  }
+
+  .detail-back {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+    transition: color 0.3s ease;
+  }
+  .detail-back:hover {
+    color: var(--color-text);
+  }
+
+  .detail-head {
+    max-width: 680px;
+    margin-bottom: 3rem;
+  }
+  .detail-cat {
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0 0 0.8rem;
+  }
+  .detail-title {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .detail-comment {
+    margin: 1.2rem 0 0;
+    color: var(--color-text-muted);
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    line-height: 1.7;
+  }
+
+  /* Galerie en colonnes explicites (flex) : ordre statique. Colonnes gérées en JS. */
+  .detail-gallery {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .detail-gallery :global(.gallery-col) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .detail-gallery img {
+    width: 100%;
+    display: block;
+    border-radius: 2px;
+    background: var(--color-bg-soft);
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+  .detail-gallery img:hover {
+    opacity: 0.7;
+  }
+  .detail-gallery img.is-extra {
+    display: none;
+  }
+  .detail-gallery img.just-shown {
+    animation: gallery-fade 0.5s ease both;
+  }
+  @keyframes gallery-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .gallery-more-wrap {
+    text-align: center;
+    margin-top: 3rem;
+  }
+
+  /* ---- Lightbox ---- */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4vmin;
+    background: rgba(5, 5, 5, 0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    cursor: pointer;
+    transition: opacity 0.32s ease, visibility 0.32s;
+  }
+  .lightbox.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .lightbox-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 3px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+    transform: scale(0.94);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .lightbox.is-open .lightbox-img {
+    transform: scale(1);
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.4rem;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: color 0.25s ease;
+  }
+  .lightbox-close:hover {
+    color: #ffffff;
+  }
+
+  @media (max-width: 720px) {
+    .projet-detail {
+      padding-top: 6.5rem;
+    }
+  }
+</style>
+
+<script>
+  const gallery = document.querySelector<HTMLElement>('.detail-gallery');
+
+  // Colonnes responsives à ordre STATIQUE (3 desktop / 2 mobile).
+  if (gallery) {
+    const targetCols = () =>
+      window.matchMedia('(max-width: 640px)').matches ? 1 : 2;
+
+    const relayout = () => {
+      const cols = targetCols();
+      if (gallery.dataset.cols === String(cols)) return;
+      const imgs = Array.from(gallery.querySelectorAll<HTMLImageElement>('img')).sort(
+        (a, b) => Number(a.dataset.i) - Number(b.dataset.i),
+      );
+      const colEls = Array.from({ length: cols }, () => {
+        const d = document.createElement('div');
+        d.className = 'gallery-col';
+        return d;
+      });
+      imgs.forEach((img, idx) => colEls[idx % cols].appendChild(img));
+      gallery.replaceChildren(...colEls);
+      gallery.dataset.cols = String(cols);
+    };
+
+    relayout();
+    let resizeTimer: number;
+    window.addEventListener('resize', () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(relayout, 150);
+    });
+  }
+
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+
+  if (gallery && lightbox && lightboxImg) {
+    document.body.appendChild(lightbox);
+
+    const open = (src: string, alt: string) => {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt;
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+    const close = () => {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+
+    gallery.addEventListener('click', (e) => {
+      const img = (e.target as HTMLElement).closest('img');
+      if (img instanceof HTMLImageElement) open(img.src, img.alt);
+    });
+    lightbox.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
+    });
+  }
+
+  // « Voir plus »
+  const moreBtn = document.getElementById('gallery-more');
+  const galleryEl = document.querySelector('.detail-gallery');
+  if (moreBtn && galleryEl) {
+    const BATCH = 9;
+    moreBtn.addEventListener('click', () => {
+      const hidden = Array.from(
+        galleryEl.querySelectorAll<HTMLElement>('img.is-extra'),
+      )
+        .sort((a, b) => Number(a.dataset.i) - Number(b.dataset.i))
+        .slice(0, BATCH);
+      hidden.forEach((img) => {
+        img.classList.remove('is-extra');
+        img.classList.add('just-shown');
+      });
+      if (galleryEl.querySelectorAll('img.is-extra').length === 0) {
+        moreBtn.style.display = 'none';
+      }
+    });
+  }
+</script>

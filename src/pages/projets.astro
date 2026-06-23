@@ -9,9 +9,10 @@ import { projets } from '@/data/projets';
   noFooter
 >
   <section class="projets">
+    <div class="projets-main">
     <h1 class="projets-title" data-i18n="projets.title">Au fil des projets…</h1>
 
-    <!-- Galerie horizontale : défile vers la droite à la molette -->
+    <!-- Galerie horizontale : défile vers la droite -->
     <div class="projets-track" id="projets-track">
       {projets.map((p) =>
         p.comingSoon ? (
@@ -53,6 +54,15 @@ import { projets } from '@/data/projets';
         </svg>
       </button>
     </div>
+    </div>
+
+    <!-- Bandeau "verre" vers la page Posters -->
+    <a class="projets-cta" href="/projets/posters">
+      <span>Quelques posters en vrac</span>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6" />
+      </svg>
+    </a>
   </section>
 </BaseLayout>
 
@@ -62,9 +72,56 @@ import { projets } from '@/data/projets';
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: 5.5rem 0 2rem;
+    padding: 5.5rem 0 1.75rem;
     color: var(--color-text);
+  }
+
+  /* Zone galerie : centrée verticalement au-dessus du bandeau */
+  .projets-main {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Bandeau "verre" en bas (style bulle de nav) vers la page Posters */
+  .projets-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    width: clamp(260px, 33%, 420px);
+    margin: 1.5rem auto 0;
+    padding: 1.05rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    background: rgba(10, 10, 10, 0.55);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    color: var(--color-text);
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-size: clamp(0.68rem, 1vw, 0.78rem);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: background 0.35s ease, border-color 0.35s ease;
+  }
+  .projets-cta:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.32);
+  }
+  .projets-cta svg {
+    flex-shrink: 0;
+    opacity: 0.65;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  }
+  .projets-cta:hover svg {
+    transform: translateX(4px);
+    opacity: 1;
   }
 
   /* ---- Titre discret au-dessus de la galerie ---- */
