@@ -39,8 +39,8 @@ let images: string[] = [];
 const INITIAL = 12;
 
 // Répartition en colonnes (round-robin) au build : ordre statique au « Voir plus ».
-// Posters : 2 colonnes (1 sur mobile).
-const COLS = 2;
+// Posters : 3 colonnes (2 sur mobile), comme Solognac.
+const COLS = 3;
 const galleryCols: { src: string; i: number }[][] = Array.from(
   { length: COLS },
   () => [],
@@ -50,12 +50,12 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
 
 <BaseLayout title="Playground — n0pics" description="Playground — mon terrain d’expression, Tom Mertens (n0pics)." noFooter>
   <article class="projet-detail">
-    <a href="/projets" class="detail-back">← Projets</a>
+    <a href="/projets" class="detail-back" data-i18n="project.backLink">← Projets</a>
 
     <header class="detail-head">
-      <p class="detail-cat">Affiches</p>
+      <p class="detail-cat" data-i18n="playground.cat">Affiches</p>
       <h1 class="detail-title">Playground</h1>
-      <p class="detail-comment">Mon terrain d’expression en vrac.</p>
+      <p class="detail-comment" data-i18n="playground.comment">Mon terrain d’expression en vrac.</p>
     </header>
 
     <div class="detail-gallery">
@@ -77,7 +77,7 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
 
     {images.length > INITIAL && (
       <div class="gallery-more-wrap">
-        <button class="btn-glass" id="gallery-more" type="button">Voir plus</button>
+        <button class="btn-glass" id="gallery-more" type="button" data-i18n="project.more">Voir plus</button>
       </div>
     )}
   </article>
@@ -247,7 +247,7 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
   // Colonnes responsives à ordre STATIQUE (3 desktop / 2 mobile).
   if (gallery) {
     const targetCols = () =>
-      window.matchMedia('(max-width: 640px)').matches ? 1 : 2;
+      window.matchMedia('(max-width: 720px)').matches ? 2 : 3;
 
     const relayout = () => {
       const cols = targetCols();

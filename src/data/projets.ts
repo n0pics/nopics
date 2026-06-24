@@ -12,6 +12,10 @@ export interface Projet {
   galleryDir?: string;
   /** Carte « bientôt disponible », non cliquable */
   comingSoon?: boolean;
+  /** Clé i18n du projet (pour traduire catégorie/commentaire), ex: 'solognac' */
+  i18n?: string;
+  /** Clé i18n pour traduire le titre (cartes placeholder), ex: 'project.placeholder.title' */
+  titleKey?: string;
 }
 
 export const projets: Projet[] = [
@@ -23,6 +27,7 @@ export const projets: Projet[] = [
     comment: 'Création de visuels pour Solognac.',
     cover: '/images/solognac-cover.jpg',
     galleryDir: 'images/accueil',
+    i18n: 'solognac',
   },
   // Cartes placeholder — remplace-les par tes futurs projets (ou supprime-les).
   {
@@ -33,10 +38,12 @@ export const projets: Projet[] = [
     comment: 'Proposition de design promotionnel pour Naâman.',
     cover: '',
     comingSoon: true,
+    i18n: 'naaman',
   },
   {
     slug: 'projet-03',
     title: 'Projet 03',
+    titleKey: 'project.placeholder.title',
     date: '—',
     category: '',
     comment: '',

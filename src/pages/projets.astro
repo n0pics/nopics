@@ -18,11 +18,13 @@ import { projets } from '@/data/projets';
         p.comingSoon ? (
           <div class="projet-card is-soon" aria-hidden="true">
             <div class="projet-cover projet-cover--placeholder">
-              <span class="shining-text">Prochainement</span>
+              <span class="shining-text" data-i18n="project.soon">Prochainement</span>
             </div>
             <div class="projet-meta">
-              <h2 class="projet-name">{p.title}</h2>
-              {p.comment && <p class="projet-comment">{p.comment}</p>}
+              <h2 class="projet-name" data-i18n={p.titleKey}>{p.title}</h2>
+              {p.comment && (
+                <p class="projet-comment" data-i18n={p.i18n ? `project.${p.i18n}.comment` : undefined}>{p.comment}</p>
+              )}
             </div>
           </div>
         ) : (
@@ -35,7 +37,9 @@ import { projets } from '@/data/projets';
                 <h2 class="projet-name">{p.title}</h2>
                 <span class="projet-date">{p.date}</span>
               </div>
-              {p.comment && <p class="projet-comment">{p.comment}</p>}
+              {p.comment && (
+                <p class="projet-comment" data-i18n={p.i18n ? `project.${p.i18n}.comment` : undefined}>{p.comment}</p>
+              )}
             </div>
           </a>
         )

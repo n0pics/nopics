@@ -65,14 +65,18 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
 
 <BaseLayout title={`${projet.title} — n0pics`} description={projet.comment} noFooter>
   <article class="projet-detail">
-    <a href="/projets" class="detail-back">← Projets</a>
+    <a href="/projets" class="detail-back" data-i18n="project.backLink">← Projets</a>
 
     <header class="detail-head">
-      {projet.category && <p class="detail-cat">{projet.category}</p>}
+      {projet.category && (
+        <p class="detail-cat" data-i18n={projet.i18n ? `project.${projet.i18n}.category` : undefined}>{projet.category}</p>
+      )}
       <h1 class="detail-title">
         {projet.title}<span class="detail-year"> — {projet.date}</span>
       </h1>
-      {projet.comment && <p class="detail-comment">{projet.comment}</p>}
+      {projet.comment && (
+        <p class="detail-comment" data-i18n={projet.i18n ? `project.${projet.i18n}.comment` : undefined}>{projet.comment}</p>
+      )}
     </header>
 
     <div class="detail-gallery">
@@ -94,7 +98,7 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
 
     {images.length > INITIAL && (
       <div class="gallery-more-wrap">
-        <button class="btn-glass" id="gallery-more" type="button">Voir plus</button>
+        <button class="btn-glass" id="gallery-more" type="button" data-i18n="project.more">Voir plus</button>
       </div>
     )}
   </article>
