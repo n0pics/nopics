@@ -15,6 +15,11 @@ export default defineConfig({
   output: 'static',
   vite: {
     plugins: [tailwindcss()],
+    // Autorise l'accès au serveur de dev via un tunnel (ex: aperçu sur téléphone
+    // avec Cloudflare Tunnel — *.trycloudflare.com).
+    server: {
+      allowedHosts: ['.trycloudflare.com'],
+    },
   },
   i18n: {
     defaultLocale: 'fr',
