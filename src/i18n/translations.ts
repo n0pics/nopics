@@ -170,19 +170,27 @@ export const translations: Record<string, { fr: string; en: string }> = {
   'project.backLink': { fr: '← Projets', en: '← Projects' },
   'project.more': { fr: 'Voir plus', en: 'See more' },
   'project.soon': { fr: 'Prochainement', en: 'Coming soon' },
-  'playground.cat': { fr: 'Affiches', en: 'Posters' },
   'playground.comment': {
     fr: 'Mon terrain d’expression en vrac.',
     en: 'My free playground.',
   },
-  'project.solognac.category': { fr: 'Direction artistique', en: 'Art direction' },
   'project.solognac.comment': {
     fr: 'Création de visuels pour Solognac.',
     en: 'Visual design for Solognac.',
   },
+  // Menu des « rendus » (livrables) sur la page Solognac
+  'solognac.rendus.title': { fr: 'Rendus', en: 'Deliverables' },
+  'solognac.rendu.visuels': { fr: 'Visuels produits', en: 'Product visuals' },
+  'solognac.rendu.carrousel1': { fr: 'Carrousel Instagram', en: 'Instagram carousel' },
+  'solognac.carrousel.final': { fr: 'Rendu final officiel', en: 'Official final render' },
+  'solognac.carrousel.proposition': { fr: 'Proposition', en: 'Proposal' },
   'project.naaman.comment': {
     fr: 'Proposition de design promotionnel pour Naâman.',
     en: 'Promotional design proposal for Naâman.',
+  },
+  'project.naaman.titlecard': {
+    fr: 'Title Card pour la vidéo promotionnel du concert en hommage à Naâman (la scène a été retiré).',
+    en: 'Title card for the promotional video of the tribute concert to Naâman (the scene was cut).',
   },
   'project.placeholder.title': { fr: 'Projet 03', en: 'Project 03' },
 

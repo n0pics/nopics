@@ -1,0 +1,632 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BackToTop from '@/components/ui/BackToTop.astro';
+
+// --- Galerie masonry (rendu « Visuels produits ») ---------------------------
+// Même tri « famille » que la page projet générique : entrelace les photos
+// par préfixe (nom sans le numéro final) pour éviter deux visuels proches.
+function loadGallery(dirRel: string): string[] {
+  const dir = path.join(process.cwd(), 'public', dirRel);
+  try {
+    const files = fs
+      .readdirSync(dir)
+      .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
+      .sort();
+    const groups = new Map<string, string[]>();
+    for (const f of files) {
+      const key = f.replace(/\.[^.]+$/, '').replace(/-\d+$/, '');
+      const arr = groups.get(key) ?? [];
+      arr.push(f);
+      groups.set(key, arr);
+    }
+    const groupList = [...groups.values()].sort((a, b) => b.length - a.length);
+    const maxLen = Math.max(0, ...groupList.map((g) => g.length));
+    const ordered: string[] = [];
+    for (let r = 0; r < maxLen; r++) {
+      for (const g of groupList) if (g[r]) ordered.push(g[r]);
+    }
+    return ordered.map((f) => `/${dirRel}/${f}`);
+  } catch {
+    return [];
+  }
+}
+
+// --- Carrousels (slides 01, 02, 03 dans l'ordre) ----------------------------
+function loadCarousel(dirRel: string): string[] {
+  const dir = path.join(process.cwd(), 'public', dirRel);
+  try {
+    return fs
+      .readdirSync(dir)
+      .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
+      .sort()
+      .map((f) => `/${dirRel}/${f}`);
+  } catch {
+    return [];
+  }
+}
+
+const masonry = loadGallery('images/accueil');
+const carrousel1 = loadCarousel('images/solognac/carrousel-1');
+const treemetic = loadCarousel('images/solognac/carrousel-treemetic');
+
+// Galerie masonry : 3 colonnes (round-robin) au build, 2 sur mobile via JS.
+const COLS = 3;
+const INITIAL = 12;
+const masonryCols: { src: string; i: number }[][] = Array.from({ length: COLS }, () => []);
+masonry.forEach((src, i) => masonryCols[i % COLS].push({ src, i }));
+
+// Liste des rendus (livrables). Pour en ajouter un : déposer un dossier
+// d'images + ajouter une entrée ici (et sa clé i18n dans translations.ts).
+const rendus = [
+  { id: 'visuels', labelKey: 'solognac.rendu.visuels', label: 'Visuels produits', type: 'gallery' as const },
+  {
+    id: 'carrousels',
+    labelKey: 'solognac.rendu.carrousel1',
+    label: 'Carrousel Instagram',
+    type: 'carousel' as const,
+    // Treemetic = rendu final officiel → en premier.
+    carousels: [
+      { labelKey: 'solognac.carrousel.final', label: 'Rendu final officiel', final: true, images: treemetic },
+      { labelKey: 'solognac.carrousel.proposition', label: 'Proposition', final: false, images: carrousel1 },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Solognac — n0pics"
+  description="Création de visuels pour Solognac — Tom Mertens (n0pics)."
+  noFooter
+>
+  <article class="projet-detail">
+    <a href="/projets" class="detail-back" data-i18n="project.backLink">← Projets</a>
+
+    <header class="detail-head">
+      <div class="detail-head-main">
+        <h1 class="detail-title">
+          Solognac<span class="detail-year"> — 2026</span>
+        </h1>
+        <p class="detail-comment" data-i18n="project.solognac.comment">
+          Création de visuels pour Solognac.
+        </p>
+      </div>
+      <p class="detail-credit">
+        <span data-i18n="project.engagedBy">Engagé par</span> <span class="credit-handle">@TinyForestprod</span>
+      </p>
+    </header>
+
+    <div class="rendus">
+      <!-- Menu des rendus : colonne à gauche (desktop) / dropdown (mobile) -->
+      <aside class="rendus-menu">
+        <p class="rendus-menu-label" data-i18n="solognac.rendus.title">Rendus</p>
+        <button class="rendus-toggle" id="rendus-toggle" type="button" aria-expanded="false" aria-controls="rendus-list">
+          <span id="rendus-current" data-i18n={rendus[0].labelKey}>{rendus[0].label}</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+        <div class="rendus-list" id="rendus-list" role="tablist">
+          {rendus.map((r, i) => (
+            <button
+              class:list={['rendu-link', { 'is-active': i === 0 }]}
+              type="button"
+              role="tab"
+              data-target={r.id}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              data-i18n={r.labelKey}
+            >{r.label}</button>
+          ))}
+        </div>
+      </aside>
+
+      <div class="rendus-content">
+        {rendus.map((r, i) => (
+          <section class="rendu-panel" data-id={r.id} hidden={i !== 0}>
+            {r.type === 'gallery' ? (
+              <Fragment>
+                <div class="detail-gallery">
+                  {masonryCols.map((col) => (
+                    <div class="gallery-col">
+                      {col.map(({ src, i }) => (
+                        <img
+                          src={src}
+                          alt="Solognac"
+                          loading="lazy"
+                          decoding="async"
+                          data-i={i}
+                          class={i >= INITIAL ? 'is-extra' : undefined}
+                        />
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                {masonry.length > INITIAL && (
+                  <div class="gallery-more-wrap">
+                    <button class="btn-glass" id="gallery-more" type="button" data-i18n="project.more">Voir plus</button>
+                  </div>
+                )}
+              </Fragment>
+            ) : (
+              <div class="insta-group">
+                {r.carousels!.map((c) => (
+                  <div class="insta">
+                    <p class:list={['insta-label', { 'is-final': c.final }]} data-i18n={c.labelKey}>{c.label}</p>
+                    <div class="insta-carousel">
+                      <div class="insta-track">
+                        {c.images.map((src, di) => (
+                          <img class="insta-slide" src={src} alt={`${c.label} ${di + 1}`} loading="lazy" decoding="async" />
+                        ))}
+                      </div>
+                      <button class="insta-arrow insta-prev" type="button" aria-label="Slide précédente">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+                      </button>
+                      <button class="insta-arrow insta-next" type="button" aria-label="Slide suivante">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                      </button>
+                    </div>
+                    <div class="insta-dots">
+                      {c.images.map((_, di) => (
+                        <button class:list={['insta-dot', { 'is-active': di === 0 }]} type="button" data-i={di} aria-label={`Aller à la slide ${di + 1}`}></button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        ))}
+      </div>
+    </div>
+  </article>
+
+  <!-- Lightbox : clic sur une image = plein écran -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+        <path d="M5 5l14 14M19 5L5 19" />
+      </svg>
+    </button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="" />
+  </div>
+
+  <BackToTop />
+</BaseLayout>
+
+<style>
+  .projet-detail {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem 6rem;
+    color: var(--color-text);
+  }
+
+  .detail-back {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+    transition: color 0.3s ease;
+  }
+  .detail-back:hover { color: var(--color-text); }
+
+  .detail-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  .detail-head-main { max-width: 680px; }
+  .detail-title {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .detail-year { font-weight: 300; text-transform: none; color: var(--color-text-faint); }
+  .detail-comment {
+    margin: 1.2rem 0 0;
+    color: var(--color-text-muted);
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    line-height: 1.7;
+  }
+  .detail-credit {
+    flex-shrink: 0;
+    margin: 0;
+    text-align: right;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+  .detail-credit .credit-handle { color: var(--color-text); }
+
+  /* ---- Layout rendus : menu à gauche + contenu ---- */
+  .rendus {
+    display: flex;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: flex-start;
+  }
+  .rendus-menu {
+    flex: 0 0 200px;
+    position: sticky;
+    top: 6.5rem;
+  }
+  .rendus-menu-label {
+    margin: 0 0 1rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+  }
+  .rendus-toggle { display: none; }
+  .rendus-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .rendu-link {
+    appearance: none;
+    background: none;
+    border: none;
+    border-left: 2px solid transparent;
+    padding: 0.5rem 0 0.5rem 0.9rem;
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    line-height: 1.3;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.25s ease, border-color 0.25s ease;
+  }
+  .rendu-link:hover { color: var(--color-text); }
+  .rendu-link.is-active {
+    color: var(--color-text);
+    border-left-color: var(--color-text);
+  }
+
+  .rendus-content { flex: 1; min-width: 0; }
+  .rendu-panel[hidden] { display: none; }
+
+  /* ---- Galerie masonry (colonnes flex, ordre statique) ---- */
+  .detail-gallery { display: flex; align-items: flex-start; gap: 1rem; }
+  .detail-gallery :global(.gallery-col) {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1rem;
+  }
+  .detail-gallery img {
+    width: 100%; display: block; border-radius: 2px;
+    background: var(--color-bg-soft); cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+  .detail-gallery img:hover { opacity: 0.7; }
+  .detail-gallery img.is-extra { display: none; }
+  .detail-gallery img.just-shown { animation: gallery-fade 0.5s ease both; }
+  @keyframes gallery-fade { from { opacity: 0; } to { opacity: 1; } }
+
+  .gallery-more-wrap { text-align: center; margin-top: 3rem; }
+
+  /* ---- Carrousel Instagram (panorama swipe) ---- */
+  .insta {
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  .insta + .insta { margin-top: 3rem; }
+  .insta-label {
+    margin: 0 0 0.8rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .insta-label.is-final {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  .insta-label.is-final::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-primary-hex, currentColor);
+  }
+  .insta-carousel { position: relative; }
+  .insta-track {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    border-radius: 3px;
+    background: var(--color-bg-soft);
+  }
+  .insta-track::-webkit-scrollbar { display: none; }
+  .insta-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+    scroll-snap-align: center;
+    cursor: zoom-in;
+  }
+  .insta-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(10, 10, 10, 0.5);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    color: var(--color-text);
+    cursor: pointer;
+    opacity: 0.9;
+    transition: background 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+  }
+  .insta-arrow:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.4); }
+  .insta-prev { left: 0.6rem; }
+  .insta-next { right: 0.6rem; }
+  .insta-arrow[hidden] { display: none; }
+
+  .insta-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .insta-dot {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: var(--color-text-faint);
+    opacity: 0.5;
+    cursor: pointer;
+    transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+  .insta-dot.is-active { opacity: 1; background: var(--color-text); transform: scale(1.25); }
+
+  /* ---- Lightbox ---- */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 4vmin; background: rgba(5, 5, 5, 0.92);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; visibility: hidden; cursor: pointer;
+    transition: opacity 0.32s ease, visibility 0.32s;
+  }
+  .lightbox.is-open { opacity: 1; visibility: visible; }
+  .lightbox-img {
+    max-width: 100%; max-height: 100%; object-fit: contain;
+    border-radius: 3px; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+    transform: scale(0.94);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .lightbox.is-open .lightbox-img { transform: scale(1); }
+  .lightbox-close {
+    position: absolute; top: 1.4rem; right: 1.4rem; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    width: 2.75rem; height: 2.75rem;
+    background: none; border: none;
+    color: rgba(255, 255, 255, 0.7); cursor: pointer;
+    transition: color 0.25s ease;
+  }
+  .lightbox-close:hover { color: #ffffff; }
+
+  /* ---- Mobile : menu en dropdown ---- */
+  @media (max-width: 760px) {
+    .projet-detail { padding-top: 6.5rem; }
+    .detail-head { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+    .detail-credit { text-align: left; }
+
+    .rendus { flex-direction: column; gap: 1.5rem; }
+    .rendus-menu {
+      flex: none; position: static; top: auto;
+      width: 100%;
+    }
+    .rendus-menu-label { display: none; }
+    .rendus-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 10px;
+      background: rgba(10, 10, 10, 0.5);
+      color: var(--color-text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .rendus-toggle svg { transition: transform 0.3s ease; flex-shrink: 0; }
+    .rendus-toggle[aria-expanded='true'] svg { transform: rotate(180deg); }
+    .rendus-list {
+      margin-top: 0.4rem;
+      gap: 0;
+      max-height: 0;
+      overflow: hidden;
+      border-radius: 10px;
+      transition: max-height 0.3s ease;
+    }
+    .rendus-list.is-open { max-height: 360px; }
+    .rendu-link {
+      border-left: none;
+      padding: 0.7rem 1rem;
+      font-size: 0.95rem;
+    }
+    .rendu-link.is-active { background: rgba(255, 255, 255, 0.06); border-left: none; }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // Switch de rendus (menu gauche / dropdown mobile)
+  // ============================================================
+  const toggle = document.getElementById('rendus-toggle');
+  const list = document.getElementById('rendus-list');
+  const current = document.getElementById('rendus-current');
+  const links = Array.from(document.querySelectorAll<HTMLButtonElement>('.rendu-link'));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('.rendu-panel'));
+
+  function setActive(id: string) {
+    links.forEach((l) => {
+      const on = l.dataset.target === id;
+      l.classList.toggle('is-active', on);
+      l.setAttribute('aria-selected', String(on));
+      if (on && current) current.textContent = l.textContent;
+    });
+    panels.forEach((p) => {
+      p.hidden = p.dataset.id !== id;
+    });
+    // Initialise / recadre les carrousels qui viennent d'être affichés
+    document.querySelectorAll<HTMLElement>('.rendu-panel:not([hidden]) .insta-carousel')
+      .forEach(initCarouselState);
+  }
+
+  toggle?.addEventListener('click', () => {
+    const open = list?.classList.toggle('is-open') ?? false;
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  links.forEach((l) => {
+    l.addEventListener('click', () => {
+      setActive(l.dataset.target!);
+      list?.classList.remove('is-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // ============================================================
+  // Carrousels Instagram (snap + flèches + points)
+  // ============================================================
+  function initCarouselState(carousel: HTMLElement) {
+    const track = carousel.querySelector<HTMLElement>('.insta-track');
+    if (track) updateCarousel(carousel, track);
+  }
+
+  function updateCarousel(carousel: HTMLElement, track: HTMLElement) {
+    const dots = Array.from(carousel.parentElement!.querySelectorAll<HTMLElement>('.insta-dot'));
+    const w = track.clientWidth || 1;
+    const idx = Math.round(track.scrollLeft / w);
+    dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+    const prev = carousel.querySelector<HTMLElement>('.insta-prev');
+    const next = carousel.querySelector<HTMLElement>('.insta-next');
+    const max = track.scrollWidth - track.clientWidth;
+    if (prev) prev.hidden = track.scrollLeft <= 4;
+    if (next) next.hidden = track.scrollLeft >= max - 4;
+  }
+
+  document.querySelectorAll<HTMLElement>('.insta-carousel').forEach((carousel) => {
+    const track = carousel.querySelector<HTMLElement>('.insta-track');
+    if (!track) return;
+    const slides = Array.from(track.querySelectorAll<HTMLImageElement>('.insta-slide'));
+    const dots = Array.from(carousel.parentElement!.querySelectorAll<HTMLElement>('.insta-dot'));
+
+    const goTo = (i: number) => {
+      const clamped = Math.max(0, Math.min(i, slides.length - 1));
+      track.scrollTo({ left: clamped * track.clientWidth, behavior: 'smooth' });
+    };
+    const activeIndex = () => Math.round(track.scrollLeft / (track.clientWidth || 1));
+
+    carousel.querySelector('.insta-next')?.addEventListener('click', () => goTo(activeIndex() + 1));
+    carousel.querySelector('.insta-prev')?.addEventListener('click', () => goTo(activeIndex() - 1));
+    dots.forEach((d) => d.addEventListener('click', () => goTo(Number(d.dataset.i))));
+
+    let t: number;
+    track.addEventListener('scroll', () => {
+      window.clearTimeout(t);
+      t = window.setTimeout(() => updateCarousel(carousel, track), 60);
+    }, { passive: true });
+    window.addEventListener('resize', () => updateCarousel(carousel, track));
+  });
+
+  // ============================================================
+  // Galerie masonry : colonnes responsives + lightbox + « Voir plus »
+  // ============================================================
+  const gallery = document.querySelector<HTMLElement>('.detail-gallery');
+  if (gallery) {
+    const targetCols = () => (window.matchMedia('(max-width: 720px)').matches ? 2 : 3);
+    const relayout = () => {
+      const cols = targetCols();
+      if (gallery.dataset.cols === String(cols)) return;
+      const imgs = Array.from(gallery.querySelectorAll<HTMLImageElement>('img')).sort(
+        (a, b) => Number(a.dataset.i) - Number(b.dataset.i),
+      );
+      const colEls = Array.from({ length: cols }, () => {
+        const d = document.createElement('div');
+        d.className = 'gallery-col';
+        return d;
+      });
+      imgs.forEach((img, idx) => colEls[idx % cols].appendChild(img));
+      gallery.replaceChildren(...colEls);
+      gallery.dataset.cols = String(cols);
+    };
+    relayout();
+    let rt: number;
+    window.addEventListener('resize', () => {
+      window.clearTimeout(rt);
+      rt = window.setTimeout(relayout, 150);
+    });
+
+    const moreBtn = document.getElementById('gallery-more');
+    moreBtn?.addEventListener('click', () => {
+      const hidden = Array.from(gallery.querySelectorAll<HTMLElement>('img.is-extra'))
+        .sort((a, b) => Number(a.dataset.i) - Number(b.dataset.i))
+        .slice(0, 9);
+      hidden.forEach((img) => {
+        img.classList.remove('is-extra');
+        img.classList.add('just-shown');
+      });
+      if (gallery.querySelectorAll('img.is-extra').length === 0) moreBtn.style.display = 'none';
+    });
+  }
+
+  // ============================================================
+  // Lightbox (masonry + slides de carrousel)
+  // ============================================================
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  if (lightbox && lightboxImg) {
+    document.body.appendChild(lightbox);
+    const open = (src: string, alt: string) => {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt;
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+    const close = () => {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+    document.querySelector('.rendus-content')?.addEventListener('click', (e) => {
+      const img = (e.target as HTMLElement).closest('img');
+      if (img instanceof HTMLImageElement) open(img.src, img.alt);
+    });
+    lightbox.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
+    });
+  }
+</script>

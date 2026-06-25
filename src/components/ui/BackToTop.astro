@@ -1,0 +1,87 @@
+---
+// Bouton « retour en haut » : apparaît quand on approche du bas de la page,
+// puis ramène en haut au clic (défilement doux). Style verre, comme la nav.
+---
+
+<button class="back-to-top" id="back-to-top" type="button" aria-label="Revenir en haut">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 19V5M6 11l6-6 6 6" />
+  </svg>
+</button>
+
+<style>
+  .back-to-top {
+    position: fixed;
+    right: clamp(1.25rem, 4vw, 2.25rem);
+    bottom: clamp(1.25rem, 4vw, 2.25rem);
+    z-index: 120;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.85rem;
+    height: 2.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(10, 10, 10, 0.5);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    color: var(--color-text);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      background 0.35s ease,
+      border-color 0.35s ease,
+      visibility 0.35s;
+  }
+  .back-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .back-to-top:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+  .back-to-top.is-visible:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top,
+    .back-to-top.is-visible,
+    .back-to-top.is-visible:hover {
+      transform: none;
+      transition: opacity 0.2s ease, visibility 0.2s;
+    }
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('back-to-top');
+  if (btn) {
+    // Apparaît quand le bas de la fenêtre arrive à moins de THRESHOLD px du bas du document.
+    const THRESHOLD = 240;
+    const update = () => {
+      const nearBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - THRESHOLD;
+      // Pas d'affichage si la page n'est pas assez longue pour scroller.
+      const scrollable =
+        document.documentElement.scrollHeight > window.innerHeight + 40;
+      btn.classList.toggle('is-visible', nearBottom && scrollable);
+    };
+
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+
+    btn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+</script>

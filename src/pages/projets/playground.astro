@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import BackToTop from '@/components/ui/BackToTop.astro';
 
 // Charge toutes les images de public/images/posters/ (dépose tes posters là).
 // Même tri "famille" que Solognac pour éviter deux visuels proches côte à côte.
@@ -53,7 +54,6 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
     <a href="/projets" class="detail-back" data-i18n="project.backLink">← Projets</a>
 
     <header class="detail-head">
-      <p class="detail-cat" data-i18n="playground.cat">Affiches</p>
       <h1 class="detail-title">Playground</h1>
       <p class="detail-comment" data-i18n="playground.comment">Mon terrain d’expression en vrac.</p>
     </header>
@@ -91,6 +91,8 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
     </button>
     <img class="lightbox-img" id="lightbox-img" src="" alt="" />
   </div>
+
+  <BackToTop />
 </BaseLayout>
 
 <style>

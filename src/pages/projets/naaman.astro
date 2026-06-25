@@ -1,0 +1,315 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BackToTop from '@/components/ui/BackToTop.astro';
+
+// Page sur-mesure : 2 rendus côte à côte (mêmes cadres, sans rognage) + le
+// title card en paysage pleine largeur dessous. Images cliquables (lightbox).
+const left = '/images/NAAMAN rendu final 1.jpg';
+const right = '/images/naaman 2.png';
+const wide = '/images/title card naaman.jpg';
+---
+
+<BaseLayout
+  title="Naâman — n0pics"
+  description="Proposition de design promotionnel pour Naâman — Tom Mertens (n0pics)."
+  noFooter
+>
+  <article class="projet-detail">
+    <a href="/projets" class="detail-back" data-i18n="project.backLink">← Projets</a>
+
+    <header class="detail-head">
+      <div class="detail-head-main">
+        <h1 class="detail-title">
+          Naâman<span class="detail-year"> — 2026</span>
+        </h1>
+        <p class="detail-comment" data-i18n="project.naaman.comment">
+          Proposition de design promotionnel pour Naâman.
+        </p>
+      </div>
+      <p class="detail-credit">
+        <span data-i18n="project.engagedBy">Engagé par</span> <span class="credit-handle">@TinyForestprod</span>
+      </p>
+    </header>
+
+    <div class="naaman-gallery">
+      <!-- Deux rendus côte à côte : cadres identiques (4/5), object-fit contain
+           → même taille affichée, sans rien rogner. -->
+      <div class="naaman-row">
+        <div class="naaman-cell">
+          <img src={left} alt="Naâman" loading="lazy" decoding="async" />
+        </div>
+        <div class="naaman-cell">
+          <img src={right} alt="Naâman" loading="lazy" decoding="async" />
+        </div>
+      </div>
+
+      <!-- Title card paysage : pleine largeur, hauteur naturelle (pas de crop). -->
+      <div class="naaman-cell naaman-wide" data-caption-key="project.naaman.titlecard">
+        <img src={wide} alt="Naâman — title card" loading="lazy" decoding="async" />
+      </div>
+    </div>
+  </article>
+
+  <!-- Lightbox : clic sur une image = plein écran -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+        <path d="M5 5l14 14M19 5L5 19" />
+      </svg>
+    </button>
+    <figure class="lightbox-figure">
+      <img class="lightbox-img" id="lightbox-img" src="" alt="" />
+      <figcaption class="lightbox-caption" id="lightbox-caption"></figcaption>
+    </figure>
+  </div>
+
+  <BackToTop />
+</BaseLayout>
+
+<style>
+  .projet-detail {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem 6rem;
+    color: var(--color-text);
+  }
+
+  .detail-back {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+    transition: color 0.3s ease;
+  }
+  .detail-back:hover {
+    color: var(--color-text);
+  }
+
+  .detail-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  .detail-head-main {
+    max-width: 680px;
+  }
+  .detail-credit {
+    flex-shrink: 0;
+    margin: 0;
+    text-align: right;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+  .detail-credit .credit-handle {
+    color: var(--color-text);
+  }
+  .detail-title {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .detail-year {
+    font-weight: 300;
+    text-transform: none;
+    color: var(--color-text-faint);
+  }
+  .detail-comment {
+    margin: 1.2rem 0 0;
+    color: var(--color-text-muted);
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    line-height: 1.7;
+  }
+
+  /* ---- Galerie sur-mesure ---- */
+  .naaman-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .naaman-row {
+    display: flex;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .naaman-cell {
+    cursor: pointer;
+    background: var(--color-bg-soft);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .naaman-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    transition: opacity 0.3s ease;
+  }
+  .naaman-cell:hover img {
+    opacity: 0.7;
+  }
+
+  /* Les deux rendus : colonnes égales, cadre 4/5 → même taille, sans rognage. */
+  .naaman-row .naaman-cell {
+    flex: 1;
+    min-width: 0;
+    aspect-ratio: 4 / 5;
+  }
+
+  /* Title card : pleine largeur, hauteur naturelle (ratio conservé). */
+  .naaman-wide img {
+    height: auto;
+  }
+
+  /* ---- Lightbox ---- */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4vmin;
+    background: rgba(5, 5, 5, 0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    cursor: pointer;
+    transition: opacity 0.32s ease, visibility 0.32s;
+  }
+  .lightbox.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .lightbox-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+  }
+  .lightbox-img {
+    max-width: 100%;
+    min-height: 0;
+    object-fit: contain;
+    border-radius: 3px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+    transform: scale(0.94);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .lightbox.is-open .lightbox-img {
+    transform: scale(1);
+  }
+  .lightbox-caption {
+    flex-shrink: 0;
+    max-width: 100%;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: clamp(0.78rem, 1.1vw, 0.9rem);
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    text-align: center;
+  }
+  .lightbox-caption:empty {
+    display: none;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.4rem;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: color 0.25s ease;
+  }
+  .lightbox-close:hover {
+    color: #ffffff;
+  }
+
+  @media (max-width: 720px) {
+    .projet-detail {
+      padding-top: 6.5rem;
+    }
+    .detail-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.8rem;
+    }
+    .detail-credit {
+      text-align: left;
+      margin-top: 0;
+    }
+    /* Sur mobile : la légende revient à la ligne plutôt que déborder. */
+    .lightbox-caption {
+      white-space: normal;
+      max-width: 92vw;
+    }
+  }
+</style>
+
+<script>
+  import { translations } from '@/i18n/translations';
+
+  const getLang = (): 'fr' | 'en' =>
+    (localStorage.getItem('site-lang') as 'fr' | 'en') || 'fr';
+
+  const gallery = document.querySelector<HTMLElement>('.naaman-gallery');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  const lightboxCaption = document.getElementById('lightbox-caption');
+
+  if (gallery && lightbox && lightboxImg && lightboxCaption) {
+    // Sort la lightbox de <main> pour qu'elle passe au-dessus du header (z-index)
+    document.body.appendChild(lightbox);
+
+    const open = (src: string, alt: string, caption: string) => {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt;
+      lightboxCaption.textContent = caption;
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+    const close = () => {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+
+    // Clic sur une cellule (image ou bande de letterbox) = plein écran
+    gallery.addEventListener('click', (e) => {
+      const cell = (e.target as HTMLElement).closest('.naaman-cell');
+      const img = cell?.querySelector('img');
+      if (!(img instanceof HTMLImageElement)) return;
+      const key = cell?.getAttribute('data-caption-key');
+      const caption = key && translations[key] ? translations[key][getLang()] : '';
+      open(img.src, img.alt, caption);
+    });
+
+    lightbox.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
+    });
+  }
+</script>

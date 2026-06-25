@@ -2,11 +2,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import BackToTop from '@/components/ui/BackToTop.astro';
 import { projets, type Projet } from '@/data/projets';
 
 export function getStaticPaths() {
   return projets
-    .filter((p) => !p.comingSoon)
+    .filter((p) => !p.comingSoon && !p.customPage)
     .map((p) => ({ params: { slug: p.slug }, props: { projet: p } }));
 }
 
@@ -68,14 +69,21 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
     <a href="/projets" class="detail-back" data-i18n="project.backLink">← Projets</a>
 
     <header class="detail-head">
-      {projet.category && (
-        <p class="detail-cat" data-i18n={projet.i18n ? `project.${projet.i18n}.category` : undefined}>{projet.category}</p>
-      )}
-      <h1 class="detail-title">
-        {projet.title}<span class="detail-year"> — {projet.date}</span>
-      </h1>
-      {projet.comment && (
-        <p class="detail-comment" data-i18n={projet.i18n ? `project.${projet.i18n}.comment` : undefined}>{projet.comment}</p>
+      <div class="detail-head-main">
+        {projet.category && (
+          <p class="detail-cat" data-i18n={projet.i18n ? `project.${projet.i18n}.category` : undefined}>{projet.category}</p>
+        )}
+        <h1 class="detail-title">
+          {projet.title}<span class="detail-year"> — {projet.date}</span>
+        </h1>
+        {projet.comment && (
+          <p class="detail-comment" data-i18n={projet.i18n ? `project.${projet.i18n}.comment` : undefined}>{projet.comment}</p>
+        )}
+      </div>
+      {projet.credit && (
+        <p class="detail-credit">
+          <span data-i18n="project.engagedBy">Engagé par</span> <span class="credit-handle">{projet.credit}</span>
+        </p>
       )}
     </header>
 
@@ -112,6 +120,8 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
     </button>
     <img class="lightbox-img" id="lightbox-img" src="" alt="" />
   </div>
+
+  <BackToTop />
 </BaseLayout>
 
 <style>
@@ -137,8 +147,27 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
   }
 
   .detail-head {
-    max-width: 680px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
     margin-bottom: 3rem;
+  }
+  .detail-head-main {
+    max-width: 680px;
+  }
+  .detail-credit {
+    flex-shrink: 0;
+    margin: 0;
+    text-align: right;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+  .detail-credit .credit-handle {
+    color: var(--color-text);
   }
   .detail-cat {
     font-size: 0.7rem;
@@ -267,6 +296,15 @@ images.forEach((src, i) => galleryCols[i % COLS].push({ src, i }));
   @media (max-width: 720px) {
     .projet-detail {
       padding-top: 6.5rem;
+    }
+    .detail-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.8rem;
+    }
+    .detail-credit {
+      text-align: left;
+      margin-top: 0;
     }
   }
 </style>

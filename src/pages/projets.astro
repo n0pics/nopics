@@ -21,7 +21,12 @@ import { projets } from '@/data/projets';
               <span class="shining-text" data-i18n="project.soon">Prochainement</span>
             </div>
             <div class="projet-meta">
-              <h2 class="projet-name" data-i18n={p.titleKey}>{p.title}</h2>
+              <div class="projet-meta-top">
+                <h2 class="projet-name" data-i18n={p.titleKey}>{p.title}</h2>
+                {p.date && p.date !== '—' && (
+                  <span class="projet-date">{p.date}</span>
+                )}
+              </div>
               {p.comment && (
                 <p class="projet-comment" data-i18n={p.i18n ? `project.${p.i18n}.comment` : undefined}>{p.comment}</p>
               )}
@@ -61,7 +66,7 @@ import { projets } from '@/data/projets';
     </div>
 
     <!-- Bandeau "verre" vers la page Posters -->
-    <a class="projets-cta" href="/projets/posters">
+    <a class="projets-cta" href="/projets/playground">
       <span>Playground</span>
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M5 12h14M13 6l6 6-6 6" />
