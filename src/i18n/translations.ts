@@ -189,7 +189,7 @@ export const translations: Record<string, { fr: string; en: string }> = {
     en: 'Promotional design proposals for Naâman.',
   },
   'project.naaman.titlecard': {
-    fr: 'Title Card pour la vidéo promotionnel du concert en hommage à Naâman (la scène a été retiré).',
+    fr: 'Title Card pour la vidéo promotionnelle du concert en hommage à Naâman (la scène a été retirée).',
     en: 'Title card for the promotional video of the tribute concert to Naâman (the scene was cut).',
   },
   'project.placeholder.title': { fr: 'Projet 03', en: 'Project 03' },
