@@ -40,7 +40,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
               placeholder="Message" data-i18n-placeholder="contact.form.message"></textarea>
           </label>
 
+          <!-- Anti-spam : champ piège caché (rempli uniquement par les bots) -->
+          <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="form-honey" />
+
           <button type="submit" class="form-submit btn-glass" data-i18n="contact.form.submit">Envoyer</button>
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
         </form>
       </div>
 
@@ -193,6 +197,33 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     padding-top: 1.15rem;
     padding-bottom: 1.15rem;
   }
+  .form-submit:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  /* Champ anti-spam : invisible et hors layout */
+  .form-honey {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  /* Message de statut sous le bouton (succès / erreur) */
+  .form-status {
+    margin: -1.6rem 0 0;
+    min-height: 1.3em;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .form-status.is-visible { opacity: 1; }
+  .form-status.is-success { color: #3ad17e; }
+  .form-status.is-error { color: #ff8a8a; }
 
   /* ---- Panneau infos : coordonnées regroupées, centrées ---- */
   .contact-info {
@@ -355,13 +386,68 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 </style>
 
 <script>
-  // Le formulaire est un placeholder : branchez votre propre service
-  // (Web3Forms, Formspree, une API, etc.) en définissant `action`/`method`
-  // sur le <form>, ou en gérant l'envoi ici.
+  // ============================================================
+  // Envoi du formulaire via FormSubmit (service sans backend).
+  // Les messages arrivent à l'adresse ci-dessous. Requête AJAX : on reste
+  // sur la page et on affiche un statut de succès / d'erreur.
+  // ⚠️ Le tout premier envoi déclenche un mail d'activation FormSubmit :
+  //    clique le lien à l'intérieur UNE fois pour activer la réception.
+  // ============================================================
+  const CONTACT_ENDPOINT = 'https://formsubmit.co/ajax/nopics.prod@gmail.com';
+
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
-  form?.addEventListener('submit', (e) => {
+  const statusEl = document.getElementById('form-status');
+  const submitBtn = form?.querySelector<HTMLButtonElement>('.form-submit') ?? null;
+
+  const lang = (): 'fr' | 'en' => (document.documentElement.lang === 'en' ? 'en' : 'fr');
+
+  const T = {
+    sending: { fr: 'Envoi…', en: 'Sending…' },
+    submit: { fr: 'Envoyer', en: 'Send' },
+    success: {
+      fr: 'Message envoyé ✓ Merci, je vous réponds très vite.',
+      en: "Message sent ✓ Thanks, I'll get back to you soon.",
+    },
+    error: {
+      fr: "Oups, l'envoi a échoué. Réessayez ou écrivez-moi à nopics.prod@gmail.com.",
+      en: 'Oops, sending failed. Please retry or email me at nopics.prod@gmail.com.',
+    },
+  } as const;
+
+  function showStatus(kind: 'success' | 'error', text: string) {
+    if (!statusEl) return;
+    statusEl.textContent = text;
+    statusEl.classList.remove('is-success', 'is-error');
+    statusEl.classList.add('is-visible', kind === 'success' ? 'is-success' : 'is-error');
+  }
+
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    alert('Formulaire de démonstration — connectez votre service d\'envoi pour le rendre fonctionnel.');
+    if (!form) return;
+    const l = lang();
+
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = T.sending[l]; }
+    statusEl?.classList.remove('is-visible', 'is-success', 'is-error');
+
+    const data = new FormData(form);
+    data.append('_subject', 'Nouveau message depuis n0pics.com');
+    data.append('_template', 'table');
+    data.append('_captcha', 'false');
+
+    try {
+      const res = await fetch(CONTACT_ENDPOINT, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: data,
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      form.reset();
+      showStatus('success', T.success[l]);
+    } catch {
+      showStatus('error', T.error[l]);
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = T.submit[l]; }
+    }
   });
 
   // Email copiable au clic, avec retour visuel « Copié ✓ »
