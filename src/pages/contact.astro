@@ -84,8 +84,15 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
                 target="_blank"
                 rel="noopener noreferrer"
                 class="contact-value contact-social"
-                aria-label="Instagram n0pics_"
+                aria-label="Instagram n0pics_ (ouvre dans un nouvel onglet)"
               >
+                <svg class="contact-social-icon" viewBox="0 0 24 24" width="19" height="19"
+                  fill="none" stroke="currentColor" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="2" width="20" height="20" rx="5.5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none" />
+                </svg>
                 <span>@n0pics_</span>
               </a>
             </li>
@@ -366,6 +373,26 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
+  }
+  .contact-social-icon {
+    flex-shrink: 0;
+    opacity: 0.85;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .contact-social:hover .contact-social-icon {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+  /* Soulignement au survol : signale clairement le lien cliquable */
+  .contact-social span {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    transition: text-decoration-color 0.3s ease;
+  }
+  .contact-social:hover span {
+    text-decoration-color: currentColor;
   }
 
   /* ---- Responsive ---- */
