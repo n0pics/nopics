@@ -115,6 +115,7 @@ const services = [
     transform-origin: left center;
     transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
+  /* Survol (desktop uniquement) : aperçu du balayage blanc. */
   @media (hover: hover) and (pointer: fine) {
     .svc-head:hover {
       color: #050505;
@@ -122,6 +123,14 @@ const services = [
     .svc-head:hover::before {
       transform: scaleX(1);
     }
+  }
+  /* Une fois la ligne ouverte (clic souris ou tap), elle reste remplie en
+     blanc — même comportement sur desktop et sur tactile. */
+  .svc-item.is-open .svc-head {
+    color: #050505;
+  }
+  .svc-item.is-open .svc-head::before {
+    transform: scaleX(1);
   }
 
   .svc-title {

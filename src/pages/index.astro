@@ -4,14 +4,26 @@ import path from 'node:path';
 import LandingLayout from '@/layouts/LandingLayout.astro';
 import InfiniteGallery from '@/components/ui/3d-gallery-photography';
 
-// Charge automatiquement toutes les images du dossier /public/images/accueil/.
-// Pour changer les photos de l'accueil : ajoute/retire simplement des fichiers
-// dans ce dossier (formats .jpg / .png / .webp).
-const accueilDir = path.join(process.cwd(), 'public/images/accueil');
-const galleryImages = fs
-  .readdirSync(accueilDir)
-  .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
-  .map((f) => ({ src: `/images/accueil/${f}`, alt: '' }));
+// Charge automatiquement TOUTES les photos du site (récursif sous
+// /public/images/), tous dossiers confondus : accueil, posters, naaman,
+// solognac, etc. Pour ajouter une photo au défilement : dépose-la simplement
+// quelque part sous /public/images/ (formats .jpg / .png / .webp).
+// On exclut uniquement la photo de la page « À propos » (le portrait).
+const publicDir = path.join(process.cwd(), 'public');
+const imagesDir = path.join(publicDir, 'images');
+const EXCLUDE = new Set(['about-portrait.jpg']);
+
+function walkImages(dir: string): { src: string; alt: string }[] {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) return walkImages(full);
+    if (!/\.(jpe?g|png|webp)$/i.test(entry.name) || EXCLUDE.has(entry.name)) return [];
+    const webPath = '/' + path.relative(publicDir, full).split(path.sep).join('/');
+    return [{ src: webPath, alt: '' }];
+  });
+}
+
+const galleryImages = walkImages(imagesDir);
 
 // Ordre aléatoire (Fisher-Yates), calculé à chaque chargement (dev) et au build.
 for (let i = galleryImages.length - 1; i > 0; i--) {
