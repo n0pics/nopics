@@ -185,8 +185,8 @@ export const translations: Record<string, { fr: string; en: string }> = {
   'solognac.carrousel.final': { fr: 'Rendu final officiel', en: 'Official final render' },
   'solognac.carrousel.proposition': { fr: 'Proposition', en: 'Proposal' },
   'project.naaman.comment': {
-    fr: 'Proposition de design promotionnel pour Naâman.',
-    en: 'Promotional design proposal for Naâman.',
+    fr: 'Propositions de design promotionnel pour Naâman.',
+    en: 'Promotional design proposals for Naâman.',
   },
   'project.naaman.titlecard': {
     fr: 'Title Card pour la vidéo promotionnel du concert en hommage à Naâman (la scène a été retiré).',
