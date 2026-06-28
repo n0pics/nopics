@@ -54,6 +54,8 @@ const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
 // Vitesse du défilement automatique permanent (plus la valeur est haute, plus c'est rapide).
 const AUTOPLAY_SPEED = 3.6;
+// Sur mobile (écran étroit) on ralentit le défilement automatique.
+const AUTOPLAY_SPEED_MOBILE = 2.8;
 // Taille des images (était 2). Plus haut = images plus grandes.
 const IMAGE_SIZE = 3.4;
 
@@ -276,8 +278,10 @@ function GalleryScene({
 	}, [handleWheel, handleKeyDown]);
 
 	useFrame((state, delta) => {
-		// Défilement automatique permanent
-		setScrollVelocity((prev) => prev + AUTOPLAY_SPEED * delta);
+		// Défilement automatique permanent (ralenti sur mobile)
+		const autoplaySpeed =
+			size.width < 768 ? AUTOPLAY_SPEED_MOBILE : AUTOPLAY_SPEED;
+		setScrollVelocity((prev) => prev + autoplaySpeed * delta);
 
 		// Damping
 		setScrollVelocity((prev) => prev * 0.95);
