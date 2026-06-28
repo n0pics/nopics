@@ -14,7 +14,7 @@ const {
   image = '/og-image.png?v=2',
   type = 'website',
   noindex = false,
-  keywords = 'Tom Mertens, n0pics, graphic designer, portfolio, design, branding',
+  keywords = 'Tom Mertens, n0pics, nopics, n0pics studio, graphic designer, portfolio, design, branding',
 } = Astro.props;
 
 const siteName = 'n0pics';
@@ -83,6 +83,7 @@ const breadcrumbItems = [
   '@type': 'Organization',
   '@id': `${siteUrl}/#organization`,
   name: siteName,
+  alternateName: ['nopics', 'n0pics studio', 'nopics studio'],
   url: siteUrl,
   logo: {
     '@type': 'ImageObject',
@@ -103,9 +104,18 @@ const breadcrumbItems = [
   '@id': `${siteUrl}/#website`,
   url: siteUrl,
   name: siteName,
+  alternateName: ['nopics', 'n0pics studio', 'nopics studio'],
   description,
   publisher: { '@id': `${siteUrl}/#organization` },
   inLanguage: ['fr-FR', 'en-US'],
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${siteUrl}/projets?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
 })} />
 
 <!-- JSON-LD SiteNavigationElement -->
