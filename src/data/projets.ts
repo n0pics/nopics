@@ -42,7 +42,7 @@ export const projets: Projet[] = [
     date: '2026',
     category: '',
     comment: 'Proposition de design promotionnel pour Naâman.',
-    cover: '/images/NAAMAN rendu final 1.jpg',
+    cover: '/images/naaman-cover.jpg',
     customPage: true,
     i18n: 'naaman',
   },
