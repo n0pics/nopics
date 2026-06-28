@@ -18,6 +18,10 @@ const {
 } = Astro.props;
 
 const siteName = 'n0pics';
+// Profils officiels — renforce l'entité de marque dans le Knowledge Graph.
+const sameAs = [
+  'https://www.instagram.com/n0pics_/',
+];
 // Domaine réel issu de `site` dans astro.config.mjs (évite tout placeholder).
 const siteUrl  = Astro.site ? Astro.site.href.replace(/\/+$/, '') : 'https://n0pics.com';
 const fullTitle = title ? `${title}` : `${siteName} — Portfolio`;
@@ -95,6 +99,7 @@ const breadcrumbItems = [
     '@type': 'Person',
     name: 'Tom Mertens',
   },
+  sameAs,
 })} />
 
 <!-- JSON-LD WebSite -->
