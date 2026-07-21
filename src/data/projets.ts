@@ -50,10 +50,10 @@ export const projets: Projet[] = [
     slug: 'projet-03',
     title: 'Día Wellness Club',
     titleKey: 'project.placeholder.title',
-    date: '—',
+    date: '2026',
     category: '',
     comment: '',
-    cover: '',
+    cover: '/images/dia-cover.jpg',
     comingSoon: true,
   },
   {
