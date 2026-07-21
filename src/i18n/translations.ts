@@ -192,7 +192,8 @@ export const translations: Record<string, { fr: string; en: string }> = {
     fr: 'Title Card pour la vidéo promotionnelle du concert en hommage à Naâman (la scène a été retirée).',
     en: 'Title card for the promotional video of the tribute concert to Naâman (the scene was cut).',
   },
-  'project.placeholder.title': { fr: 'Projet 03', en: 'Project 03' },
+  'project.placeholder.title': { fr: 'Día Wellness Club', en: 'Día Wellness Club' },
+  'project.placeholder.title.04': { fr: 'Projet 04', en: 'Project 04' },
 
   // === ScrollExpandHero ===
   'seh.youtube': { fr: 'Voir sur YouTube', en: 'Watch on YouTube' },
