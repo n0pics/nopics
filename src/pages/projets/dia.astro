@@ -1,0 +1,895 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BackToTop from '@/components/ui/BackToTop.astro';
+
+// ============================================================
+// Día Wellness Club — page projet
+//
+// Tout est piloté par les dossiers dans public/images/dia/ :
+//   • avant-apres/   → paires « NN-base.jpg » (format original) + « NN-colo.jpg » (recadrée)
+//   • carrousel-1/ … → slides nommées 01.jpg, 02.jpg, …
+//
+// Aucune liste à tenir à jour ici : dépose les fichiers, la page suit.
+// Un dossier vide = sa section disparaît toute seule.
+//
+// Les originaux (ARW + JPG pleine réso) restent hors du dépôt, dans raw-sources/dia/.
+// ============================================================
+
+/** Dimensions d'un JPEG, lues dans son marqueur SOF (sans dépendance). */
+function jpegSize(absPath: string): { w: number; h: number } | null {
+  try {
+    const buf = fs.readFileSync(absPath);
+    let i = 2; // saute le SOI
+    while (i < buf.length - 9) {
+      if (buf[i] !== 0xff) { i++; continue; }
+      const marker = buf[i + 1];
+      // SOF0–SOF15, en excluant DHT (c4), JPG (c8) et DAC (cc)
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+        return { h: buf.readUInt16BE(i + 5), w: buf.readUInt16BE(i + 7) };
+      }
+      i += 2 + buf.readUInt16BE(i + 2);
+    }
+  } catch {
+    /* fichier illisible → on laissera le ratio par défaut */
+  }
+  return null;
+}
+
+/** Paires « NN-base.jpg » + « NN-colo.jpg », avec leurs ratios (mesurés au build). */
+function loadPairs(dirRel: string) {
+  const dir = path.join(process.cwd(), 'public', dirRel);
+  try {
+    const map = new Map<string, { base?: string; colo?: string }>();
+    for (const f of fs.readdirSync(dir)) {
+      const m = f.match(/^(.+?)[-_](base|colo)\.(jpe?g|png|webp)$/i);
+      if (!m) continue;
+      const entry = map.get(m[1]) ?? {};
+      entry[m[2].toLowerCase() as 'base' | 'colo'] = f;
+      map.set(m[1], entry);
+    }
+    return [...map.entries()]
+      .filter(([, v]) => v.base && v.colo) // une paire incomplète est ignorée
+      .sort(([a], [b]) => a.localeCompare(b, 'fr', { numeric: true }))
+      .map(([key, v]) => {
+        // width/height servent à réserver la place avant chargement (pas de saut)
+        const shot = (file: string) => {
+          const size = jpegSize(path.join(dir, file));
+          return { src: `/${dirRel}/${file}`, w: size?.w ?? 0, h: size?.h ?? 0 };
+        };
+        return { key, base: shot(v.base!), colo: shot(v.colo!) };
+      });
+  } catch {
+    return [];
+  }
+}
+
+/** Slides d'un carrousel, dans l'ordre alphanumérique (01, 02, 03…). */
+function loadCarousel(dirRel: string): string[] {
+  const dir = path.join(process.cwd(), 'public', dirRel);
+  try {
+    return fs
+      .readdirSync(dir)
+      .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
+      .sort((a, b) => a.localeCompare(b, 'fr', { numeric: true }))
+      .map((f) => `/${dirRel}/${f}`);
+  } catch {
+    return [];
+  }
+}
+
+/** Détecte tous les dossiers « carrousel-* » — en ajouter un suffit, pas de code à toucher. */
+function loadCarousels(parentRel: string) {
+  const dir = path.join(process.cwd(), 'public', parentRel);
+  try {
+    return fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && /^carrousel-/i.test(d.name))
+      .map((d) => d.name)
+      .sort((a, b) => a.localeCompare(b, 'fr', { numeric: true }))
+      .map((name) => ({ name, images: loadCarousel(`${parentRel}/${name}`) }))
+      .filter((c) => c.images.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+const pairs = loadPairs('images/dia/avant-apres');
+const carrousels = loadCarousels('images/dia');
+
+// Le menu ne liste que les sections qui ont réellement du contenu.
+const rendus = [
+  pairs.length && { id: 'colorimetrie', labelKey: 'dia.rendu.colorimetrie', label: 'Colorimétrie' },
+  carrousels.length && { id: 'carrousels', labelKey: 'dia.rendu.carrousels', label: 'Carrousels' },
+].filter(Boolean) as { id: string; labelKey: string; label: string }[];
+---
+
+<BaseLayout
+  title="Día Wellness Club — n0pics"
+  description="Colorimétrie et carrousels Instagram pour Día Wellness Club — Tom Mertens (n0pics)."
+  noFooter
+  noindex
+>
+  <article class="projet-detail">
+    <a href="/projets" class="detail-back" data-i18n="project.backLink">← Projets</a>
+
+    <header class="detail-head">
+      <div class="detail-head-main">
+        <h1 class="detail-title">
+          Día Wellness Club<span class="detail-year"> — 2026</span>
+        </h1>
+        <p class="detail-comment" data-i18n="project.dia.comment">
+          Colorimétrie et carrousels Instagram pour Día Wellness Club.
+        </p>
+      </div>
+      <p class="detail-credit">
+        <span data-i18n="project.engagedBy">Engagé par</span> <span class="credit-handle">@Thiasmag</span>
+      </p>
+    </header>
+
+    {rendus.length === 0 ? (
+      <p class="detail-empty">
+        Dépose les visuels dans <code>public/images/dia/</code> : les paires
+        <code>NN-base.jpg</code> / <code>NN-colo.jpg</code> dans <code>avant-apres/</code>,
+        et les slides dans <code>carrousel-1/</code>, <code>carrousel-2/</code>…
+      </p>
+    ) : (
+      <div class="rendus">
+        <!-- Menu des rendus : colonne à gauche (desktop) / dropdown (mobile) -->
+        <aside class="rendus-menu">
+          <p class="rendus-menu-label" data-i18n="solognac.rendus.title">Rendus</p>
+          <button class="rendus-toggle" id="rendus-toggle" type="button" aria-expanded="false" aria-controls="rendus-list">
+            <span id="rendus-current" data-i18n={rendus[0].labelKey}>{rendus[0].label}</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+          <div class="rendus-list" id="rendus-list" role="tablist">
+            {rendus.map((r, i) => (
+              <button
+                class:list={['rendu-link', { 'is-active': i === 0 }]}
+                type="button"
+                role="tab"
+                data-target={r.id}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                data-i18n={r.labelKey}
+              >{r.label}</button>
+            ))}
+          </div>
+        </aside>
+
+        <div class="rendus-content">
+          {rendus.map((r, i) => (
+            <section class="rendu-panel" data-id={r.id} hidden={i !== 0}>
+              {r.id === 'colorimetrie' ? (
+                <Fragment>
+                  <p class="panel-hint" data-i18n="dia.colorimetrie.hint">
+                    Glisse ou clique pour passer de l’original à l’étalonnage.
+                  </p>
+
+                  <div class="cmp-list">
+                    {pairs.map((p, pi) => (
+                      <figure class="cmp">
+                        <div class="cmp-frame">
+                          <div class="cmp-track">
+                            <img
+                              class="cmp-slide"
+                              src={p.base.src}
+                              width={p.base.w}
+                              height={p.base.h}
+                              alt={`Día — photo ${pi + 1}, original`}
+                              loading={pi < 2 ? 'eager' : 'lazy'}
+                              decoding="async"
+                              draggable="false"
+                            />
+                            <img
+                              class="cmp-slide"
+                              src={p.colo.src}
+                              width={p.colo.w}
+                              height={p.colo.h}
+                              alt={`Día — photo ${pi + 1}, étalonnage et recadrage`}
+                              loading={pi < 2 ? 'eager' : 'lazy'}
+                              decoding="async"
+                              draggable="false"
+                            />
+                          </div>
+
+                          <button class="cmp-arrow cmp-prev" type="button" aria-label="Vue précédente" hidden>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+                          </button>
+                          <button class="cmp-arrow cmp-next" type="button" aria-label="Vue suivante">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                          </button>
+                        </div>
+
+                        <figcaption class="cmp-tabs" role="tablist">
+                          <button class="cmp-tab is-active" type="button" role="tab" data-i="0" aria-selected="true" data-i18n="dia.view.base">Original</button>
+                          <button class="cmp-tab" type="button" role="tab" data-i="1" aria-selected="false" data-i18n="dia.view.colo">Étalonnage</button>
+                        </figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                </Fragment>
+              ) : (
+                <div class="insta-grid">
+                  {carrousels.map((c, ci) => (
+                    <div class="insta">
+                      <p class="insta-label">
+                        <span data-i18n="dia.carrousel">Carrousel</span>
+                        <span class="insta-num">{String(ci + 1).padStart(2, '0')}</span>
+                      </p>
+                      <div class="insta-carousel">
+                        <div class="insta-track">
+                          {c.images.map((src, di) => (
+                            <img class="insta-slide" src={src} alt={`Día — carrousel ${ci + 1}, slide ${di + 1}`} loading="lazy" decoding="async" />
+                          ))}
+                        </div>
+                        <button class="insta-arrow insta-prev" type="button" aria-label="Slide précédente" hidden>
+                          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+                        </button>
+                        <button class="insta-arrow insta-next" type="button" aria-label="Slide suivante">
+                          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                        </button>
+                      </div>
+                      <div class="insta-dots">
+                        {c.images.map((_, di) => (
+                          <button class:list={['insta-dot', { 'is-active': di === 0 }]} type="button" data-i={di} aria-label={`Aller à la slide ${di + 1}`}></button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          ))}
+        </div>
+      </div>
+    )}
+  </article>
+
+  <!-- Lightbox : clic sur une image = plein écran, avec navigation pour
+       comparer l'original et l'étalonnage en grand. -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+        <path d="M5 5l14 14M19 5L5 19" />
+      </svg>
+    </button>
+
+    <button class="lightbox-arrow lightbox-prev" id="lightbox-prev" type="button" aria-label="Vue précédente">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+    </button>
+    <button class="lightbox-arrow lightbox-next" id="lightbox-next" type="button" aria-label="Vue suivante">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+    </button>
+
+    <figure class="lightbox-figure">
+      <img class="lightbox-img" id="lightbox-img" src="" alt="" />
+      <figcaption class="lightbox-caption" id="lightbox-caption"></figcaption>
+    </figure>
+  </div>
+
+  <BackToTop />
+</BaseLayout>
+
+<style>
+  .projet-detail {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 8rem 1.5rem 6rem;
+    color: var(--color-text);
+  }
+
+  .detail-back {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+    transition: color 0.3s ease;
+  }
+  .detail-back:hover { color: var(--color-text); }
+
+  .detail-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  .detail-head-main { max-width: 680px; }
+  .detail-title {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .detail-year { font-weight: 300; text-transform: none; color: var(--color-text-faint); }
+  .detail-comment {
+    margin: 1.2rem 0 0;
+    color: var(--color-text-muted);
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    line-height: 1.7;
+  }
+  .detail-credit {
+    flex-shrink: 0;
+    margin: 0;
+    text-align: right;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+  .detail-credit .credit-handle { color: var(--color-text); }
+
+  /* Message d'attente tant qu'aucun visuel n'est déposé */
+  .detail-empty {
+    margin: 0;
+    padding: 2rem;
+    border: 1px dashed var(--color-border-mid);
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+  .detail-empty code { font-family: var(--font-mono); font-size: 0.85em; color: var(--color-text); }
+
+  /* ---- Layout rendus : menu à gauche + contenu ---- */
+  .rendus {
+    display: flex;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: flex-start;
+  }
+  .rendus-menu { flex: 0 0 180px; position: sticky; top: 6.5rem; }
+  .rendus-menu-label {
+    margin: 0 0 1rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+  }
+  .rendus-toggle { display: none; }
+  .rendus-list { display: flex; flex-direction: column; gap: 0.25rem; }
+  .rendu-link {
+    appearance: none;
+    background: none;
+    border: none;
+    border-left: 2px solid transparent;
+    padding: 0.5rem 0 0.5rem 0.9rem;
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    line-height: 1.3;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.25s ease, border-color 0.25s ease;
+  }
+  .rendu-link:hover { color: var(--color-text); }
+  .rendu-link.is-active { color: var(--color-text); border-left-color: var(--color-text); }
+
+  .rendus-content { flex: 1; min-width: 0; }
+  .rendu-panel[hidden] { display: none; }
+
+  .panel-hint {
+    margin: 0 0 1.75rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+  }
+
+  /* ---- Comparaison original / étalonnage ---- */
+  .cmp-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .cmp {
+    margin: 0;
+    max-width: 420px;
+    width: 100%;
+    justify-self: center;
+  }
+
+  /* Cadre unique pour les deux vues : 4:5, le format livré (et celui du site).
+     L'original s'y inscrit en entier — c'est ce qui rend le recadrage lisible. */
+  .cmp-frame {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--color-bg-soft);
+  }
+  .cmp-track {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .cmp-track::-webkit-scrollbar { display: none; }
+  /* Cadre 4:5 identique pour les deux vues, rempli à bord perdu : l'original
+     (vertical, un peu plus étroit) est légèrement recadré en haut/bas plutôt
+     que de laisser apparaître le fond. Clic = plein écran, sans rognage. */
+  .cmp-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    scroll-snap-align: center;
+    cursor: zoom-in;
+  }
+
+  .cmp-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(10, 10, 10, 0.5);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    color: var(--color-text);
+    cursor: pointer;
+    opacity: 0.9;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+  .cmp-arrow:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.4); }
+  .cmp-prev { left: 0.6rem; }
+  .cmp-next { right: 0.6rem; }
+  .cmp-arrow[hidden] { display: none; }
+
+  /* Deux onglets sous l'image : Original / Étalonnage */
+  .cmp-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+  .cmp-tab {
+    appearance: none;
+    padding: 0.45rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: none;
+    font-family: var(--font-body);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+    cursor: pointer;
+    transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+  }
+  .cmp-tab:hover { color: var(--color-text); }
+  .cmp-tab.is-active {
+    color: var(--color-text);
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  /* ---- Carrousels Instagram ---- */
+  .insta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: clamp(2rem, 4vw, 3rem);
+    align-items: start;
+  }
+  .insta { max-width: 460px; width: 100%; margin: 0 auto; }
+  .insta-label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0 0 0.8rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .insta-num { color: var(--color-text); font-variant-numeric: tabular-nums; }
+  .insta-carousel { position: relative; }
+  .insta-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    border-radius: 3px;
+    background: var(--color-bg-soft);
+  }
+  .insta-track::-webkit-scrollbar { display: none; }
+  .insta-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+    scroll-snap-align: center;
+    cursor: zoom-in;
+  }
+  .insta-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(10, 10, 10, 0.5);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    color: var(--color-text);
+    cursor: pointer;
+    opacity: 0.9;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+  .insta-arrow:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.4); }
+  .insta-prev { left: 0.6rem; }
+  .insta-next { right: 0.6rem; }
+  .insta-arrow[hidden] { display: none; }
+
+  .insta-dots {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .insta-dot {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: var(--color-text-faint);
+    opacity: 0.5;
+    cursor: pointer;
+    transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+  .insta-dot.is-active { opacity: 1; background: var(--color-text); transform: scale(1.25); }
+
+  /* ---- Lightbox ---- */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 4vmin; background: rgba(5, 5, 5, 0.92);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; visibility: hidden; cursor: pointer;
+    transition: opacity 0.32s ease, visibility 0.32s;
+  }
+  .lightbox.is-open { opacity: 1; visibility: visible; }
+  .lightbox-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+    cursor: default;
+  }
+  .lightbox-img {
+    max-width: 100%; min-height: 0; object-fit: contain;
+    border-radius: 3px; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+    transform: scale(0.94);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .lightbox.is-open .lightbox-img { transform: scale(1); }
+  .lightbox-caption {
+    flex-shrink: 0;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.68);
+  }
+  .lightbox-caption:empty { display: none; }
+
+  /* Flèches plein écran : comparer original / étalonnage sans refermer */
+  .lightbox-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(10, 10, 10, 0.55);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  }
+  .lightbox-arrow:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #ffffff;
+  }
+  .lightbox-prev { left: clamp(0.75rem, 3vw, 2rem); }
+  .lightbox-next { right: clamp(0.75rem, 3vw, 2rem); }
+  .lightbox-arrow[hidden] { display: none; }
+  .lightbox-close {
+    position: absolute; top: 1.4rem; right: 1.4rem; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    width: 2.75rem; height: 2.75rem;
+    background: none; border: none;
+    color: rgba(255, 255, 255, 0.7); cursor: pointer;
+    transition: color 0.25s ease;
+  }
+  .lightbox-close:hover { color: #ffffff; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cmp-track, .insta-track { scroll-behavior: auto; }
+  }
+
+  /* ---- Mobile : menu en dropdown ---- */
+  @media (max-width: 760px) {
+    .projet-detail { padding-top: 6.5rem; }
+    .detail-head { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+    .detail-credit { text-align: left; }
+
+    .rendus { flex-direction: column; gap: 1.5rem; }
+    .rendus-menu { flex: none; position: static; top: auto; width: 100%; }
+    .rendus-menu-label { display: none; }
+    .rendus-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 10px;
+      background: rgba(10, 10, 10, 0.5);
+      color: var(--color-text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .rendus-toggle svg { transition: transform 0.3s ease; flex-shrink: 0; }
+    .rendus-toggle[aria-expanded='true'] svg { transform: rotate(180deg); }
+    .rendus-list {
+      margin-top: 0.4rem;
+      gap: 0;
+      max-height: 0;
+      overflow: hidden;
+      border-radius: 10px;
+      transition: max-height 0.3s ease;
+    }
+    .rendus-list.is-open { max-height: 360px; }
+    .rendu-link { border-left: none; padding: 0.7rem 1rem; font-size: 0.95rem; }
+    .rendu-link.is-active { background: rgba(255, 255, 255, 0.06); border-left: none; }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // Switch de rendus (menu gauche / dropdown mobile)
+  // ============================================================
+  const toggle = document.getElementById('rendus-toggle');
+  const list = document.getElementById('rendus-list');
+  const current = document.getElementById('rendus-current');
+  const links = Array.from(document.querySelectorAll<HTMLButtonElement>('.rendu-link'));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('.rendu-panel'));
+
+  function setActive(id: string) {
+    links.forEach((l) => {
+      const on = l.dataset.target === id;
+      l.classList.toggle('is-active', on);
+      l.setAttribute('aria-selected', String(on));
+      if (on && current) current.textContent = l.textContent;
+    });
+    panels.forEach((p) => {
+      p.hidden = p.dataset.id !== id;
+    });
+    // Recadre ce qui vient d'être affiché (largeur inconnue tant que hidden)
+    document.querySelectorAll<HTMLElement>('.rendu-panel:not([hidden]) .insta-carousel').forEach(initCarouselState);
+    document.querySelectorAll<HTMLElement>('.rendu-panel:not([hidden]) .cmp').forEach(refreshCmp);
+  }
+
+  toggle?.addEventListener('click', () => {
+    const open = list?.classList.toggle('is-open') ?? false;
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  links.forEach((l) => {
+    l.addEventListener('click', () => {
+      setActive(l.dataset.target!);
+      list?.classList.remove('is-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // ============================================================
+  // Comparaison original / étalonnage
+  // Deux vues qui défilent ; le cadre prend le ratio de la vue active.
+  // ============================================================
+  const cmpState = new WeakMap<HTMLElement, () => void>();
+
+  function refreshCmp(cmp: HTMLElement) {
+    cmpState.get(cmp)?.();
+  }
+
+  document.querySelectorAll<HTMLElement>('.cmp').forEach((cmp) => {
+    const track = cmp.querySelector<HTMLElement>('.cmp-track');
+    if (!track) return;
+
+    const slides = Array.from(track.querySelectorAll<HTMLImageElement>('.cmp-slide'));
+    const tabs = Array.from(cmp.querySelectorAll<HTMLButtonElement>('.cmp-tab'));
+    const prev = cmp.querySelector<HTMLElement>('.cmp-prev');
+    const next = cmp.querySelector<HTMLElement>('.cmp-next');
+
+    const activeIndex = () => Math.round(track.scrollLeft / (track.clientWidth || 1));
+
+    const sync = () => {
+      const idx = Math.min(activeIndex(), slides.length - 1);
+      tabs.forEach((t, i) => {
+        const on = i === idx;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', String(on));
+      });
+      if (prev) prev.hidden = idx <= 0;
+      if (next) next.hidden = idx >= slides.length - 1;
+    };
+
+    const goTo = (i: number) => {
+      const clamped = Math.max(0, Math.min(i, slides.length - 1));
+      track.scrollTo({ left: clamped * track.clientWidth, behavior: 'smooth' });
+    };
+
+    next?.addEventListener('click', () => goTo(activeIndex() + 1));
+    prev?.addEventListener('click', () => goTo(activeIndex() - 1));
+    tabs.forEach((t) => t.addEventListener('click', () => goTo(Number(t.dataset.i))));
+
+    let t: number;
+    track.addEventListener('scroll', () => {
+      window.clearTimeout(t);
+      t = window.setTimeout(sync, 60);
+    }, { passive: true });
+    window.addEventListener('resize', sync);
+
+    cmpState.set(cmp, sync);
+    sync();
+  });
+
+  // ============================================================
+  // Carrousels Instagram (snap + flèches + points)
+  // ============================================================
+  function initCarouselState(carousel: HTMLElement) {
+    const track = carousel.querySelector<HTMLElement>('.insta-track');
+    if (track) updateCarousel(carousel, track);
+  }
+
+  function updateCarousel(carousel: HTMLElement, track: HTMLElement) {
+    const dots = Array.from(carousel.parentElement!.querySelectorAll<HTMLElement>('.insta-dot'));
+    const w = track.clientWidth || 1;
+    const idx = Math.round(track.scrollLeft / w);
+    dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+    const prev = carousel.querySelector<HTMLElement>('.insta-prev');
+    const next = carousel.querySelector<HTMLElement>('.insta-next');
+    const max = track.scrollWidth - track.clientWidth;
+    if (prev) prev.hidden = track.scrollLeft <= 4;
+    if (next) next.hidden = track.scrollLeft >= max - 4;
+  }
+
+  document.querySelectorAll<HTMLElement>('.insta-carousel').forEach((carousel) => {
+    const track = carousel.querySelector<HTMLElement>('.insta-track');
+    if (!track) return;
+    const slides = Array.from(track.querySelectorAll<HTMLImageElement>('.insta-slide'));
+    const dots = Array.from(carousel.parentElement!.querySelectorAll<HTMLElement>('.insta-dot'));
+
+    const goTo = (i: number) => {
+      const clamped = Math.max(0, Math.min(i, slides.length - 1));
+      track.scrollTo({ left: clamped * track.clientWidth, behavior: 'smooth' });
+    };
+    const activeIndex = () => Math.round(track.scrollLeft / (track.clientWidth || 1));
+
+    carousel.querySelector('.insta-next')?.addEventListener('click', () => goTo(activeIndex() + 1));
+    carousel.querySelector('.insta-prev')?.addEventListener('click', () => goTo(activeIndex() - 1));
+    dots.forEach((d) => d.addEventListener('click', () => goTo(Number(d.dataset.i))));
+
+    let t: number;
+    track.addEventListener('scroll', () => {
+      window.clearTimeout(t);
+      t = window.setTimeout(() => updateCarousel(carousel, track), 60);
+    }, { passive: true });
+    window.addEventListener('resize', () => updateCarousel(carousel, track));
+
+    updateCarousel(carousel, track);
+  });
+
+  // ============================================================
+  // Lightbox
+  // ============================================================
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  const lightboxCaption = document.getElementById('lightbox-caption');
+  const lbPrev = document.getElementById('lightbox-prev');
+  const lbNext = document.getElementById('lightbox-next');
+
+  if (lightbox && lightboxImg && lightboxCaption && lbPrev && lbNext) {
+    // Sort la lightbox de <main> pour qu'elle passe au-dessus du header (z-index)
+    document.body.appendChild(lightbox);
+
+    // Vues navigables : les 2 vues d'une comparaison, ou les slides d'un carrousel
+    let group: HTMLImageElement[] = [];
+    let index = 0;
+
+    /** Libellé : reprend l'onglet Original/Étalonnage, sinon un compteur de slides. */
+    const labelFor = (img: HTMLImageElement, i: number) => {
+      const tab = img.closest('.cmp')?.querySelectorAll<HTMLElement>('.cmp-tab')[i];
+      if (tab) return tab.textContent?.trim() ?? '';
+      return group.length > 1 ? `${i + 1} / ${group.length}` : '';
+    };
+
+    const show = (i: number) => {
+      if (!group.length) return;
+      index = Math.max(0, Math.min(i, group.length - 1));
+      const img = group[index];
+      lightboxImg.src = img.currentSrc || img.src;
+      lightboxImg.alt = img.alt;
+      lightboxCaption.textContent = labelFor(img, index);
+      lbPrev.hidden = index <= 0;
+      lbNext.hidden = index >= group.length - 1;
+    };
+
+    const open = (img: HTMLImageElement) => {
+      const track = img.closest('.cmp-track, .insta-track');
+      group = track
+        ? Array.from(track.querySelectorAll<HTMLImageElement>('.cmp-slide, .insta-slide'))
+        : [img];
+      show(Math.max(0, group.indexOf(img)));
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+    const close = () => {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+
+    document.querySelector('.rendus-content')?.addEventListener('click', (e) => {
+      const img = (e.target as HTMLElement).closest('.insta-slide, .cmp-slide');
+      if (img instanceof HTMLImageElement) open(img);
+    });
+
+    // Le fond ferme ; l'image et les flèches non, pour enchaîner les comparaisons
+    lightbox.addEventListener('click', (e) => {
+      if (!(e.target as HTMLElement).closest('.lightbox-figure, .lightbox-arrow')) close();
+    });
+    lbPrev.addEventListener('click', () => show(index - 1));
+    lbNext.addEventListener('click', () => show(index + 1));
+
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('is-open')) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); show(index - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); show(index + 1); }
+    });
+  }
+</script>

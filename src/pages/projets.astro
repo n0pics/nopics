@@ -14,14 +14,24 @@ import { projets } from '@/data/projets';
 
     <!-- Galerie horizontale : défile vers la droite -->
     <div class="projets-track" id="projets-track">
-      {projets.map((p) =>
-        p.comingSoon ? (
-          <div class:list={["projet-card", "is-soon", p.cover && "has-cover"]} aria-hidden="true">
+      {projets.map((p) => {
+        // En local, une carte « Prochainement » dont la page existe déjà devient
+        // cliquable pour la relire pendant qu'on la construit. En ligne, elle
+        // reste inerte : le projet n'est révélé qu'en retirant `comingSoon`.
+        const preview = import.meta.env.DEV && p.comingSoon && p.customPage;
+        const SoonTag = preview ? 'a' : 'div';
+        return p.comingSoon ? (
+          <SoonTag
+            class:list={["projet-card", "is-soon", p.cover && "has-cover", preview && "is-preview"]}
+            href={preview ? `/projets/${p.slug}` : undefined}
+            aria-hidden={preview ? undefined : "true"}
+          >
             <div class="projet-cover projet-cover--placeholder">
               {p.cover && (
                 <img class="projet-cover-blur" src={p.cover} alt="" loading="lazy" decoding="async" />
               )}
               <span class="shining-text" data-i18n="project.soon">Prochainement</span>
+              {preview && <span class="projet-preview-badge">Aperçu local</span>}
             </div>
             <div class="projet-meta">
               <div class="projet-meta-top">
@@ -34,7 +44,7 @@ import { projets } from '@/data/projets';
                 <p class="projet-comment" data-i18n={p.i18n ? `project.${p.i18n}.comment` : undefined}>{p.comment}</p>
               )}
             </div>
-          </div>
+          </SoonTag>
         ) : (
           <a href={`/projets/${p.slug}`} class="projet-card">
             <div class="projet-cover">
@@ -50,8 +60,8 @@ import { projets } from '@/data/projets';
               )}
             </div>
           </a>
-        )
-      )}
+        );
+      })}
     </div>
 
     <div class="projets-nav">
@@ -275,6 +285,29 @@ import { projets } from '@/data/projets';
   /* Avec une cover en fond, la carte reste pleinement visible */
   .is-soon.has-cover {
     opacity: 1;
+  }
+  /* Aperçu local (dev) : la carte redevient un vrai lien */
+  .is-soon.is-preview {
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+  .projet-preview-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 1;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 3px;
+    background: rgba(6, 6, 6, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
   }
 
   /* ---- Flèches de défilement (bas droite), style verre ---- */

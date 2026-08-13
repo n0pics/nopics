@@ -10,7 +10,15 @@ import react from '@astrojs/react';
 export default defineConfig({
   devToolbar: { enabled: false },
   site: 'https://n0pics.com',
-  integrations: [sitemap(), react()],
+  integrations: [
+    // Les pages de projets pas encore révélées sont en noindex : on les tient
+    // aussi hors du sitemap pour ne pas les signaler aux moteurs.
+    // À la publication d'un projet, retirer son URL d'ici.
+    sitemap({
+      filter: (page) => !['https://n0pics.com/projets/dia/'].includes(page),
+    }),
+    react(),
+  ],
   adapter: vercel(),
   output: 'static',
   vite: {

@@ -30,3 +30,7 @@ pnpm-debug.log*
 
 # Photos sources haute résolution (les versions web sont dans public/images/accueil/)
 photos accueil/
+
+# Masters des projets : RAW + JPG pleine résolution (trop lourds pour le dépôt).
+# Les versions web allégées vivent dans public/images/<projet>/.
+raw-sources/

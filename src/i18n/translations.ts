@@ -192,6 +192,21 @@ export const translations: Record<string, { fr: string; en: string }> = {
     fr: 'Title Card pour la vidéo promotionnelle du concert en hommage à Naâman (la scène a été retirée).',
     en: 'Title card for the promotional video of the tribute concert to Naâman (the scene was cut).',
   },
+  // === Día Wellness Club ===
+  'project.dia.comment': {
+    fr: 'Colorimétrie et carrousels Instagram pour Día Wellness Club.',
+    en: 'Colour grading and Instagram carousels for Día Wellness Club.',
+  },
+  'dia.rendu.colorimetrie': { fr: 'Colorimétrie', en: 'Colour grading' },
+  'dia.rendu.carrousels': { fr: 'Carrousels', en: 'Carousels' },
+  'dia.colorimetrie.hint': {
+    fr: 'Glisse ou clique pour passer de l’original à l’étalonnage.',
+    en: 'Swipe or click to switch from the original to the grade.',
+  },
+  'dia.view.base': { fr: 'Original', en: 'Original' },
+  'dia.view.colo': { fr: 'Étalonnage', en: 'Colour grade' },
+  'dia.carrousel': { fr: 'Carrousel', en: 'Carousel' },
+
   'project.placeholder.title': { fr: 'Día Wellness Club', en: 'Día Wellness Club' },
   'project.placeholder.title.04': { fr: 'Projet 04', en: 'Project 04' },
 

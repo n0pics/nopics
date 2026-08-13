@@ -46,15 +46,22 @@ export const projets: Projet[] = [
     customPage: true,
     i18n: 'naaman',
   },
+  // Día : la page /projets/dia est prête. Elle reste masquée (carte
+  // « Prochainement », page en noindex) jusqu'à la révélation. En local,
+  // la carte est cliquable pour relire la page — voir projets.astro.
+  // Pour publier : retirer `comingSoon` ici + `noindex` dans dia.astro.
   {
-    slug: 'projet-03',
+    slug: 'dia',
     title: 'Día Wellness Club',
     titleKey: 'project.placeholder.title',
     date: '2026',
     category: '',
     comment: '',
     cover: '/images/dia-cover.jpg',
+    customPage: true,
     comingSoon: true,
+    i18n: 'dia',
+    credit: '@Thiasmag',
   },
   {
     slug: 'projet-04',
