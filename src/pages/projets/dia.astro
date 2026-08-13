@@ -79,7 +79,12 @@ function loadCarousel(dirRel: string): string[] {
   }
 }
 
-/** Détecte tous les dossiers « carrousel-* » — en ajouter un suffit, pas de code à toucher. */
+/**
+ * Détecte tous les dossiers « carrousel-* ». Le titre affiché vient du nom du
+ * dossier : « carrousel-1-stress-line » s'affiche « Stress Line ». Sans
+ * suffixe, on retombe sur « Carrousel 01 ».
+ * Ajouter ou renommer un carrousel = toucher au dossier, pas au code.
+ */
 function loadCarousels(parentRel: string) {
   const dir = path.join(process.cwd(), 'public', parentRel);
   try {
@@ -88,7 +93,18 @@ function loadCarousels(parentRel: string) {
       .filter((d) => d.isDirectory() && /^carrousel-/i.test(d.name))
       .map((d) => d.name)
       .sort((a, b) => a.localeCompare(b, 'fr', { numeric: true }))
-      .map((name) => ({ name, images: loadCarousel(`${parentRel}/${name}`) }))
+      .map((name) => ({
+        name,
+        // Retire « carrousel- » puis le numéro d'ordre : « stress-line » → « Stress Line »
+        label: name
+          .replace(/^carrousel-/i, '')
+          .replace(/^\d+-?/, '')
+          .split('-')
+          .filter(Boolean)
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' '),
+        images: loadCarousel(`${parentRel}/${name}`),
+      }))
       .filter((c) => c.images.length > 0);
   } catch {
     return [];
@@ -216,13 +232,22 @@ const rendus = [
                   {carrousels.map((c, ci) => (
                     <div class="insta">
                       <p class="insta-label">
-                        <span data-i18n="dia.carrousel">Carrousel</span>
-                        <span class="insta-num">{String(ci + 1).padStart(2, '0')}</span>
+                        {c.label ? (
+                          <Fragment>
+                            <span class="insta-name">{c.label}</span>
+                            <span data-i18n="dia.carrousel">Carrousel</span>
+                          </Fragment>
+                        ) : (
+                          <Fragment>
+                            <span data-i18n="dia.carrousel">Carrousel</span>
+                            <span class="insta-num">{String(ci + 1).padStart(2, '0')}</span>
+                          </Fragment>
+                        )}
                       </p>
                       <div class="insta-carousel">
                         <div class="insta-track">
                           {c.images.map((src, di) => (
-                            <img class="insta-slide" src={src} alt={`Día — carrousel ${ci + 1}, slide ${di + 1}`} loading="lazy" decoding="async" />
+                            <img class="insta-slide" src={src} alt={`Día — carrousel ${c.label || ci + 1}, slide ${di + 1} sur ${c.images.length}`} loading="lazy" decoding="async" />
                           ))}
                         </div>
                         <button class="insta-arrow insta-prev" type="button" aria-label="Slide précédente" hidden>
@@ -503,6 +528,8 @@ const rendus = [
     color: var(--color-text-muted);
   }
   .insta-num { color: var(--color-text); font-variant-numeric: tabular-nums; }
+  /* Nom du carrousel (issu du dossier) mis en avant, « Carrousel » reste discret */
+  .insta-name { color: var(--color-text); font-weight: 600; }
   .insta-carousel { position: relative; }
   .insta-track {
     display: flex;
