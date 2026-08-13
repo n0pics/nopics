@@ -181,7 +181,10 @@ export const translations: Record<string, { fr: string; en: string }> = {
   // Menu des « rendus » (livrables) sur la page Solognac
   'solognac.rendus.title': { fr: 'Rendus', en: 'Deliverables' },
   'solognac.rendu.visuels': { fr: 'Visuels produits', en: 'Product visuals' },
-  'solognac.rendu.carrousel1': { fr: 'Carrousel Instagram', en: 'Instagram carousel' },
+  // Pluriel : la section contient le rendu final et la proposition
+  'solognac.rendu.carrousel1': { fr: 'Carrousels Instagram', en: 'Instagram carousels' },
+  'solognac.rendu.posts': { fr: 'Posts Instagram', en: 'Instagram posts' },
+  'solognac.posts.view': { fr: 'Voir la publication', en: 'View post' },
   'solognac.carrousel.final': { fr: 'Rendu final officiel', en: 'Official final render' },
   'solognac.carrousel.proposition': { fr: 'Proposition', en: 'Proposal' },
   'project.naaman.comment': {
@@ -193,9 +196,11 @@ export const translations: Record<string, { fr: string; en: string }> = {
     en: 'Title card for the promotional video of the tribute concert to Naâman (the scene was cut).',
   },
   // === Día Wellness Club ===
+  // Reprend la terminologie des services : « Design digital » (svc.digital)
+  // et le color grading de « Retouche / Post-production » (svc.retouche).
   'project.dia.comment': {
-    fr: 'Colorimétrie et carrousels Instagram pour Día Wellness Club.',
-    en: 'Colour grading and Instagram carousels for Día Wellness Club.',
+    fr: 'Colorimétrie et design digital pour Día Wellness Club.',
+    en: 'Colour grading and digital design for Día Wellness Club.',
   },
   'dia.rendu.colorimetrie': { fr: 'Colorimétrie', en: 'Colour grading' },
   'dia.rendu.carrousels': { fr: 'Carrousels', en: 'Carousels' },

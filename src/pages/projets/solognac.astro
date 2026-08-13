@@ -51,6 +51,33 @@ const masonry = loadGallery('images/accueil');
 const carrousel1 = loadCarousel('images/solognac/carrousel-1');
 const treemetic = loadCarousel('images/solognac/carrousel-treemetic');
 
+// --- Posts publiés sur Instagram -------------------------------------------
+// Un post = un sous-dossier de public/images/solognac/posts/ contenant ses
+// slides (01.jpg, 02.jpg…), affiché comme un carrousel, plus le lien de la
+// publication ci-dessous. On garde des visuels locaux plutôt qu'un embed
+// Instagram : le rendu reste dans la D.A. du site et ne dépend d'aucun
+// script externe. Tant qu'aucun post n'existe, l'onglet n'apparaît pas.
+
+// Une entrée = une publication : sa vignette de couverture (déposée dans
+// public/images/solognac/posts/), l'URL de la publication (nettoyée de ses
+// paramètres de suivi) et le compte qui l'a publiée.
+// `count` = nombre de visuels de la publication, pour la pastille « carrousel ».
+const publishedPosts = [
+  {
+    // Visuel déjà présent dans la masonry : on pointe dessus plutôt que de le copier
+    cover: '/images/accueil/tee-long-1.jpg',
+    url: 'https://www.instagram.com/p/DZVU1YEDCzF/',
+    account: '@solognac_official',
+    count: 0,
+  },
+];
+
+// Une couverture manquante masque le post — et donc l'onglet s'il est seul :
+// la page est publique, on n'y montre ni image cassée ni section vide.
+const posts = publishedPosts.filter((p) =>
+  fs.existsSync(path.join(process.cwd(), 'public', p.cover.replace(/^\//, ''))),
+);
+
 // Galerie masonry : 3 colonnes (round-robin) au build, 2 sur mobile via JS.
 const COLS = 3;
 const INITIAL = 12;
@@ -64,7 +91,7 @@ const rendus = [
   {
     id: 'carrousels',
     labelKey: 'solognac.rendu.carrousel1',
-    label: 'Carrousel Instagram',
+    label: 'Carrousels Instagram',
     type: 'carousel' as const,
     // Treemetic = rendu final officiel → en premier.
     carousels: [
@@ -72,6 +99,11 @@ const rendus = [
       { labelKey: 'solognac.carrousel.proposition', label: 'Proposition', final: false, images: carrousel1 },
     ],
   },
+  // N'apparaît que si des posts sont renseignés : la page est publique,
+  // on n'y montre pas d'onglet vide.
+  ...(posts.length
+    ? [{ id: 'posts', labelKey: 'solognac.rendu.posts', label: 'Posts Instagram', type: 'posts' as const }]
+    : []),
 ];
 ---
 
@@ -148,6 +180,34 @@ const rendus = [
                   </div>
                 )}
               </Fragment>
+            ) : r.type === 'posts' ? (
+              <div class="posts-grid">
+                {posts.map((p) => (
+                  <a class="post-card" href={p.url} target="_blank" rel="noopener noreferrer">
+                    <div class="post-cover">
+                      <img src={p.cover} alt={`Solognac — publication de ${p.account}`} loading="lazy" decoding="async" />
+                      {p.count > 1 && (
+                        <span class="post-stack" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="8" y="3" width="13" height="13" rx="2" />
+                            <path d="M16 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8" />
+                          </svg>
+                          {p.count}
+                        </span>
+                      )}
+                      <span class="post-overlay">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <rect x="2" y="2" width="20" height="20" rx="5" />
+                          <circle cx="12" cy="12" r="4" />
+                          <line x1="17.5" y1="6.5" x2="17.5" y2="6.5" />
+                        </svg>
+                        <span data-i18n="solognac.posts.view">Voir la publication</span>
+                      </span>
+                    </div>
+                    <p class="post-account">{p.account}</p>
+                  </a>
+                ))}
+              </div>
             ) : (
               <div class="insta-group">
                 {r.carousels!.map((c) => (
@@ -312,6 +372,87 @@ const rendus = [
   @keyframes gallery-fade { from { opacity: 0; } to { opacity: 1; } }
 
   .gallery-more-wrap { text-align: center; margin-top: 3rem; }
+
+  /* ---- Posts Instagram : couverture cliquable vers la publication ---- */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    align-items: start;
+  }
+  .post-card {
+    display: block;
+    max-width: 360px;
+    text-decoration: none;
+    color: inherit;
+  }
+  /* Format du visuel (4:5), coins très arrondis pour l'effet « écran ».
+     Même ratio que l'image : aucun rognage. */
+  .post-cover {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--color-bg-soft);
+  }
+  .post-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.8s var(--ease-out), opacity 0.35s ease;
+  }
+  .post-card:hover .post-cover img,
+  .post-card:focus-visible .post-cover img { transform: scale(1.04); opacity: 0.78; }
+
+  /* Pastille « plusieurs visuels », comme sur un carrousel Instagram */
+  .post-stack {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(6, 6, 6, 0.62);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--color-text);
+    font-size: 0.66rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Toujours visible : le dégradé garantit la lisibilité par-dessus l'image */
+  .post-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: linear-gradient(to top, rgba(6, 6, 6, 0.85), rgba(6, 6, 6, 0) 38%);
+    border-radius: inherit;
+    transition: color 0.3s ease;
+  }
+  .post-overlay svg { flex-shrink: 0; width: 18px; height: 18px; }
+  .post-card:hover .post-overlay,
+  .post-card:focus-visible .post-overlay { color: #ffffff; }
+
+  .post-account {
+    margin: 0.8rem 0 0;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    transition: color 0.3s ease;
+  }
+  .post-card:hover .post-account { color: var(--color-text); }
 
   /* ---- Carrousel Instagram (panorama swipe) ---- */
   .insta {
