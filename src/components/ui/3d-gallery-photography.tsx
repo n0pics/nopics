@@ -206,7 +206,9 @@ function GalleryScene({
 						texture.dispose();
 						return;
 					}
-					texture.colorSpace = THREE.SRGBColorSpace;
+					// Pas de colorSpace sRGB ici : le shader de la galerie écrit
+					// gl_FragColor sans ré-encodage. Déclarer la texture en sRGB
+					// la ferait linéariser au sampling et assombrirait l'image.
 					loaded[i] = texture;
 					if (!flushQueued) {
 						flushQueued = true;
