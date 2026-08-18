@@ -1,7 +1,6 @@
 import type React from 'react';
 import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 type ImageItem = string | { src: string; alt?: string };
@@ -125,30 +124,26 @@ const createClothMaterial = () => {
 
 function ImagePlane({
 	texture,
-	position,
 	scale,
 	material,
+	meshRef,
 }: {
 	texture: THREE.Texture;
-	position: [number, number, number];
 	scale: [number, number, number];
 	material: THREE.ShaderMaterial;
+	meshRef: (mesh: THREE.Mesh | null) => void;
 }) {
-	const meshRef = useRef<THREE.Mesh>(null);
-
 	useEffect(() => {
 		if (material && texture) {
 			material.uniforms.map.value = texture;
 		}
 	}, [material, texture]);
 
+	// Pas de `position` ici : elle est écrite directement sur le mesh à chaque
+	// frame (voir useFrame). La passer en prop obligerait à re-rendre React
+	// 60 fois par seconde pour animer.
 	return (
-		<mesh
-			ref={meshRef}
-			position={position}
-			scale={scale}
-			material={material}
-		>
+		<mesh ref={meshRef} scale={scale} material={material}>
 			<planeGeometry args={[1, 1, 32, 32]} />
 		</mesh>
 	);
@@ -168,7 +163,9 @@ function GalleryScene({
 		maxBlur: 3.0,
 	},
 }: Omit<InfiniteGalleryProps, 'className' | 'style'>) {
-	const [scrollVelocity, setScrollVelocity] = useState(0);
+	// Vitesse en ref et non en state : la modifier ne doit pas déclencher de
+	// rendu React, sinon on re-rend 60 fois par seconde.
+	const scrollVelocity = useRef(0);
 
 	const normalizedImages = useMemo(
 		() =>
@@ -178,7 +175,58 @@ function GalleryScene({
 		[images]
 	);
 
-	const textures = useTexture(normalizedImages.map((img) => img.src));
+	const sources = useMemo(
+		() => normalizedImages.map((img) => img.src),
+		[normalizedImages]
+	);
+
+	// Chargement progressif : chaque photo s'affiche dès qu'elle est prête.
+	// (useTexture de drei suspendait le rendu tant que TOUTES n'étaient pas
+	// chargées — d'où l'écran noir au démarrage.)
+	const [textures, setTextures] = useState<(THREE.Texture | undefined)[]>([]);
+
+	useEffect(() => {
+		const loader = new THREE.TextureLoader();
+		const loaded: (THREE.Texture | undefined)[] = new Array(sources.length);
+		let cancelled = false;
+		let flushQueued = false;
+
+		// Les arrivées sont groupées sur une frame : sinon on déclenche
+		// autant de rendus que de photos.
+		const flush = () => {
+			flushQueued = false;
+			if (!cancelled) setTextures(loaded.slice());
+		};
+
+		sources.forEach((src, i) => {
+			loader.load(
+				src,
+				(texture: THREE.Texture) => {
+					if (cancelled) {
+						texture.dispose();
+						return;
+					}
+					texture.colorSpace = THREE.SRGBColorSpace;
+					loaded[i] = texture;
+					if (!flushQueued) {
+						flushQueued = true;
+						requestAnimationFrame(flush);
+					}
+				},
+				undefined,
+				// Une photo illisible ne doit pas bloquer les autres
+				() => {}
+			);
+		});
+
+		return () => {
+			cancelled = true;
+			loaded.forEach((t) => t?.dispose());
+		};
+	}, [sources]);
+
+	// Positions écrites directement sur les meshes à chaque frame
+	const meshes = useRef<(THREE.Mesh | null)[]>([]);
 
 	// Create materials pool
 	const materials = useMemo(
@@ -247,7 +295,7 @@ function GalleryScene({
 	const handleWheel = useCallback(
 		(event: WheelEvent) => {
 			event.preventDefault();
-			setScrollVelocity((prev) => prev + event.deltaY * 0.01 * speed);
+			scrollVelocity.current += event.deltaY * 0.01 * speed;
 		},
 		[speed]
 	);
@@ -256,9 +304,9 @@ function GalleryScene({
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent) => {
 			if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-				setScrollVelocity((prev) => prev - 2 * speed);
+				scrollVelocity.current -= 2 * speed;
 			} else if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-				setScrollVelocity((prev) => prev + 2 * speed);
+				scrollVelocity.current += 2 * speed;
 			}
 		},
 		[speed]
@@ -277,21 +325,26 @@ function GalleryScene({
 		}
 	}, [handleWheel, handleKeyDown]);
 
-	useFrame((state, delta) => {
+	useFrame((state, rawDelta) => {
+		// Delta borné à ~1/30 s. Sans ça, la première frame après un blocage
+		// (chargement des textures, onglet en arrière-plan) porte un delta de
+		// plusieurs secondes : la vitesse explose et les photos défilent d'un
+		// coup. C'est l'origine de l'à-coup au chargement.
+		const delta = Math.min(rawDelta, 1 / 30);
+
 		// Défilement automatique permanent (ralenti sur mobile)
 		const autoplaySpeed =
 			size.width < 768 ? AUTOPLAY_SPEED_MOBILE : AUTOPLAY_SPEED;
-		setScrollVelocity((prev) => prev + autoplaySpeed * delta);
-
-		// Damping
-		setScrollVelocity((prev) => prev * 0.95);
+		scrollVelocity.current =
+			(scrollVelocity.current + autoplaySpeed * delta) * 0.95;
+		const velocity = scrollVelocity.current;
 
 		// Update time uniform for all materials
 		const time = state.clock.getElapsedTime();
 		materials.forEach((material) => {
 			if (material && material.uniforms) {
 				material.uniforms.time.value = time;
-				material.uniforms.scrollForce.value = scrollVelocity;
+				material.uniforms.scrollForce.value = velocity;
 			}
 		});
 
@@ -302,7 +355,7 @@ function GalleryScene({
 		const halfRange = totalRange / 2;
 
 		planesData.current.forEach((plane, i) => {
-			let newZ = plane.z + scrollVelocity * delta * 10;
+			let newZ = plane.z + velocity * delta * 10;
 			let wrapsForward = 0;
 			let wrapsBackward = 0;
 
@@ -328,7 +381,10 @@ function GalleryScene({
 			plane.x = spatialPositions[i]?.x ?? 0;
 			plane.y = spatialPositions[i]?.y ?? 0;
 
-			const worldZ = plane.z - halfRange;
+			// Position écrite sur le mesh : c'est ce qui remplace le re-rendu
+			// React à chaque frame.
+			const mesh = meshes.current[i];
+			if (mesh) mesh.position.set(plane.x, plane.y, plane.z - halfRange);
 
 			// Calculate opacity based on fade settings
 			const normalizedPosition = plane.z / totalRange; // 0 to 1
@@ -409,12 +465,12 @@ function GalleryScene({
 	return (
 		<>
 			{planesData.current.map((plane, i) => {
+				// Une photo pas encore chargée : son plan attend, les autres
+				// s'affichent déjà.
 				const texture = textures[plane.imageIndex];
 				const material = materials[i];
 
 				if (!texture || !material) return null;
-
-				const worldZ = plane.z - depthRange / 2;
 
 				// Calculate scale to maintain aspect ratio
 				const aspect = texture.image
@@ -429,9 +485,11 @@ function GalleryScene({
 					<ImagePlane
 						key={plane.index}
 						texture={texture}
-						position={[plane.x, plane.y, worldZ]} // Position planes relative to camera center
 						scale={scale}
 						material={material}
+						meshRef={(mesh) => {
+							meshes.current[i] = mesh;
+						}}
 					/>
 				);
 			})}
