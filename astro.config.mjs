@@ -11,12 +11,10 @@ export default defineConfig({
   devToolbar: { enabled: false },
   site: 'https://n0pics.com',
   integrations: [
-    // Les pages de projets pas encore révélées sont en noindex : on les tient
-    // aussi hors du sitemap pour ne pas les signaler aux moteurs.
-    // À la publication d'un projet, retirer son URL d'ici.
-    sitemap({
-      filter: (page) => !['https://n0pics.com/projets/dia/'].includes(page),
-    }),
+    // Une page de projet pas encore révélée se met en noindex et s'exclut
+    // aussi du sitemap, via un filtre sur son URL :
+    // sitemap({ filter: (page) => !['https://n0pics.com/projets/xxx/'].includes(page) })
+    sitemap(),
     react(),
   ],
   adapter: vercel(),

@@ -14,7 +14,7 @@ export interface Projet {
   comingSoon?: boolean;
   /** Clé i18n du projet (pour traduire catégorie/commentaire), ex: 'solognac' */
   i18n?: string;
-  /** Clé i18n pour traduire le titre (cartes placeholder), ex: 'project.placeholder.title' */
+  /** Clé i18n pour traduire le titre (cartes placeholder), ex: 'project.placeholder.title.04' */
   titleKey?: string;
   /** Le projet a sa propre page dédiée (ex: /projets/naaman) → exclu de [slug].astro */
   customPage?: boolean;
@@ -46,20 +46,14 @@ export const projets: Projet[] = [
     customPage: true,
     i18n: 'naaman',
   },
-  // Día : la page /projets/dia est prête. Elle reste masquée (carte
-  // « Prochainement », page en noindex) jusqu'à la révélation. En local,
-  // la carte est cliquable pour relire la page — voir projets.astro.
-  // Pour publier : retirer `comingSoon` ici + `noindex` dans dia.astro.
   {
     slug: 'dia',
     title: 'Día Wellness Club',
-    titleKey: 'project.placeholder.title',
     date: '2026',
     category: '',
-    comment: '',
+    comment: 'Colorimétrie et design digital pour Día Wellness Club.',
     cover: '/images/dia-cover.jpg',
     customPage: true,
-    comingSoon: true,
     i18n: 'dia',
     credit: '@Thiasmag',
   },

@@ -212,7 +212,6 @@ export const translations: Record<string, { fr: string; en: string }> = {
   'dia.view.colo': { fr: 'Étalonnage', en: 'Colour grade' },
   'dia.carrousel': { fr: 'Carrousel', en: 'Carousel' },
 
-  'project.placeholder.title': { fr: 'Día Wellness Club', en: 'Día Wellness Club' },
   'project.placeholder.title.04': { fr: 'Projet 04', en: 'Project 04' },
 
   // === ScrollExpandHero ===
