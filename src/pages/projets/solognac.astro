@@ -580,6 +580,10 @@ const rendus = [
     .detail-credit { text-align: left; }
 
     .rendus { flex-direction: column; gap: 1.5rem; }
+    /* La colonne est en `align-items: flex-start` : sans largeur explicite,
+       le contenu se réduit à sa taille intrinsèque (une grille `auto-fit`
+       retombe alors sur sa piste mini) au lieu d'occuper l'écran. */
+    .rendus-content { width: 100%; }
     .rendus-menu {
       flex: none; position: static; top: auto;
       width: 100%;
