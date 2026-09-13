@@ -118,13 +118,57 @@ function loadCarousels(parentRel: string) {
   }
 }
 
+/**
+ * Affiches : les visuels déposés dans « affiche/ », montrés en grand.
+ * Le ratio est mesuré au build pour réserver la place avant chargement.
+ */
+function loadAffiches(dirRel: string) {
+  const dir = path.join(process.cwd(), 'public', dirRel);
+  return loadCarousel(dirRel).map((src) => {
+    const size = jpegSize(path.join(dir, path.basename(src)));
+    return { src, w: size?.w ?? 0, h: size?.h ?? 0 };
+  });
+}
+
 const pairs = loadPairs('images/dia/avant-apres');
 const carrousels = loadCarousels('images/dia');
+const affiches = loadAffiches('images/dia/affiche');
+
+// --- Posts publiés sur Instagram -------------------------------------------
+// Une entrée par publication : la clé est le dossier du carrousel, la valeur
+// l'URL de la publication (nettoyée de ses paramètres de suivi : utm_*, igsh).
+// La vignette et le nombre de visuels sont repris du carrousel lui-même : aucune
+// image en plus, et rien à tenir à jour à deux endroits.
+// Tant qu'aucune URL n'est renseignée, l'onglet n'apparaît pas — la page est
+// publique, on n'y montre pas de section vide.
+const POSTS_ACCOUNT = '';
+const postUrls: Record<string, string> = {
+  'carrousel-1-stress-line': 'https://www.instagram.com/p/Db_Hhp5kSgg/',
+  'carrousel-2-mise-au-point': 'https://www.instagram.com/p/DcjKphsDl9O/',
+  'carrousel-3-compositions': 'https://www.instagram.com/p/DcL_gU-gdRG/',
+  'carrousel-4-reformer-pilates': 'https://www.instagram.com/p/Dcq5CBeiNzG/',
+  'carrousel-5-pixel-stretch': 'https://www.instagram.com/p/DcY3gvWCe6e/',
+};
+
+const posts = carrousels
+  .filter((c) => postUrls[c.name])
+  .map((c) => ({
+    label: c.label,
+    cover: c.images[0],
+    count: c.images.length,
+    url: postUrls[c.name],
+    account: POSTS_ACCOUNT,
+  }));
 
 // Le menu ne liste que les sections qui ont réellement du contenu.
 const rendus = [
   pairs.length && { id: 'colorimetrie', labelKey: 'dia.rendu.colorimetrie', label: 'Colorimétrie' },
   carrousels.length && { id: 'carrousels', labelKey: 'dia.rendu.carrousels', label: 'Carrousels' },
+  // Singulier ou pluriel selon ce qui est déposé dans le dossier
+  affiches.length && (affiches.length > 1
+    ? { id: 'affiche', labelKey: 'dia.rendu.affiches', label: 'Affiches' }
+    : { id: 'affiche', labelKey: 'dia.rendu.affiche', label: 'Affiche' }),
+  posts.length && { id: 'posts', labelKey: 'dia.rendu.posts', label: 'Posts Instagram' },
 ].filter(Boolean) as { id: string; labelKey: string; label: string }[];
 ---
 
@@ -233,6 +277,65 @@ const rendus = [
                     ))}
                   </div>
                 </Fragment>
+              ) : r.id === 'affiche' ? (
+                <Fragment>
+                  <p class="panel-hint" data-i18n="dia.affiche.hint">
+                    Clique sur l’affiche pour la voir en plein écran.
+                  </p>
+
+                  <div class="affiches">
+                    {affiches.map((a, ai) => (
+                      <figure class="affiche">
+                        <img
+                          class="affiche-img"
+                          src={a.src}
+                          width={a.w || undefined}
+                          height={a.h || undefined}
+                          alt={affiches.length > 1 ? `Día — affiche ${ai + 1} sur ${affiches.length}` : 'Día — affiche'}
+                          loading={ai === 0 ? 'eager' : 'lazy'}
+                          decoding="async"
+                          draggable="false"
+                        />
+                      </figure>
+                    ))}
+                  </div>
+                </Fragment>
+              ) : r.id === 'posts' ? (
+                <div class="posts-grid">
+                  {posts.map((post) => (
+                    <a class="post-card" href={post.url} target="_blank" rel="noopener noreferrer">
+                      <div class="post-cover">
+                        <img
+                          src={post.cover}
+                          alt={`Día — publication Instagram « ${post.label} »`}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        {post.count > 1 && (
+                          <span class="post-stack" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                              <rect x="8" y="3" width="13" height="13" rx="2" />
+                              <path d="M16 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8" />
+                            </svg>
+                            {post.count}
+                          </span>
+                        )}
+                        <span class="post-overlay">
+                          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="2" y="2" width="20" height="20" rx="5" />
+                            <circle cx="12" cy="12" r="4" />
+                            <line x1="17.5" y1="6.5" x2="17.5" y2="6.5" />
+                          </svg>
+                          <span data-i18n="dia.posts.view">Voir la publication</span>
+                        </span>
+                      </div>
+                      <p class="post-label">
+                        {post.label && <span class="post-name">{post.label}</span>}
+                        {post.account && <span>{post.account}</span>}
+                      </p>
+                    </a>
+                  ))}
+                </div>
               ) : (
                 <div class="insta-grid">
                   {carrousels.map((c, ci) => (
@@ -516,6 +619,109 @@ const rendus = [
   }
 
   /* ---- Carrousels Instagram ---- */
+  /* ---- Affiche : exposée en grand, clic = plein écran ---- */
+  .affiches {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3rem);
+    align-items: center;
+  }
+  .affiche { margin: 0; width: 100%; max-width: 820px; }
+  .affiche-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    background: var(--color-bg-soft);
+    cursor: zoom-in;
+    transition: opacity 0.35s ease;
+  }
+  .affiche-img:hover { opacity: 0.88; }
+
+  /* ---- Posts Instagram : vignette cliquable vers la publication ---- */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    align-items: start;
+  }
+  .post-card {
+    display: block;
+    max-width: 360px;
+    text-decoration: none;
+    color: inherit;
+  }
+  /* Format des slides (4:5), coins très arrondis pour l'effet « écran » */
+  .post-cover {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--color-bg-soft);
+  }
+  .post-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.8s var(--ease-out), opacity 0.35s ease;
+  }
+  .post-card:hover .post-cover img,
+  .post-card:focus-visible .post-cover img { transform: scale(1.04); opacity: 0.78; }
+
+  /* Pastille « plusieurs visuels », comme sur un carrousel Instagram */
+  .post-stack {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(6, 6, 6, 0.62);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--color-text);
+    font-size: 0.66rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Toujours visible : le dégradé garantit la lisibilité par-dessus l'image */
+  .post-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: linear-gradient(to top, rgba(6, 6, 6, 0.85), rgba(6, 6, 6, 0) 38%);
+    border-radius: inherit;
+    transition: color 0.3s ease;
+  }
+  .post-overlay svg { flex-shrink: 0; width: 18px; height: 18px; }
+  .post-card:hover .post-overlay,
+  .post-card:focus-visible .post-overlay { color: #ffffff; }
+
+  /* Même légende que les carrousels : nom en avant, compte en retrait */
+  .post-label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0.8rem 0 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .post-name { color: var(--color-text); font-weight: 600; }
+
   .insta-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -687,6 +893,10 @@ const rendus = [
     .detail-credit { text-align: left; }
 
     .rendus { flex-direction: column; gap: 1.5rem; }
+    /* La colonne est en `align-items: flex-start` : sans largeur explicite,
+       le contenu se réduit à sa taille intrinsèque (une grille `auto-fit`
+       retombe alors sur sa piste mini) au lieu d'occuper l'écran. */
+    .rendus-content { width: 100%; }
     .rendus-menu { flex: none; position: static; top: auto; width: 100%; }
     .rendus-menu-label { display: none; }
     .rendus-toggle {
@@ -896,9 +1106,9 @@ const rendus = [
     };
 
     const open = (img: HTMLImageElement) => {
-      const track = img.closest('.cmp-track, .insta-track');
+      const track = img.closest('.cmp-track, .insta-track, .affiches');
       group = track
-        ? Array.from(track.querySelectorAll<HTMLImageElement>('.cmp-slide, .insta-slide'))
+        ? Array.from(track.querySelectorAll<HTMLImageElement>('.cmp-slide, .insta-slide, .affiche-img'))
         : [img];
       show(Math.max(0, group.indexOf(img)));
       lightbox.classList.add('is-open');
@@ -912,7 +1122,7 @@ const rendus = [
     };
 
     document.querySelector('.rendus-content')?.addEventListener('click', (e) => {
-      const img = (e.target as HTMLElement).closest('.insta-slide, .cmp-slide');
+      const img = (e.target as HTMLElement).closest('.insta-slide, .cmp-slide, .affiche-img');
       if (img instanceof HTMLImageElement) open(img);
     });
 

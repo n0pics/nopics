@@ -204,6 +204,14 @@ export const translations: Record<string, { fr: string; en: string }> = {
   },
   'dia.rendu.colorimetrie': { fr: 'Colorimétrie', en: 'Colour grading' },
   'dia.rendu.carrousels': { fr: 'Carrousels', en: 'Carousels' },
+  'dia.rendu.affiche': { fr: 'Affiche', en: 'Poster' },
+  'dia.rendu.affiches': { fr: 'Affiches', en: 'Posters' },
+  'dia.affiche.hint': {
+    fr: 'Clique sur l’affiche pour la voir en plein écran.',
+    en: 'Click the poster to view it full screen.',
+  },
+  'dia.rendu.posts': { fr: 'Posts Instagram', en: 'Instagram posts' },
+  'dia.posts.view': { fr: 'Voir la publication', en: 'View post' },
   'dia.colorimetrie.hint': {
     fr: 'Glisse ou clique pour passer de l’original à l’étalonnage.',
     en: 'Swipe or click to switch from the original to the grade.',
