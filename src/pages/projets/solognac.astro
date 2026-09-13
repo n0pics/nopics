@@ -634,7 +634,12 @@ const rendus = [
       const on = l.dataset.target === id;
       l.classList.toggle('is-active', on);
       l.setAttribute('aria-selected', String(on));
-      if (on && current) current.textContent = l.textContent;
+      if (on && current) {
+        current.textContent = l.textContent;
+        // Suit aussi la clé i18n, sinon un changement de langue réécrit
+        // le libellé du dropdown avec celui du premier rendu.
+        if (l.dataset.i18n) current.setAttribute('data-i18n', l.dataset.i18n);
+      }
     });
     panels.forEach((p) => {
       p.hidden = p.dataset.id !== id;
